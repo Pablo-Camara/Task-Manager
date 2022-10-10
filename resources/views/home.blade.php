@@ -7,7 +7,7 @@
         <title>Task Manager</title>
 
         <link
-            href="https://fonts.bunny.net/css2?family=Nunito:wght@400;600;700&display=swap"
+            href="https://fonts.bunny.net/css2?family=Nunito:wght@400;600;700"
             rel="preload"
             as="style"
             onload="this.onload=null;this.rel='stylesheet';"
@@ -17,10 +17,14 @@
             html,body {
                 margin: 0;
                 padding: 0;
+                height: 100%;
             }
 
             body {
                 font-family: 'Nunito', sans-serif;
+                background: url("{{ asset('img/bg1.webp') }}");
+                background-size: cover;
+                background-attachment: fixed;
             }
 
             #app {
@@ -28,7 +32,13 @@
                 max-width: 320px;
                 min-height: 300px;
                 margin: auto;
-                background: #00202b;
+                background: rgba(0, 32, 43, 0.9);
+            }
+
+            @media (min-width: 800px) {
+                #app {
+                    max-width: 500px;
+                }
             }
 
             .app-title {
@@ -44,10 +54,11 @@
             }
 
             .task-list .task-item {
-                padding: 10px 0 10px 0;
-                border-bottom: 1px dashed #1f3942;
+                padding: 14px 0 14px 0;
+                border-bottom: 1px dashed rgba(70, 107, 119, 0.44);
                 position: relative;
             }
+
 
             .task-list .task-item .time-interaction {
                 height: 20px;
@@ -64,6 +75,7 @@
                 border-width: 10px 0 10px 17.3px;
                 border-color: transparent transparent transparent #ffffff;
                 display: inline-block;
+                cursor: pointer;
             }
 
             .task-list .task-item .time-interaction .pause {
@@ -71,6 +83,7 @@
                 height: 100%;
                 text-align: center;
                 display: inline-block;
+                cursor: pointer;
             }
 
             .task-list .task-item .time-interaction .pause .pause-col {
@@ -81,15 +94,82 @@
             }
 
             .task-list .task-item .time-interaction .pause .pause-col:first-child {
-                margin-right: 2px;
+                margin-right: 5px;
             }
 
             .task-list .task-item .task-title {
                 color: #FFFFFF;
                 font-size: 14px;
                 padding-left: 40px;
-                padding-right: 20px;
+                padding-right: 30px;
             }
+
+            .task-list .task-item .task-options {
+                position: absolute;
+                right: 0;
+                height: 30px;
+                width: 30px;
+                cursor: pointer;
+            }
+
+
+            .task-list .task-item .task-options .option-dot {
+                height: 8px;
+                width: 8px;
+                background: #FFFFFF;
+                -webkit-border-radius: 8px;
+                -moz-border-radius: 8px;
+                border-radius: 8px;
+                margin: auto;
+                margin-bottom: 2px;
+            }
+
+            .task-list .task-item .time-spent {
+                color: rgba(255, 198, 2, 0.76);
+                text-align: left;
+                font-size: 12px;
+                margin-top: 10px;
+
+                padding-left: 40px;
+                padding-right: 30px;
+            }
+
+            .task-list .task-item .folder {
+                color: #7a9fa4;
+                text-align: left;
+                font-size: 12px;
+                margin-top: 10px;
+                padding-left: 40px;
+                padding-right: 30px;
+            }
+
+            .task-list .task-item .folder .breadcrumb {
+                margin-left: 6px;
+                margin-right: 6px;
+                color: #FFFFFF;
+                font-size: 12px;
+            }
+
+            .task-list .task-item .tags {
+                text-align: right;
+                margin-top: 10px;
+            }
+
+            .task-list .task-item .tags span {
+                background: #FFFFFF;
+                margin-right: 10px;
+                font-size: 10px;
+                padding: 4px 10px;
+
+                -webkit-border-radius: 8px;
+                -moz-border-radius: 8px;
+                border-radius: 8px;
+
+                cursor: pointer;
+            }
+
+
+
         </style>
 
         <script>
@@ -114,6 +194,13 @@
                                 newTask.taskItemEl.offsetHeight
                             );
                             newTask.timeInteractionEl.style.top = timeInteractionYPos + 'px';
+
+                            // center task options 3 dots btn vertically
+                            const taskOptionsBtnYPos = window.App.Helpers.getVerticalCenter(
+                                newTask.taskOptionsEl.offsetHeight,
+                                newTask.taskItemEl.offsetHeight
+                            );
+                            newTask.taskOptionsEl.style.top = taskOptionsBtnYPos + 'px';
                         },
                         Components: {
                             Task: {
@@ -122,12 +209,18 @@
                                     taskItem.classList.add('task-item');
 
                                     const timeInteraction = this.createTimeInteractionButtonEl(task);
-                                    const taskTitle = this.createTaskTitleEl(task);
                                     const taskOptions = this.createTaskOptionsEl(task);
+                                    const taskTitle = this.createTaskTitleEl(task);
+                                    const timeSpent = this.createTimeSpentEl(task);
+                                    const parentFolders = this.createParentFoldersEl(task);
+                                    const tags = this.createTagsEl(task);
 
                                     taskItem.appendChild(timeInteraction);
-                                    taskItem.appendChild(taskTitle);
                                     taskItem.appendChild(taskOptions);
+                                    taskItem.appendChild(taskTitle);
+                                    taskItem.appendChild(timeSpent);
+                                    taskItem.appendChild(parentFolders);
+                                    taskItem.appendChild(tags);
 
                                     return {
                                         taskItemEl: taskItem,
@@ -170,12 +263,6 @@
 
                                     return pauseButton;
                                 },
-                                createTaskTitleEl: function (task) {
-                                    const taskTitle = document.createElement('div');
-                                    taskTitle.classList.add('task-title');
-                                    taskTitle.innerText = task.title;
-                                    return taskTitle;
-                                },
                                 createTaskOptionsEl: function (task) {
                                     const taskOptions = document.createElement('div');
                                     taskOptions.classList.add('task-options');
@@ -194,6 +281,56 @@
                                     taskOptions.appendChild(optionDot3);
 
                                     return taskOptions;
+                                },
+                                createTaskTitleEl: function (task) {
+                                    const taskTitle = document.createElement('div');
+                                    taskTitle.classList.add('task-title');
+                                    taskTitle.innerText = task.title;
+                                    return taskTitle;
+                                },
+                                createTimeSpentEl: function (task) {
+                                    const timeSpent = document.createElement('div');
+                                    timeSpent.classList.add('time-spent');
+                                    timeSpent.innerHTML = 'time spent on this task today: <b>' + task.time_spent_today + '</b>';
+                                    return timeSpent;
+                                },
+                                createParentFoldersEl: function (task) {
+                                    const parentFolders = document.createElement('div');
+                                    parentFolders.classList.add('folder');
+
+                                    for(var i = 0; i < task.parent_folders.length; i++) {
+                                        const parentFolderName = task.parent_folders[i];
+
+                                        const parentFolderEl = document.createElement('span');
+                                        parentFolderEl.innerText = parentFolderName;
+
+                                        parentFolders.appendChild(parentFolderEl);
+
+                                        if (
+                                            (i+1) < task.parent_folders.length
+                                        ) {
+                                            const breadcrumb = document.createElement('span');
+                                            breadcrumb.classList.add('breadcrumb');
+                                            breadcrumb.innerText = '/';
+                                            parentFolders.appendChild(breadcrumb);
+                                        }
+                                    }
+
+                                    return parentFolders;
+                                },
+                                createTagsEl: function (task) {
+                                    const tags = document.createElement('div');
+                                    tags.classList.add('tags');
+
+                                    for(var i = 0; i < task.tags.length; i++) {
+                                        const tagName = task.tags[i];
+                                        const tagEl = document.createElement('span');
+                                        tagEl.innerText = tagName;
+
+                                        tags.appendChild(tagEl);
+                                    }
+
+                                    return tags;
                                 }
                             }
                         }
@@ -201,12 +338,47 @@
                 },
                 initialize: function () {
                     this.Components.TaskList.addTask({
-                        title: 'Some hella big task title for some hella big project with some hella big titled tasks all day long'
+                        title: 'Create MVP',
+                        time_spent_today: '00:50:00',
+                        parent_folders: ['camara.pt', 'task-manager.camara.pt'],
+                        tags: ['PHP 8', 'Laravel 9', 'MySql']
                     });
 
                     this.Components.TaskList.addTask({
-                        title: 'Some task title'
+                        title: 'Allow admin to import users through CSV file (provide csv template)',
+                        time_spent_today: '00:00:00',
+                        parent_folders: ['camara.pt', 'Clients', 'InIdeia', 'Doc Manager'],
+                        tags: ['PHP 8', 'Laravel 9', 'MySql']
                     });
+
+                    this.Components.TaskList.addTask({
+                        title: 'Translate everything to Portuguese',
+                        time_spent_today: '00:00:00',
+                        parent_folders: ['camara.pt', 'Clients', 'InIdeia', 'Doc Manager'],
+                        tags: ['PHP 8', 'Laravel 9', 'MySql', 'Language localization']
+                    });
+
+                    this.Components.TaskList.addTask({
+                        title: 'Update code with more recent code from the url shortner project',
+                        time_spent_today: '00:00:00',
+                        parent_folders: ['camara.pt', 'auth.camara.pt'],
+                        tags: ['PHP 8', 'Laravel 9', 'MySql']
+                    });
+
+                    this.Components.TaskList.addTask({
+                        title: 'Update _authManager JS',
+                        time_spent_today: '00:00:00',
+                        parent_folders: ['camara.pt'],
+                        tags: ['JavaScript']
+                    });
+
+                    this.Components.TaskList.addTask({
+                        title: 'Add shortlink_url_id to user_actions table',
+                        time_spent_today: '00:00:00',
+                        parent_folders: ['URL Shortner', 'Tracking'],
+                        tags: ['PHP 8', 'Laravel 9', 'MySql', 'Database Structure']
+                    });
+
                 }
             };
         </script>
