@@ -94,6 +94,11 @@
 
         <script>
             window.App = {
+                Helpers: {
+                    getVerticalCenter: function (elementHeight, containerHeight) {
+                        return (containerHeight/2)-(elementHeight/2);
+                    }
+                },
                 Components: {
                     TaskList: {
                         el: function () {
@@ -101,10 +106,14 @@
                         },
                         addTask: function (task) {
                             const newTask = this.Components.Task.createEl(task);
-                            this.el().appendChild(newTask);
+                            this.el().appendChild(newTask.taskItemEl);
 
                             // center time interaction vertically
-                            console.log(newTask.offsetHeight);
+                            const timeInteractionYPos = window.App.Helpers.getVerticalCenter(
+                                newTask.timeInteractionEl.offsetHeight,
+                                newTask.taskItemEl.offsetHeight
+                            );
+                            newTask.timeInteractionEl.style.top = timeInteractionYPos + 'px';
                         },
                         Components: {
                             Task: {
@@ -120,7 +129,12 @@
                                     taskItem.appendChild(taskTitle);
                                     taskItem.appendChild(taskOptions);
 
-                                    return taskItem;
+                                    return {
+                                        taskItemEl: taskItem,
+                                        timeInteractionEl: timeInteraction,
+                                        taskTitleEl: taskTitle,
+                                        taskOptionsEl: taskOptions
+                                    };
                                 },
                                 createTimeInteractionButtonEl: function (task) {
                                     const timeInteraction = document.createElement('div');
