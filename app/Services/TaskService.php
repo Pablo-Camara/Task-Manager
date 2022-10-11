@@ -17,6 +17,13 @@ class TaskService
         $this->folderService = $folderService;
     }
 
+    /**
+     * Gets all the tasks inside a folder
+     * or all the top level tasks not inside a folder
+     *
+     * @param $folderId
+     * @return array
+     */
     public function search($folderId = null) {
         $tasks = Task::select(
             [
@@ -43,6 +50,7 @@ class TaskService
 
         foreach ($tasks as $key => $task) {
             $tasks[$key]['parent_folders'] = $this->folderService->getParentFolders($task['folder_id']);
+            $tasks[$key]['time_spent_today'] = '00:00:00';
         }
 
         return $tasks;
