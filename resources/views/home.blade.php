@@ -166,6 +166,9 @@
                 border-radius: 8px;
 
                 cursor: pointer;
+
+                display: inline-block;
+                margin-top: 8px;
             }
 
 
