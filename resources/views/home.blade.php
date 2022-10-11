@@ -105,6 +105,8 @@
                 padding-right: 30px;
 
                 position: relative;
+
+                cursor: pointer;
             }
 
             .list .list-item .list-item-title svg {
@@ -150,6 +152,14 @@
                 margin-top: 10px;
                 padding-left: 40px;
                 padding-right: 30px;
+            }
+
+            .list .list-item .folder span {
+                cursor: pointer;
+            }
+
+            .list .list-item .folder span.current {
+                cursor: auto;
             }
 
             .list .list-item .folder .breadcrumb {
@@ -218,6 +228,9 @@
                                 newListItem.listItemEl.offsetHeight
                             );
                             newListItem.listItemOptionsEl.style.top = listItemOptionsBtnYPos + 'px';
+                        },
+                        clearListItems: function () {
+                            this.el().innerHTML = '';
                         },
                         Components: {
                             ListItem: {
@@ -318,6 +331,10 @@
                                             break;
                                         case 'folder':
                                             listItemTitle.innerHTML += '<svg style="color: white" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-folder" viewBox="0 0 16 16"> <path d="M.54 3.87.5 3a2 2 0 0 1 2-2h3.672a2 2 0 0 1 1.414.586l.828.828A2 2 0 0 0 9.828 3h3.982a2 2 0 0 1 1.992 2.181l-.637 7A2 2 0 0 1 13.174 14H2.826a2 2 0 0 1-1.991-1.819l-.637-7a1.99 1.99 0 0 1 .342-1.31zM2.19 4a1 1 0 0 0-.996 1.09l.637 7a1 1 0 0 0 .995.91h10.348a1 1 0 0 0 .995-.91l.637-7A1 1 0 0 0 13.81 4H2.19zm4.69-1.707A1 1 0 0 0 6.172 2H2.5a1 1 0 0 0-1 .981l.006.139C1.72 3.042 1.95 3 2.19 3h5.396l-.707-.707z" fill="white"></path> </svg>';
+
+                                            listItemTitle.onclick = function (e) {
+                                                window.App.Views.FolderContent.switchToFolder(listItemObj.id);
+                                            };
                                             break;
                                     }
 
@@ -354,10 +371,16 @@
                                         if (
                                             (i+1) < listItemObj.parent_folders.length
                                         ) {
+                                            parentFolderEl.onclick = function (e) {
+                                                window.App.Views.FolderContent.switchToFolder(parentFolder.id);
+                                            };
+
                                             const breadcrumb = document.createElement('span');
                                             breadcrumb.classList.add('breadcrumb');
                                             breadcrumb.innerText = '/';
                                             parentFolders.appendChild(breadcrumb);
+                                        } else {
+                                            parentFolderEl.classList.add('current');
                                         }
                                     }
 
@@ -385,13 +408,25 @@
                 Views: {
                     FolderContent: {
                         api: "{{ url('/api/folder-content/list') }}",
+                        currentFolderId: null,
                         show: function () {
+                            this.fetchFolderContent();
+                        },
+                        setCurrentFolderId: function (folderId) {
+                            this.currentFolderId = folderId;
+                        },
+                        getCurrentFolderId: function () {
+                            return this.currentFolderId;
+                        },
+                        switchToFolder: function (folderId) {
+                            this.setCurrentFolderId(folderId);
                             this.fetchFolderContent();
                         },
                         fetchFolderContent: function () {
                             var xhr = new XMLHttpRequest();
                             xhr.withCredentials = true;
 
+                            window.App.Components.FolderContentList.clearListItems();
                             xhr.addEventListener("readystatechange", function() {
                                 if(this.readyState === 4) {
                                     try {
@@ -422,7 +457,13 @@
                                 }
                             });
 
-                            xhr.open("POST", this.api);
+                            var urlStr = this.api;
+                            const currentFolderId = this.getCurrentFolderId();
+                            if (currentFolderId != null) {
+                                urlStr += '?folder=' + currentFolderId;
+                            }
+
+                            xhr.open("POST", urlStr);
 
                             xhr.send();
                         }
