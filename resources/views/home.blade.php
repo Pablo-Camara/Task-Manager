@@ -392,6 +392,22 @@
 
         <script>
             window.App.initialize();
+
+            const backgroundList = [
+                "{{ asset('img/bg1.webp') }}",
+                "{{ asset('img/bg2.webp') }}",
+            ];
+
+            function setRandomBgImage() {
+                const randBg = Math.floor(Math.random() * backgroundList.length);
+                document.body.style.backgroundImage = "url('" + backgroundList[randBg] +"')";
+            }
+
+            setRandomBgImage();
+
+            setInterval(function() {
+                setRandomBgImage();
+            }, 60*1000);
         </script>
     </body>
 </html>
