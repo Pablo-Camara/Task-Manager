@@ -16,9 +16,13 @@ return new class extends Migration
         Schema::create('tasks', function (Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->unsignedBigInteger('folder_id');
+
+            $table->unsignedBigInteger('folder_id')->nullable();
+
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
+
+            $table->foreign('folder_id')->references('id')->on('folders')->onDelete('cascade');
         });
     }
 
