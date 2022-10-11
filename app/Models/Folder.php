@@ -23,4 +23,7 @@ class Folder extends Model
         return $this->hasMany(Task::class);
     }
 
+    public function hasParentFolder() {
+        return !empty($this->parent_folder_id);
+    }
 }
