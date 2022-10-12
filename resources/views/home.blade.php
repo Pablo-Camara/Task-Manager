@@ -449,12 +449,12 @@
                             const newListItem = this.Components.ListItem.createEl(listItemObj);
                             this.el().appendChild(newListItem.listItemEl);
 
-                            this.Components.ListItem.centerTimeInteractionButtonEl(
+                            this.Components.ListItem.Components.TimeInteraction.centerTimeInteractionEl(
                                 newListItem.timeInteractionEl,
                                 newListItem.listItemEl
                             );
 
-                            this.Components.ListItem.centerListItemOptionsMenuEls(
+                            this.Components.ListItem.Components.ItemOptions.centerMainComponents(
                                 newListItem.listItemOptionsEl,
                                 newListItem.listItemOptionsMenuEl,
                                 newListItem.listItemEl
@@ -473,13 +473,13 @@
                                         'list-item-' + listItemObj.id + '-' + listItemObj.list_item_type
                                     );
 
-                                    const timeInteraction = this.createTimeInteractionButtonEl(listItemObj);
-                                    const listItemOptions = this.createListItemOptionsEl(listItemObj);
-                                    const listItemOptionsMenu = this.createListItemOptionsMenuEl(listItemObj);
-                                    const listItemTitle = this.createListItemTitleEl(listItemObj);
-                                    const timeSpent = this.createTimeSpentEl(listItemObj);
-                                    //const parentFolders = this.createParentFoldersEl(listItemObj);
-                                    const tags = this.createTagsEl(listItemObj);
+                                    const timeInteraction = this.Components.TimeInteraction.createEl(listItemObj);
+                                    const listItemOptions = this.Components.ItemOptions.Components.ToggleButton.createEl(listItemObj);
+                                    const listItemOptionsMenu = this.Components.ItemOptions.Components.Menu.createEl(listItemObj);
+                                    const listItemTitle = this.Components.ItemTitle.createEl(listItemObj);
+                                    const timeSpent = this.Components.TimeSpent.createEl(listItemObj);
+                                    //const parentFolders = this.Components.ParentFolders.createEl(listItemObj);
+                                    const tags = this.Components.Tags.createEl(listItemObj);
 
                                     listItem.appendChild(timeInteraction);
                                     listItem.appendChild(listItemOptions);
@@ -498,335 +498,354 @@
                                         listItemOptionsMenuEl: listItemOptionsMenu,
                                     };
                                 },
-                                createTimeInteractionButtonEl: function (listItemObj) {
-                                    const timeInteraction = document.createElement('div');
-                                    timeInteraction.classList.add('time-interaction');
-                                    timeInteraction.setAttribute(
-                                        'id',
-                                        'time-interaction-' + listItemObj.id + '-' + listItemObj.list_item_type
-                                    );
-
-                                    if (listItemObj.list_item_type === 'task') {
-                                        const playButton = this.createPlayButtonEl(listItemObj);
-                                        const pauseButton = this.createPauseButtonEl(listItemObj);
-
-                                        timeInteraction.appendChild(playButton);
-                                        timeInteraction.appendChild(pauseButton);
-                                    } else {
-                                        timeInteraction.style.display = 'none';
-                                    }
-
-                                    return timeInteraction;
-                                },
-                                centerTimeInteractionButtonEl: function (timeInteractionButtonEl, listItemEl) {
-                                    // center time interaction vertically
-                                    if ( timeInteractionButtonEl.style.display !== 'none' ) {
-                                        const timeInteractionYPos = window.App.Helpers.getVerticalCenter(
-                                            timeInteractionButtonEl.offsetHeight,
-                                            listItemEl.offsetHeight
-                                        );
-                                        timeInteractionButtonEl.style.top = timeInteractionYPos + 'px';
-                                    }
-                                },
-                                createPlayButtonEl: function (listItemObj) {
-                                    const playButton = document.createElement('div');
-                                    playButton.classList.add('play');
-                                    //playButton.style.display = 'none';
-                                    return playButton;
-                                },
-                                createPauseButtonEl: function (listItemObj) {
-                                    const pauseButton = document.createElement('div');
-                                    pauseButton.classList.add('pause');
-                                    pauseButton.style.display = 'none';
-
-                                    const pauseCol1 = document.createElement('div');
-                                    pauseCol1.classList.add('pause-col');
-
-                                    const pauseCol2 = document.createElement('div');
-                                    pauseCol2.classList.add('pause-col');
-
-                                    pauseButton.appendChild(pauseCol1);
-                                    pauseButton.appendChild(pauseCol2);
-
-                                    return pauseButton;
-                                },
-                                createListItemOptionsEl: function (listItemObj) {
-                                    const listItemOptions = document.createElement('div');
-                                    listItemOptions.classList.add('list-item-options');
-                                    listItemOptions.setAttribute(
-                                        'id',
-                                        'list-item-options-' + listItemObj.id + '-' + listItemObj.list_item_type
-                                    );
-
-                                    const optionDot1 = document.createElement('div');
-                                    optionDot1.classList.add('option-dot');
-
-                                    const optionDot2 = document.createElement('div');
-                                    optionDot2.classList.add('option-dot');
-
-                                    const optionDot3 = document.createElement('div');
-                                    optionDot3.classList.add('option-dot');
-
-                                    listItemOptions.appendChild(optionDot1);
-                                    listItemOptions.appendChild(optionDot2);
-                                    listItemOptions.appendChild(optionDot3);
-
-                                    listItemOptions.onclick = function (e) {
-                                        const menuEl = document.getElementById(
-                                            'list-item-options-menu-' + listItemObj.id + '-' + listItemObj.list_item_type
-                                        );
-
-                                        if (menuEl.style.display === 'block') {
-                                            menuEl.style.display = 'none';
-                                        } else {
-                                            menuEl.style.display = 'block';
-                                            window.App.Helpers.hideOnClickOutsideElement(
-                                                menuEl,
-                                                [
-                                                    listItemOptions,
-                                                    optionDot1,
-                                                    optionDot2,
-                                                    optionDot3
-                                                ]
-                                            );
-                                        }
-                                    };
-
-                                    return listItemOptions;
-                                },
-                                createListItemOptionsMenuEl: function (listItemObj) {
-                                    const listItemOptionsMenuEl = document.createElement('div');
-                                    listItemOptionsMenuEl.classList.add('list-item-options-menu');
-                                    listItemOptionsMenuEl.style.display = 'none';
-
-                                    listItemOptionsMenuEl.setAttribute(
-                                        'id',
-                                        'list-item-options-menu-' + listItemObj.id + '-' + listItemObj.list_item_type
-                                    );
-
-                                    switch (listItemObj.list_item_type) {
-                                        case 'task':
-                                            this.addTaskMenuItemsToMenuEl(listItemOptionsMenuEl, listItemObj);
-                                            break;
-                                        case 'folder':
-                                            this.addFolderMenuItemsToMenuEl(listItemOptionsMenuEl, listItemObj);
-                                            break;
-                                    }
-
-                                    return listItemOptionsMenuEl;
-                                },
-                                centerListItemOptionsMenuEls: function (listItemOptionsEl, listItemOptionsMenuEl, listItemEl) {
-                                    // center list item options 3 dots btn vertically
-                                    const listItemOptionsBtnYPos = window.App.Helpers.getVerticalCenter(
-                                        listItemOptionsEl.offsetHeight,
-                                        listItemEl.offsetHeight
-                                    );
-                                    listItemOptionsEl.style.top = listItemOptionsBtnYPos + 'px';
-
-                                    // set list item options menu position
-                                    listItemOptionsMenuEl.style.top = listItemOptionsEl.style.top;
-                                    listItemOptionsMenuEl.style.right = listItemOptionsEl.offsetWidth + 'px';
-                                },
-                                addTaskMenuItemsToMenuEl: function (listItemOptionsMenuEl, listItemObj) {
-                                    const editMenuItemEl = this.createEditTaskMenuItemEl(listItemOptionsMenuEl, listItemObj);
-
-                                    const markCompletedMenuItemEl = this.createMenuItemEl(
-                                        window.Translation.mark_as_completed,
-                                        'green'
-                                    );
-
-                                    const markOnHoldMenuItemEl = this.createMenuItemEl(
-                                        window.Translation.mark_as_on_hold,
-                                        'old-moss-green'
-                                    );
-
-                                    const markDeprecatedMenuItemEl = this.createMenuItemEl(
-                                        window.Translation.mark_as_deprecated,
-                                        'gray'
-                                    );
-
-                                    const deleteMenuItemEl =  this.createMenuItemEl(
-                                        window.Translation.delete,
-                                        'red'
-                                    );
-
-                                    listItemOptionsMenuEl.innerHTML = '';
-                                    listItemOptionsMenuEl.appendChild(editMenuItemEl);
-                                    listItemOptionsMenuEl.appendChild(markCompletedMenuItemEl);
-                                    listItemOptionsMenuEl.appendChild(markOnHoldMenuItemEl);
-                                    listItemOptionsMenuEl.appendChild(markDeprecatedMenuItemEl);
-                                    listItemOptionsMenuEl.appendChild(deleteMenuItemEl);
-                                },
-                                addFolderMenuItemsToMenuEl: function (listItemOptionsMenuEl, listItemObj) {
-                                    const editMenuItemEl = this.createMenuItemEl(window.Translation.edit);
-
-                                    const deleteMenuItemEl =  this.createMenuItemEl(
-                                        window.Translation.delete,
-                                        'red'
-                                    );
-
-                                    listItemOptionsMenuEl.innerHTML = '';
-                                    listItemOptionsMenuEl.appendChild(editMenuItemEl);
-                                    listItemOptionsMenuEl.appendChild(deleteMenuItemEl);
-                                },
-                                createEditTaskMenuItemEl: function (listItemOptionsMenuEl, listItemObj) {
-                                    const $this = this;
-                                    const editMenuItemEl = this.createMenuItemEl(window.Translation.edit);
-                                    editMenuItemEl.onclick = function (e) {
-                                        const listItemTitleEl = document.getElementById(
-                                            'list-item-title-' + listItemObj.id + '-' + listItemObj.list_item_type
-                                        );
-
-                                        const listItemTitleInputEl = document.createElement('textarea');
-                                        listItemTitleInputEl.setAttribute(
-                                            'id',
-                                            'list-item-title-input-' + listItemObj.id + '-' + listItemObj.list_item_type
-                                        );
-                                        listItemTitleInputEl.value = listItemObj.title;
-
-                                        listItemTitleEl.innerHTML = '';
-                                        listItemTitleEl.appendChild(listItemTitleInputEl);
-
-                                        listItemTitleInputEl.style.height = listItemTitleInputEl.scrollHeight + 'px';
-                                        listItemTitleInputEl.focus();
-
-                                        listItemTitleInputEl.onkeyup = function () {
-                                            listItemTitleInputEl.style.height = 0;
-                                            listItemTitleInputEl.style.height = listItemTitleInputEl.scrollHeight + 'px';
-
-                                            const listItemEl = document.getElementById(
-                                                'list-item-' + listItemObj.id + '-' + listItemObj.list_item_type
-                                            );
-                                            const timeInteractionEl = document.getElementById(
+                                Components: {
+                                    TimeInteraction: {
+                                        createEl: function (listItemObj) {
+                                            const timeInteraction = document.createElement('div');
+                                            timeInteraction.classList.add('time-interaction');
+                                            timeInteraction.setAttribute(
+                                                'id',
                                                 'time-interaction-' + listItemObj.id + '-' + listItemObj.list_item_type
                                             );
 
-                                            $this.centerTimeInteractionButtonEl(
-                                                timeInteractionEl,
-                                                listItemEl
+                                            if (listItemObj.list_item_type === 'task') {
+                                                const playButton = this.createPlayButtonEl(listItemObj);
+                                                const pauseButton = this.createPauseButtonEl(listItemObj);
+
+                                                timeInteraction.appendChild(playButton);
+                                                timeInteraction.appendChild(pauseButton);
+                                            } else {
+                                                timeInteraction.style.display = 'none';
+                                            }
+
+                                            return timeInteraction;
+                                        },
+                                        createPlayButtonEl: function (listItemObj) {
+                                            const playButton = document.createElement('div');
+                                            playButton.classList.add('play');
+                                            //playButton.style.display = 'none';
+                                            return playButton;
+                                        },
+                                        createPauseButtonEl: function (listItemObj) {
+                                            const pauseButton = document.createElement('div');
+                                            pauseButton.classList.add('pause');
+                                            pauseButton.style.display = 'none';
+
+                                            const pauseCol1 = document.createElement('div');
+                                            pauseCol1.classList.add('pause-col');
+
+                                            const pauseCol2 = document.createElement('div');
+                                            pauseCol2.classList.add('pause-col');
+
+                                            pauseButton.appendChild(pauseCol1);
+                                            pauseButton.appendChild(pauseCol2);
+
+                                            return pauseButton;
+                                        },
+                                        centerTimeInteractionEl: function (timeInteractionButtonEl, listItemEl) {
+                                            // center time interaction vertically
+                                            if ( timeInteractionButtonEl.style.display !== 'none' ) {
+                                                const timeInteractionYPos = window.App.Helpers.getVerticalCenter(
+                                                    timeInteractionButtonEl.offsetHeight,
+                                                    listItemEl.offsetHeight
+                                                );
+                                                timeInteractionButtonEl.style.top = timeInteractionYPos + 'px';
+                                            }
+                                        },
+                                    },
+                                    ItemOptions: {
+                                        Components: {
+                                            ToggleButton: {
+                                                createEl: function (listItemObj) {
+                                                    const listItemOptions = document.createElement('div');
+                                                    listItemOptions.classList.add('list-item-options');
+                                                    listItemOptions.setAttribute(
+                                                        'id',
+                                                        'list-item-options-' + listItemObj.id + '-' + listItemObj.list_item_type
+                                                    );
+
+                                                    const optionDot1 = document.createElement('div');
+                                                    optionDot1.classList.add('option-dot');
+
+                                                    const optionDot2 = document.createElement('div');
+                                                    optionDot2.classList.add('option-dot');
+
+                                                    const optionDot3 = document.createElement('div');
+                                                    optionDot3.classList.add('option-dot');
+
+                                                    listItemOptions.appendChild(optionDot1);
+                                                    listItemOptions.appendChild(optionDot2);
+                                                    listItemOptions.appendChild(optionDot3);
+
+                                                    listItemOptions.onclick = function (e) {
+                                                        const menuEl = document.getElementById(
+                                                            'list-item-options-menu-' + listItemObj.id + '-' + listItemObj.list_item_type
+                                                        );
+
+                                                        if (menuEl.style.display === 'block') {
+                                                            menuEl.style.display = 'none';
+                                                        } else {
+                                                            menuEl.style.display = 'block';
+                                                            window.App.Helpers.hideOnClickOutsideElement(
+                                                                menuEl,
+                                                                [
+                                                                    listItemOptions,
+                                                                    optionDot1,
+                                                                    optionDot2,
+                                                                    optionDot3
+                                                                ]
+                                                            );
+                                                        }
+                                                    };
+
+                                                    return listItemOptions;
+                                                },
+                                            },
+                                            Menu: {
+                                                createEl: function (listItemObj) {
+                                                    const listItemOptionsMenuEl = document.createElement('div');
+                                                    listItemOptionsMenuEl.classList.add('list-item-options-menu');
+                                                    listItemOptionsMenuEl.style.display = 'none';
+
+                                                    listItemOptionsMenuEl.setAttribute(
+                                                        'id',
+                                                        'list-item-options-menu-' + listItemObj.id + '-' + listItemObj.list_item_type
+                                                    );
+
+                                                    switch (listItemObj.list_item_type) {
+                                                        case 'task':
+                                                            this.addTaskMenuItemsToMenuEl(listItemOptionsMenuEl, listItemObj);
+                                                            break;
+                                                        case 'folder':
+                                                            this.addFolderMenuItemsToMenuEl(listItemOptionsMenuEl, listItemObj);
+                                                            break;
+                                                    }
+
+                                                    return listItemOptionsMenuEl;
+                                                },
+                                                addTaskMenuItemsToMenuEl: function (listItemOptionsMenuEl, listItemObj) {
+                                                    const editMenuItemEl = this.createEditTaskMenuItemEl(listItemOptionsMenuEl, listItemObj);
+
+                                                    const markCompletedMenuItemEl = this.createMenuItemEl(
+                                                        window.Translation.mark_as_completed,
+                                                        'green'
+                                                    );
+
+                                                    const markOnHoldMenuItemEl = this.createMenuItemEl(
+                                                        window.Translation.mark_as_on_hold,
+                                                        'old-moss-green'
+                                                    );
+
+                                                    const markDeprecatedMenuItemEl = this.createMenuItemEl(
+                                                        window.Translation.mark_as_deprecated,
+                                                        'gray'
+                                                    );
+
+                                                    const deleteMenuItemEl =  this.createMenuItemEl(
+                                                        window.Translation.delete,
+                                                        'red'
+                                                    );
+
+                                                    listItemOptionsMenuEl.innerHTML = '';
+                                                    listItemOptionsMenuEl.appendChild(editMenuItemEl);
+                                                    listItemOptionsMenuEl.appendChild(markCompletedMenuItemEl);
+                                                    listItemOptionsMenuEl.appendChild(markOnHoldMenuItemEl);
+                                                    listItemOptionsMenuEl.appendChild(markDeprecatedMenuItemEl);
+                                                    listItemOptionsMenuEl.appendChild(deleteMenuItemEl);
+                                                },
+                                                addFolderMenuItemsToMenuEl: function (listItemOptionsMenuEl, listItemObj) {
+                                                    const editMenuItemEl = this.createMenuItemEl(window.Translation.edit);
+
+                                                    const deleteMenuItemEl =  this.createMenuItemEl(
+                                                        window.Translation.delete,
+                                                        'red'
+                                                    );
+
+                                                    listItemOptionsMenuEl.innerHTML = '';
+                                                    listItemOptionsMenuEl.appendChild(editMenuItemEl);
+                                                    listItemOptionsMenuEl.appendChild(deleteMenuItemEl);
+                                                },
+                                                createMenuItemEl: function (innerText, colorClass) {
+                                                    const menuItemEl = document.createElement('div');
+                                                    menuItemEl.classList.add('menu-item');
+
+                                                    if (typeof colorClass !== 'undefined') {
+                                                        menuItemEl.classList.add(colorClass);
+                                                    }
+
+                                                    menuItemEl.innerText = innerText;
+                                                    return menuItemEl;
+                                                },
+                                                createEditTaskMenuItemEl: function (listItemOptionsMenuEl, listItemObj) {
+                                                    const editMenuItemEl = this.createMenuItemEl(window.Translation.edit);
+                                                    editMenuItemEl.onclick = function (e) {
+                                                        const listItemTitleEl = document.getElementById(
+                                                            'list-item-title-' + listItemObj.id + '-' + listItemObj.list_item_type
+                                                        );
+
+                                                        const listItemTitleInputEl = document.createElement('textarea');
+                                                        listItemTitleInputEl.setAttribute(
+                                                            'id',
+                                                            'list-item-title-input-' + listItemObj.id + '-' + listItemObj.list_item_type
+                                                        );
+                                                        listItemTitleInputEl.value = listItemObj.title;
+
+                                                        listItemTitleEl.innerHTML = '';
+                                                        listItemTitleEl.appendChild(listItemTitleInputEl);
+
+                                                        listItemTitleInputEl.style.height = listItemTitleInputEl.scrollHeight + 'px';
+                                                        listItemTitleInputEl.focus();
+
+                                                        listItemTitleInputEl.onkeyup = function () {
+                                                            listItemTitleInputEl.style.height = 0;
+                                                            listItemTitleInputEl.style.height = listItemTitleInputEl.scrollHeight + 'px';
+
+                                                            const listItemEl = document.getElementById(
+                                                                'list-item-' + listItemObj.id + '-' + listItemObj.list_item_type
+                                                            );
+                                                            const timeInteractionEl = document.getElementById(
+                                                                'time-interaction-' + listItemObj.id + '-' + listItemObj.list_item_type
+                                                            );
+
+                                                            window.App.Components.FolderContentList.Components.ListItem.Components.TimeInteraction.centerTimeInteractionEl(
+                                                                timeInteractionEl,
+                                                                listItemEl
+                                                            );
+
+                                                            const listItemOptionsEl = document.getElementById(
+                                                                'list-item-options-' + listItemObj.id + '-' + listItemObj.list_item_type
+                                                            );
+                                                            const listItemOptionsMenuEl = document.getElementById(
+                                                                'list-item-options-menu-' + listItemObj.id + '-' + listItemObj.list_item_type
+                                                            );
+
+                                                            window.App.Components.FolderContentList.Components.ListItem.Components.ItemOptions.centerMainComponents(
+                                                                listItemOptionsEl,
+                                                                listItemOptionsMenuEl,
+                                                                listItemEl
+                                                            );
+                                                        };
+
+                                                        listItemOptionsMenuEl.style.display = 'none';
+                                                    };
+                                                    return editMenuItemEl;
+                                                },
+                                            }
+                                        },
+                                        centerMainComponents: function (listItemOptionsEl, listItemOptionsMenuEl, listItemEl) {
+                                            // center list item options 3 dots btn vertically
+                                            const listItemOptionsBtnYPos = window.App.Helpers.getVerticalCenter(
+                                                listItemOptionsEl.offsetHeight,
+                                                listItemEl.offsetHeight
+                                            );
+                                            listItemOptionsEl.style.top = listItemOptionsBtnYPos + 'px';
+
+                                            // set list item options menu position
+                                            listItemOptionsMenuEl.style.top = listItemOptionsEl.style.top;
+                                            listItemOptionsMenuEl.style.right = listItemOptionsEl.offsetWidth + 'px';
+                                        },
+                                    },
+                                    ItemTitle: {
+                                        createEl: function (listItemObj) {
+                                            const listItemTitle = document.createElement('div');
+                                            listItemTitle.classList.add('list-item-title');
+                                            listItemTitle.innerHTML = '';
+
+                                            const listItemTitleText = listItemObj.list_item_type === 'task' ? listItemObj.title : listItemObj.name;
+                                            const listItemTitleTextEl = document.createElement('span');
+                                            listItemTitleTextEl.innerText = listItemTitleText;
+                                            listItemTitleTextEl.setAttribute(
+                                                'id',
+                                                'list-item-title-' + listItemObj.id + '-' + listItemObj.list_item_type
                                             );
 
-                                            const listItemOptionsEl = document.getElementById(
-                                                'list-item-options-' + listItemObj.id + '-' + listItemObj.list_item_type
-                                            );
-                                            const listItemOptionsMenuEl = document.getElementById(
-                                                'list-item-options-menu-' + listItemObj.id + '-' + listItemObj.list_item_type
-                                            );
+                                            switch (listItemObj.list_item_type) {
+                                                case 'task':
+                                                    listItemTitle.innerHTML += '<svg style="color: white" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-activity" viewBox="0 0 16 16"> <path fill-rule="evenodd" d="M6 2a.5.5 0 0 1 .47.33L10 12.036l1.53-4.208A.5.5 0 0 1 12 7.5h3.5a.5.5 0 0 1 0 1h-3.15l-1.88 5.17a.5.5 0 0 1-.94 0L6 3.964 4.47 8.171A.5.5 0 0 1 4 8.5H.5a.5.5 0 0 1 0-1h3.15l1.88-5.17A.5.5 0 0 1 6 2Z" fill="white"></path> </svg>';
+                                                    break;
+                                                case 'folder':
+                                                    listItemTitle.innerHTML += '<svg style="color: white" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-folder" viewBox="0 0 16 16"> <path d="M.54 3.87.5 3a2 2 0 0 1 2-2h3.672a2 2 0 0 1 1.414.586l.828.828A2 2 0 0 0 9.828 3h3.982a2 2 0 0 1 1.992 2.181l-.637 7A2 2 0 0 1 13.174 14H2.826a2 2 0 0 1-1.991-1.819l-.637-7a1.99 1.99 0 0 1 .342-1.31zM2.19 4a1 1 0 0 0-.996 1.09l.637 7a1 1 0 0 0 .995.91h10.348a1 1 0 0 0 .995-.91l.637-7A1 1 0 0 0 13.81 4H2.19zm4.69-1.707A1 1 0 0 0 6.172 2H2.5a1 1 0 0 0-1 .981l.006.139C1.72 3.042 1.95 3 2.19 3h5.396l-.707-.707z" fill="white"></path> </svg>';
 
-                                            $this.centerListItemOptionsMenuEls(
-                                                listItemOptionsEl,
-                                                listItemOptionsMenuEl,
-                                                listItemEl
-                                            );
-                                        };
+                                                    listItemTitle.onclick = function (e) {
+                                                        window.App.Views.FolderContent.switchToFolder(listItemObj.id);
+                                                    };
+                                                    break;
+                                            }
 
-                                        listItemOptionsMenuEl.style.display = 'none';
-                                    };
-                                    return editMenuItemEl;
-                                },
-                                createMenuItemEl: function (innerText, colorClass) {
-                                    const menuItemEl = document.createElement('div');
-                                    menuItemEl.classList.add('menu-item');
+                                            listItemTitle.appendChild(listItemTitleTextEl);
+                                            return listItemTitle;
+                                        },
+                                    },
+                                    TimeSpent: {
+                                        createEl: function (listItemObj) {
+                                            const timeSpent = document.createElement('div');
+                                            timeSpent.classList.add('time-spent');
 
-                                    if (typeof colorClass !== 'undefined') {
-                                        menuItemEl.classList.add(colorClass);
-                                    }
+                                            if (
+                                                typeof listItemObj.time_spent_today !== 'undefined'
+                                            ) {
+                                                timeSpent.innerHTML = 'time spent on this task today: <b>' + listItemObj.time_spent_today + '</b>';
+                                            } else {
+                                                timeSpent.style.display = 'none';
+                                            }
 
-                                    menuItemEl.innerText = innerText;
-                                    return menuItemEl;
-                                },
-                                createListItemTitleEl: function (listItemObj) {
-                                    const listItemTitle = document.createElement('div');
-                                    listItemTitle.classList.add('list-item-title');
-                                    listItemTitle.innerHTML = '';
+                                            return timeSpent;
+                                        },
+                                    },
+                                    ParentFolders: {
+                                        createEl: function (listItemObj) {
+                                            const parentFolders = document.createElement('div');
+                                            parentFolders.classList.add('folder');
 
-                                    const listItemTitleText = listItemObj.list_item_type === 'task' ? listItemObj.title : listItemObj.name;
-                                    const listItemTitleTextEl = document.createElement('span');
-                                    listItemTitleTextEl.innerText = listItemTitleText;
-                                    listItemTitleTextEl.setAttribute(
-                                        'id',
-                                        'list-item-title-' + listItemObj.id + '-' + listItemObj.list_item_type
-                                    );
+                                            for(var i = 0; i < listItemObj.parent_folders.length; i++) {
+                                                const parentFolder = listItemObj.parent_folders[i];
+                                                const parentFolderName = parentFolder.name;
 
-                                    switch (listItemObj.list_item_type) {
-                                        case 'task':
-                                            listItemTitle.innerHTML += '<svg style="color: white" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-activity" viewBox="0 0 16 16"> <path fill-rule="evenodd" d="M6 2a.5.5 0 0 1 .47.33L10 12.036l1.53-4.208A.5.5 0 0 1 12 7.5h3.5a.5.5 0 0 1 0 1h-3.15l-1.88 5.17a.5.5 0 0 1-.94 0L6 3.964 4.47 8.171A.5.5 0 0 1 4 8.5H.5a.5.5 0 0 1 0-1h3.15l1.88-5.17A.5.5 0 0 1 6 2Z" fill="white"></path> </svg>';
-                                            break;
-                                        case 'folder':
-                                            listItemTitle.innerHTML += '<svg style="color: white" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-folder" viewBox="0 0 16 16"> <path d="M.54 3.87.5 3a2 2 0 0 1 2-2h3.672a2 2 0 0 1 1.414.586l.828.828A2 2 0 0 0 9.828 3h3.982a2 2 0 0 1 1.992 2.181l-.637 7A2 2 0 0 1 13.174 14H2.826a2 2 0 0 1-1.991-1.819l-.637-7a1.99 1.99 0 0 1 .342-1.31zM2.19 4a1 1 0 0 0-.996 1.09l.637 7a1 1 0 0 0 .995.91h10.348a1 1 0 0 0 .995-.91l.637-7A1 1 0 0 0 13.81 4H2.19zm4.69-1.707A1 1 0 0 0 6.172 2H2.5a1 1 0 0 0-1 .981l.006.139C1.72 3.042 1.95 3 2.19 3h5.396l-.707-.707z" fill="white"></path> </svg>';
+                                                const parentFolderEl = document.createElement('span');
+                                                parentFolderEl.innerText = parentFolderName;
 
-                                            listItemTitle.onclick = function (e) {
-                                                window.App.Views.FolderContent.switchToFolder(listItemObj.id);
-                                            };
-                                            break;
-                                    }
+                                                parentFolders.appendChild(parentFolderEl);
 
-                                    listItemTitle.appendChild(listItemTitleTextEl);
-                                    return listItemTitle;
-                                },
-                                createTimeSpentEl: function (listItemObj) {
-                                    const timeSpent = document.createElement('div');
-                                    timeSpent.classList.add('time-spent');
+                                                if (
+                                                    (i+1) < listItemObj.parent_folders.length
+                                                ) {
+                                                    parentFolderEl.onclick = function (e) {
+                                                        window.App.Views.FolderContent.switchToFolder(parentFolder.id);
+                                                    };
 
-                                    if (
-                                        typeof listItemObj.time_spent_today !== 'undefined'
-                                    ) {
-                                        timeSpent.innerHTML = 'time spent on this task today: <b>' + listItemObj.time_spent_today + '</b>';
-                                    } else {
-                                        timeSpent.style.display = 'none';
-                                    }
+                                                    const breadcrumbSeparator = this.createBreadcrumbSeparatorEl();
+                                                    parentFolders.appendChild(breadcrumbSeparator);
+                                                } else {
+                                                    parentFolderEl.classList.add('current');
+                                                }
+                                            }
 
-                                    return timeSpent;
-                                },
-                                createParentFoldersEl: function (listItemObj) {
-                                    const parentFolders = document.createElement('div');
-                                    parentFolders.classList.add('folder');
+                                            return parentFolders;
+                                        },
+                                        createBreadcrumbSeparatorEl: function () {
+                                            const breadcrumbSeparator = document.createElement('span');
+                                            breadcrumbSeparator.classList.add('breadcrumb-separator');
+                                            breadcrumbSeparator.innerText = '/';
+                                            return breadcrumbSeparator;
+                                        },
+                                    },
+                                    Tags: {
+                                        createEl: function (listItemObj) {
+                                            const tags = document.createElement('div');
+                                            tags.classList.add('tags');
 
-                                    for(var i = 0; i < listItemObj.parent_folders.length; i++) {
-                                        const parentFolder = listItemObj.parent_folders[i];
-                                        const parentFolderName = parentFolder.name;
+                                            for(var i = 0; i < listItemObj.tags.length; i++) {
+                                                const tag = listItemObj.tags[i];
+                                                const tagName = tag.name;
+                                                const tagEl = document.createElement('span');
+                                                tagEl.innerText = tagName;
 
-                                        const parentFolderEl = document.createElement('span');
-                                        parentFolderEl.innerText = parentFolderName;
+                                                tags.appendChild(tagEl);
+                                            }
 
-                                        parentFolders.appendChild(parentFolderEl);
-
-                                        if (
-                                            (i+1) < listItemObj.parent_folders.length
-                                        ) {
-                                            parentFolderEl.onclick = function (e) {
-                                                window.App.Views.FolderContent.switchToFolder(parentFolder.id);
-                                            };
-
-                                            const breadcrumbSeparator = this.createBreadcrumbSeparatorEl();
-                                            parentFolders.appendChild(breadcrumbSeparator);
-                                        } else {
-                                            parentFolderEl.classList.add('current');
+                                            return tags;
                                         }
                                     }
-
-                                    return parentFolders;
-                                },
-                                createBreadcrumbSeparatorEl: function () {
-                                    const breadcrumbSeparator = document.createElement('span');
-                                    breadcrumbSeparator.classList.add('breadcrumb-separator');
-                                    breadcrumbSeparator.innerText = '/';
-                                    return breadcrumbSeparator;
-                                },
-                                createTagsEl: function (listItemObj) {
-                                    const tags = document.createElement('div');
-                                    tags.classList.add('tags');
-
-                                    for(var i = 0; i < listItemObj.tags.length; i++) {
-                                        const tag = listItemObj.tags[i];
-                                        const tagName = tag.name;
-                                        const tagEl = document.createElement('span');
-                                        tagEl.innerText = tagName;
-
-                                        tags.appendChild(tagEl);
-                                    }
-
-                                    return tags;
                                 }
                             }
                         },
