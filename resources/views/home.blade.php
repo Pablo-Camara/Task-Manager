@@ -147,6 +147,22 @@
                 cursor: pointer;
             }
 
+            .list .list-item .list-item-title span input[type="text"] {
+                width: 100%;
+                background: #06314000;
+                border: none;
+                color: #ffffff;
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                -ms-appearance: none;
+                -o-appearance: none;
+                appearance: none;
+                outline: none;
+                -webkit-box-shadow: none;
+                -moz-box-shadow: none;
+                box-shadow: none;
+            }
+
             .list .list-item .list-item-title svg {
                 position: absolute;
                 left: 15px;
@@ -171,6 +187,55 @@
                 border-radius: 8px;
                 margin: auto;
                 margin-bottom: 2px;
+            }
+
+            .list .list-item .list-item-options-menu {
+                position: absolute;
+                background: white;
+                border: 3px solid rgb(181 181 180);
+                z-index: 999999;
+                min-width: 165px;
+            }
+
+            .list .list-item .list-item-options-menu .menu-item {
+                color: #022c3f;
+                font-size: 12px;
+                padding: 10px;
+                border-bottom: 1px solid #022b40;
+                cursor: pointer;
+            }
+
+            .list .list-item .list-item-options-menu .menu-item:hover {
+                color: #FFFFFF;
+                background-color: #022c3f;
+            }
+
+            .list .list-item .list-item-options-menu .menu-item.green {
+                color: #008000;
+            }
+
+            .list .list-item .list-item-options-menu .menu-item.green:hover {
+                color: #30ff30;
+            }
+
+            .list .list-item .list-item-options-menu .menu-item.old-moss-green {
+                color: #8f8f40;
+            }
+
+            .list .list-item .list-item-options-menu .menu-item.old-moss-green:hover {
+                color: #868600;
+            }
+
+            .list .list-item .list-item-options-menu .menu-item.gray {
+                color: #808080;
+            }
+
+            .list .list-item .list-item-options-menu .menu-item.gray:hover {
+                color: #aea8a8;
+            }
+
+            .list .list-item .list-item-options-menu .menu-item.red {
+                color: #ff0000;
             }
 
             .list .list-item .time-spent {
@@ -236,13 +301,44 @@
         <script>
 
             window.Translation = {
-                opening_folder: "{{ __('Opening folder.. please wait') }}"
+                opening_folder: "{{ __('Opening folder.. please wait') }}",
+
+                edit: "{{ __('Edit') }}",
+                mark_as_completed: "{{ __('Mark as Completed') }}",
+                mark_as_on_hold: "{{ __('Mark as On Hold') }}",
+                mark_as_deprecated: "{{ __('Mark as Deprecated') }}",
+                delete: "{{ __('Delete') }}"
             };
 
             window.App = {
                 Helpers: {
                     getVerticalCenter: function (elementHeight, containerHeight) {
                         return (containerHeight/2)-(elementHeight/2);
+                    },
+                    hideOnClickOutsideElement: function (element, exceptions, optionalCallback) {
+                        const outsideClickListener = event => {
+                            if (
+                                !element.contains(event.target) && this.isElementVisible(element)
+                                &&
+                                !exceptions.includes(event.target)
+                            ) {
+                                element.style.display = 'none';
+                                removeClickListener();
+
+                                if (typeof optionalCallback === 'function') {
+                                    optionalCallback();
+                                }
+                            }
+                        }
+
+                        const removeClickListener = () => {
+                            document.removeEventListener('click', outsideClickListener);
+                        }
+
+                        document.addEventListener('click', outsideClickListener);
+                    },
+                    isElementVisible: function (elem) {
+                        return !!elem && !!( elem.offsetWidth || elem.offsetHeight || elem.getClientRects().length );
                     }
                 },
                 Components: {
@@ -362,6 +458,11 @@
                                 newListItem.listItemEl.offsetHeight
                             );
                             newListItem.listItemOptionsEl.style.top = listItemOptionsBtnYPos + 'px';
+
+                            // set list item options menu position
+                            newListItem.listItemOptionsMenuEl.style.top = newListItem.listItemOptionsEl.style.top;
+                            newListItem.listItemOptionsMenuEl.style.right = newListItem.listItemOptionsEl.offsetWidth + 'px';
+
                         },
                         clearListItems: function () {
                             this.el().innerHTML = '';
@@ -374,6 +475,7 @@
 
                                     const timeInteraction = this.createTimeInteractionButtonEl(listItemObj);
                                     const listItemOptions = this.createListItemOptionsEl(listItemObj);
+                                    const listItemOptionsMenu = this.createListItemOptionsMenuEl(listItemObj);
                                     const listItemTitle = this.createListItemTitleEl(listItemObj);
                                     const timeSpent = this.createTimeSpentEl(listItemObj);
                                     //const parentFolders = this.createParentFoldersEl(listItemObj);
@@ -381,6 +483,7 @@
 
                                     listItem.appendChild(timeInteraction);
                                     listItem.appendChild(listItemOptions);
+                                    listItem.appendChild(listItemOptionsMenu);
                                     listItem.appendChild(listItemTitle);
                                     listItem.appendChild(timeSpent);
                                     //TODO: only show parent folders in Item when viewing 'All tasks in folder and subfolders'
@@ -391,7 +494,8 @@
                                         listItemEl: listItem,
                                         timeInteractionEl: timeInteraction,
                                         listItemTitleEl: listItemTitle,
-                                        listItemOptionsEl: listItemOptions
+                                        listItemOptionsEl: listItemOptions,
+                                        listItemOptionsMenuEl: listItemOptionsMenu,
                                     };
                                 },
                                 createTimeInteractionButtonEl: function (listItemObj) {
@@ -449,7 +553,102 @@
                                     listItemOptions.appendChild(optionDot2);
                                     listItemOptions.appendChild(optionDot3);
 
+                                    listItemOptions.onclick = function (e) {
+                                        const menuEl = document.getElementById(
+                                            'list-item-options-menu-' + listItemObj.id + '-' + listItemObj.list_item_type
+                                        );
+
+                                        if (menuEl.style.display === 'block') {
+                                            menuEl.style.display = 'none';
+                                        } else {
+                                            menuEl.style.display = 'block';
+                                            window.App.Helpers.hideOnClickOutsideElement(
+                                                menuEl,
+                                                [
+                                                    listItemOptions,
+                                                    optionDot1,
+                                                    optionDot2,
+                                                    optionDot3
+                                                ]
+                                            );
+                                        }
+                                    };
+
                                     return listItemOptions;
+                                },
+                                createListItemOptionsMenuEl: function (listItemObj) {
+                                    const listItemOptionsMenuEl = document.createElement('div');
+                                    listItemOptionsMenuEl.classList.add('list-item-options-menu');
+                                    listItemOptionsMenuEl.style.display = 'none';
+
+                                    listItemOptionsMenuEl.setAttribute(
+                                        'id',
+                                        'list-item-options-menu-' + listItemObj.id + '-' + listItemObj.list_item_type
+                                    );
+
+                                    switch (listItemObj.list_item_type) {
+                                        case 'task':
+                                            this.addTaskMenuItemsToMenuEl(listItemOptionsMenuEl, listItemObj);
+                                            break;
+                                        case 'folder':
+                                            this.addFolderMenuItemsToMenuEl(listItemOptionsMenuEl, listItemObj);
+                                            break;
+                                    }
+
+                                    return listItemOptionsMenuEl;
+                                },
+                                addTaskMenuItemsToMenuEl: function (listItemOptionsMenuEl, listItemObj) {
+                                    const editMenuItemEl = this.createMenuItemEl(window.Translation.edit);
+
+                                    const markCompletedMenuItemEl = this.createMenuItemEl(
+                                        window.Translation.mark_as_completed,
+                                        'green'
+                                    );
+
+                                    const markOnHoldMenuItemEl = this.createMenuItemEl(
+                                        window.Translation.mark_as_on_hold,
+                                        'old-moss-green'
+                                    );
+
+                                    const markDeprecatedMenuItemEl = this.createMenuItemEl(
+                                        window.Translation.mark_as_deprecated,
+                                        'gray'
+                                    );
+
+                                    const deleteMenuItemEl =  this.createMenuItemEl(
+                                        window.Translation.delete,
+                                        'red'
+                                    );
+
+                                    listItemOptionsMenuEl.innerHTML = '';
+                                    listItemOptionsMenuEl.appendChild(editMenuItemEl);
+                                    listItemOptionsMenuEl.appendChild(markCompletedMenuItemEl);
+                                    listItemOptionsMenuEl.appendChild(markOnHoldMenuItemEl);
+                                    listItemOptionsMenuEl.appendChild(markDeprecatedMenuItemEl);
+                                    listItemOptionsMenuEl.appendChild(deleteMenuItemEl);
+                                },
+                                addFolderMenuItemsToMenuEl: function (listItemOptionsMenuEl, listItemObj) {
+                                    const editMenuItemEl = this.createMenuItemEl(window.Translation.edit);
+
+                                    const deleteMenuItemEl =  this.createMenuItemEl(
+                                        window.Translation.delete,
+                                        'red'
+                                    );
+
+                                    listItemOptionsMenuEl.innerHTML = '';
+                                    listItemOptionsMenuEl.appendChild(editMenuItemEl);
+                                    listItemOptionsMenuEl.appendChild(deleteMenuItemEl);
+                                },
+                                createMenuItemEl: function (innerText, colorClass) {
+                                    const menuItemEl = document.createElement('div');
+                                    menuItemEl.classList.add('menu-item');
+
+                                    if (typeof colorClass !== 'undefined') {
+                                        menuItemEl.classList.add(colorClass);
+                                    }
+
+                                    menuItemEl.innerText = innerText;
+                                    return menuItemEl;
                                 },
                                 createListItemTitleEl: function (listItemObj) {
                                     const listItemTitle = document.createElement('div');

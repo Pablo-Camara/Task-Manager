@@ -1,3 +1,8 @@
 {
-    "Opening folder.. please wait": "Abrindo pasta.. por favor espere"
+    "Opening folder.. please wait": "Abrindo pasta.. por favor espere",
+    "Edit": "Editar",
+    "Mark as Completed": "Marcar como Concluído",
+    "Mark as On Hold": "Marcar como Em espera",
+    "Mark as Deprecated": "Marcar como Descontinuado",
+    "Delete": "Apagar"
 }
