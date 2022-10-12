@@ -69,6 +69,16 @@ class TestSeeder extends Seeder
     }
 
     private function createStandardTestingItems() {
+        // create task with big name
+        $taskWithoutFolder = new Task();
+        $taskWithoutFolder->title = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras ac dolor tempus, sagittis justo eget, tempor risus. Curabitur convallis eleifend massa, et bibendum nibh ullamcorper eu. Suspendisse potenti. Aliquam pharetra convallis nulla molestie scelerisque. Aliquam non felis nisl. Curabitur non sollicitudin diam. Suspendisse hendrerit velit vitae dui venenatis, non bibendum dui mattis. Nam eget euismod justo.';
+        $taskWithoutFolder->save();
+
+        // create another task with big name
+        $taskWithoutFolder = new Task();
+        $taskWithoutFolder->title = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed bibendum nec metus ut viverra. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Nulla quis eleifend eros, nec blandit orci. Maecenas interdum nunc ipsum, eget efficitur lacus porttitor quis. Nullam fringilla efficitur ex, in pharetra dui imperdiet sed. Sed nisl lectus, suscipit vel pretium ac, iaculis quis elit. Proin maximus, enim sit amet gravida placerat, nisi diam ultricies neque, vel rhoncus leo neque eu lacus. In non lacus suscipit, blandit ipsum in, dictum metus. In volutpat vehicula erat nec suscipit. Nullam mi leo, facilisis ut ex quis, vulputate elementum lacus.Nam ut vehicula elit. Integer consequat aliquet quam, ultricies ornare lorem fringilla a. Vivamus vel condimentum nunc. Nulla a metus tincidunt, ornare nunc eu, feugiat augue. Ut egestas maximus dictum. Morbi scelerisque posuere eros, non dictum turpis fringilla ac. Duis ipsum enim, posuere euismod vestibulum a, porta quis lorem. Mauris tincidunt ultrices ex vitae interdum.Quisque non rutrum libero. Vestibulum iaculis nibh magna, ac aliquam orci molestie quis. Duis congue rutrum ante a cursus. Curabitur mattis purus ut libero finibus rutrum. Vestibulum nulla est, porttitor accumsan nulla ac, consequat sodales ipsum. Nam ut lectus at quam faucibus ornare sit amet ac nulla. Proin aliquet, nibh eu faucibus rutrum, erat magna convallis orci, id facilisis tellus lectus eget nunc. Donec dignissim dui mollis purus tristique, et viverra est luctus. Morbi porta urna sed augue fermentum auctor. Morbi condimentum quis mauris fermentum ultrices.Pellentesque non leo lacinia, vestibulum quam at, feugiat elit. Sed maximus purus sit amet aliquet faucibus. Aliquam hendrerit volutpat lorem, vitae mattis sem finibus vitae. Vestibulum tincidunt, libero sed lobortis sagittis, enim massa congue odio, et fermentum ipsum ligula vitae nulla. Phasellus in dignissim eros, eu interdum ante. Duis sed luctus augue. Vestibulum non fringilla leo. Mauris euismod eros ege.Dot nets.';
+        $taskWithoutFolder->save();
+
         // create task without folder
         $taskWithoutFolder = new Task();
         $taskWithoutFolder->title = 'Task without folder';

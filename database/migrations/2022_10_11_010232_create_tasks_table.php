@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('tasks', function (Blueprint $table) {
             $table->id();
-            $table->string('title');
+            $table->string('title', 2048);
 
             $table->unsignedBigInteger('folder_id')->nullable();
 

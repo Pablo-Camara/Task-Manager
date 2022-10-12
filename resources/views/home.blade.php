@@ -147,10 +147,10 @@
                 cursor: pointer;
             }
 
-            .list .list-item .list-item-title span input[type="text"] {
+            .list .list-item .list-item-title span textarea {
                 width: 100%;
-                background: #06314000;
-                border: none;
+                background: rgba(0, 0, 0, 0.08);
+                border: 1px solid #0b4356;
                 color: #ffffff;
                 -webkit-appearance: none;
                 -moz-appearance: none;
@@ -175,6 +175,8 @@
                 height: 30px;
                 width: 30px;
                 cursor: pointer;
+
+                z-index: 999999;
             }
 
 
@@ -203,6 +205,10 @@
                 padding: 10px;
                 border-bottom: 1px solid #022b40;
                 cursor: pointer;
+            }
+
+            .list .list-item .list-item-options-menu .menu-item:last-child {
+                border-bottom: 0;
             }
 
             .list .list-item .list-item-options-menu .menu-item:hover {
@@ -443,26 +449,16 @@
                             const newListItem = this.Components.ListItem.createEl(listItemObj);
                             this.el().appendChild(newListItem.listItemEl);
 
-                            // center time interaction vertically
-                            if ( newListItem.timeInteractionEl.style.display !== 'none' ) {
-                                const timeInteractionYPos = window.App.Helpers.getVerticalCenter(
-                                    newListItem.timeInteractionEl.offsetHeight,
-                                    newListItem.listItemEl.offsetHeight
-                                );
-                                newListItem.timeInteractionEl.style.top = timeInteractionYPos + 'px';
-                            }
-
-                            // center list item options 3 dots btn vertically
-                            const listItemOptionsBtnYPos = window.App.Helpers.getVerticalCenter(
-                                newListItem.listItemOptionsEl.offsetHeight,
-                                newListItem.listItemEl.offsetHeight
+                            this.Components.ListItem.centerTimeInteractionButtonEl(
+                                newListItem.timeInteractionEl,
+                                newListItem.listItemEl
                             );
-                            newListItem.listItemOptionsEl.style.top = listItemOptionsBtnYPos + 'px';
 
-                            // set list item options menu position
-                            newListItem.listItemOptionsMenuEl.style.top = newListItem.listItemOptionsEl.style.top;
-                            newListItem.listItemOptionsMenuEl.style.right = newListItem.listItemOptionsEl.offsetWidth + 'px';
-
+                            this.Components.ListItem.centerListItemOptionsMenuEls(
+                                newListItem.listItemOptionsEl,
+                                newListItem.listItemOptionsMenuEl,
+                                newListItem.listItemEl
+                            );
                         },
                         clearListItems: function () {
                             this.el().innerHTML = '';
@@ -472,6 +468,10 @@
                                 createEl: function (listItemObj) {
                                     const listItem = document.createElement('div');
                                     listItem.classList.add('list-item');
+                                    listItem.setAttribute(
+                                        'id',
+                                        'list-item-' + listItemObj.id + '-' + listItemObj.list_item_type
+                                    );
 
                                     const timeInteraction = this.createTimeInteractionButtonEl(listItemObj);
                                     const listItemOptions = this.createListItemOptionsEl(listItemObj);
@@ -501,6 +501,10 @@
                                 createTimeInteractionButtonEl: function (listItemObj) {
                                     const timeInteraction = document.createElement('div');
                                     timeInteraction.classList.add('time-interaction');
+                                    timeInteraction.setAttribute(
+                                        'id',
+                                        'time-interaction-' + listItemObj.id + '-' + listItemObj.list_item_type
+                                    );
 
                                     if (listItemObj.list_item_type === 'task') {
                                         const playButton = this.createPlayButtonEl(listItemObj);
@@ -513,6 +517,16 @@
                                     }
 
                                     return timeInteraction;
+                                },
+                                centerTimeInteractionButtonEl: function (timeInteractionButtonEl, listItemEl) {
+                                    // center time interaction vertically
+                                    if ( timeInteractionButtonEl.style.display !== 'none' ) {
+                                        const timeInteractionYPos = window.App.Helpers.getVerticalCenter(
+                                            timeInteractionButtonEl.offsetHeight,
+                                            listItemEl.offsetHeight
+                                        );
+                                        timeInteractionButtonEl.style.top = timeInteractionYPos + 'px';
+                                    }
                                 },
                                 createPlayButtonEl: function (listItemObj) {
                                     const playButton = document.createElement('div');
@@ -539,6 +553,10 @@
                                 createListItemOptionsEl: function (listItemObj) {
                                     const listItemOptions = document.createElement('div');
                                     listItemOptions.classList.add('list-item-options');
+                                    listItemOptions.setAttribute(
+                                        'id',
+                                        'list-item-options-' + listItemObj.id + '-' + listItemObj.list_item_type
+                                    );
 
                                     const optionDot1 = document.createElement('div');
                                     optionDot1.classList.add('option-dot');
@@ -597,8 +615,20 @@
 
                                     return listItemOptionsMenuEl;
                                 },
+                                centerListItemOptionsMenuEls: function (listItemOptionsEl, listItemOptionsMenuEl, listItemEl) {
+                                    // center list item options 3 dots btn vertically
+                                    const listItemOptionsBtnYPos = window.App.Helpers.getVerticalCenter(
+                                        listItemOptionsEl.offsetHeight,
+                                        listItemEl.offsetHeight
+                                    );
+                                    listItemOptionsEl.style.top = listItemOptionsBtnYPos + 'px';
+
+                                    // set list item options menu position
+                                    listItemOptionsMenuEl.style.top = listItemOptionsEl.style.top;
+                                    listItemOptionsMenuEl.style.right = listItemOptionsEl.offsetWidth + 'px';
+                                },
                                 addTaskMenuItemsToMenuEl: function (listItemOptionsMenuEl, listItemObj) {
-                                    const editMenuItemEl = this.createMenuItemEl(window.Translation.edit);
+                                    const editMenuItemEl = this.createEditTaskMenuItemEl(listItemOptionsMenuEl, listItemObj);
 
                                     const markCompletedMenuItemEl = this.createMenuItemEl(
                                         window.Translation.mark_as_completed,
@@ -639,6 +669,61 @@
                                     listItemOptionsMenuEl.appendChild(editMenuItemEl);
                                     listItemOptionsMenuEl.appendChild(deleteMenuItemEl);
                                 },
+                                createEditTaskMenuItemEl: function (listItemOptionsMenuEl, listItemObj) {
+                                    const $this = this;
+                                    const editMenuItemEl = this.createMenuItemEl(window.Translation.edit);
+                                    editMenuItemEl.onclick = function (e) {
+                                        const listItemTitleEl = document.getElementById(
+                                            'list-item-title-' + listItemObj.id + '-' + listItemObj.list_item_type
+                                        );
+
+                                        const listItemTitleInputEl = document.createElement('textarea');
+                                        listItemTitleInputEl.setAttribute(
+                                            'id',
+                                            'list-item-title-input-' + listItemObj.id + '-' + listItemObj.list_item_type
+                                        );
+                                        listItemTitleInputEl.value = listItemObj.title;
+
+                                        listItemTitleEl.innerHTML = '';
+                                        listItemTitleEl.appendChild(listItemTitleInputEl);
+
+                                        listItemTitleInputEl.style.height = listItemTitleInputEl.scrollHeight + 'px';
+                                        listItemTitleInputEl.focus();
+
+                                        listItemTitleInputEl.onkeyup = function () {
+                                            listItemTitleInputEl.style.height = 0;
+                                            listItemTitleInputEl.style.height = listItemTitleInputEl.scrollHeight + 'px';
+
+                                            const listItemEl = document.getElementById(
+                                                'list-item-' + listItemObj.id + '-' + listItemObj.list_item_type
+                                            );
+                                            const timeInteractionEl = document.getElementById(
+                                                'time-interaction-' + listItemObj.id + '-' + listItemObj.list_item_type
+                                            );
+
+                                            $this.centerTimeInteractionButtonEl(
+                                                timeInteractionEl,
+                                                listItemEl
+                                            );
+
+                                            const listItemOptionsEl = document.getElementById(
+                                                'list-item-options-' + listItemObj.id + '-' + listItemObj.list_item_type
+                                            );
+                                            const listItemOptionsMenuEl = document.getElementById(
+                                                'list-item-options-menu-' + listItemObj.id + '-' + listItemObj.list_item_type
+                                            );
+
+                                            $this.centerListItemOptionsMenuEls(
+                                                listItemOptionsEl,
+                                                listItemOptionsMenuEl,
+                                                listItemEl
+                                            );
+                                        };
+
+                                        listItemOptionsMenuEl.style.display = 'none';
+                                    };
+                                    return editMenuItemEl;
+                                },
                                 createMenuItemEl: function (innerText, colorClass) {
                                     const menuItemEl = document.createElement('div');
                                     menuItemEl.classList.add('menu-item');
@@ -658,6 +743,10 @@
                                     const listItemTitleText = listItemObj.list_item_type === 'task' ? listItemObj.title : listItemObj.name;
                                     const listItemTitleTextEl = document.createElement('span');
                                     listItemTitleTextEl.innerText = listItemTitleText;
+                                    listItemTitleTextEl.setAttribute(
+                                        'id',
+                                        'list-item-title-' + listItemObj.id + '-' + listItemObj.list_item_type
+                                    );
 
                                     switch (listItemObj.list_item_type) {
                                         case 'task':
