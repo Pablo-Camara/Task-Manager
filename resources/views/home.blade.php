@@ -66,11 +66,22 @@
                 cursor: pointer;
             }
 
-            .folder-breadcrumbs .breadcrumb {
+            .folder-breadcrumbs .breadcrumb-separator {
                 margin-left: 6px;
                 margin-right: 6px;
                 color: #000000;
                 font-size: 12px;
+            }
+
+            .folder-breadcrumbs .folder {
+                font-size: 12px;
+                color: #012a3c;
+
+                cursor: pointer;
+            }
+
+            .folder-breadcrumbs .folder.current {
+                cursor: auto;
             }
 
             .list .list-item {
@@ -182,7 +193,7 @@
                 cursor: auto;
             }
 
-            .list .list-item .folder .breadcrumb {
+            .list .list-item .folder .breadcrumb-separator {
                 margin-left: 6px;
                 margin-right: 6px;
                 color: #FFFFFF;
@@ -223,6 +234,79 @@
                     }
                 },
                 Components: {
+                    FolderBreadcrumbs: {
+                        parentFolders: [],
+                        el: function () {
+                            return document.getElementById('folder-breadcrumbs');
+                        },
+                        show: function (parentFolders) {
+                            const el = this.el();
+                            const rootFolderEl = this.createRootFolderEl();
+
+                            el.innerHTML = '';
+                            el.appendChild(rootFolderEl);
+
+                            if (
+                                typeof parentFolders !== 'undefined'
+                            ) {
+                                this.setParentFolders(parentFolders);
+                            }
+
+                            const currentParentFolders = this.getParentFolders();
+                            for(var i = 0; i < currentParentFolders.length; i++) {
+                                const currentFolder = currentParentFolders[i];
+                                const folder = this.createFolderEl(currentFolder);
+                                el.appendChild(folder);
+
+                                if (i+1 < currentParentFolders.length) {
+                                    const breadcrumbSeparator = this.createBreadcrumbSeparatorEl();
+                                    el.appendChild(breadcrumbSeparator);
+
+                                    folder.onclick = function (e) {
+                                        window.App.Views.FolderContent.switchToFolder(currentFolder.id);
+                                    };
+                                } else {
+                                    folder.classList.add('current');
+                                }
+                            }
+                        },
+                        createRootFolderEl: function () {
+                            const rootFolderEl = document.createElement('div');
+                            rootFolderEl.style.display = 'inline-block';
+
+                            rootFolderEl.innerHTML = '';
+                            rootFolderEl.innerHTML += '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-folder" viewBox="0 0 16 16"> <path d="M.54 3.87.5 3a2 2 0 0 1 2-2h3.672a2 2 0 0 1 1.414.586l.828.828A2 2 0 0 0 9.828 3h3.982a2 2 0 0 1 1.992 2.181l-.637 7A2 2 0 0 1 13.174 14H2.826a2 2 0 0 1-1.991-1.819l-.637-7a1.99 1.99 0 0 1 .342-1.31zM2.19 4a1 1 0 0 0-.996 1.09l.637 7a1 1 0 0 0 .995.91h10.348a1 1 0 0 0 .995-.91l.637-7A1 1 0 0 0 13.81 4H2.19zm4.69-1.707A1 1 0 0 0 6.172 2H2.5a1 1 0 0 0-1 .981l.006.139C1.72 3.042 1.95 3 2.19 3h5.396l-.707-.707z"/> </svg>';
+
+                            const breadcrumbSeparator = this.createBreadcrumbSeparatorEl();
+                            rootFolderEl.appendChild(breadcrumbSeparator);
+
+                            rootFolderEl.onclick = function () {
+                                window.App.Views.FolderContent.switchToFolder(null);
+                            };
+
+                            return rootFolderEl;
+                        },
+                        createFolderEl: function (folder) {
+                            const folderEl = document.createElement('span');
+                            folderEl.classList.add('folder');
+                            folderEl.innerText = folder.name;
+
+                            return folderEl;
+                        },
+                        createBreadcrumbSeparatorEl: function () {
+                            const breadcrumbSeparator = document.createElement('span');
+                            breadcrumbSeparator.classList.add('breadcrumb-separator');
+                            breadcrumbSeparator.innerText = '/';
+
+                            return breadcrumbSeparator;
+                        },
+                        setParentFolders: function (parentFolders) {
+                            this.parentFolders = parentFolders;
+                        },
+                        getParentFolders: function () {
+                            return this.parentFolders;
+                        }
+                    },
                     FolderContentList: {
                         el: function () {
                             return document.getElementById('folder-content-list');
@@ -260,14 +344,14 @@
                                     const listItemOptions = this.createListItemOptionsEl(listItemObj);
                                     const listItemTitle = this.createListItemTitleEl(listItemObj);
                                     const timeSpent = this.createTimeSpentEl(listItemObj);
-                                    const parentFolders = this.createParentFoldersEl(listItemObj);
+                                    //const parentFolders = this.createParentFoldersEl(listItemObj);
                                     const tags = this.createTagsEl(listItemObj);
 
                                     listItem.appendChild(timeInteraction);
                                     listItem.appendChild(listItemOptions);
                                     listItem.appendChild(listItemTitle);
                                     listItem.appendChild(timeSpent);
-                                    listItem.appendChild(parentFolders);
+                                    //listItem.appendChild(parentFolders);
                                     listItem.appendChild(tags);
 
                                     return {
@@ -393,16 +477,20 @@
                                                 window.App.Views.FolderContent.switchToFolder(parentFolder.id);
                                             };
 
-                                            const breadcrumb = document.createElement('span');
-                                            breadcrumb.classList.add('breadcrumb');
-                                            breadcrumb.innerText = '/';
-                                            parentFolders.appendChild(breadcrumb);
+                                            const breadcrumbSeparator = this.createBreadcrumbSeparatorEl();
+                                            parentFolders.appendChild(breadcrumbSeparator);
                                         } else {
                                             parentFolderEl.classList.add('current');
                                         }
                                     }
 
                                     return parentFolders;
+                                },
+                                createBreadcrumbSeparatorEl: function () {
+                                    const breadcrumbSeparator = document.createElement('span');
+                                    breadcrumbSeparator.classList.add('breadcrumb-separator');
+                                    breadcrumbSeparator.innerText = '/';
+                                    return breadcrumbSeparator;
                                 },
                                 createTagsEl: function (listItemObj) {
                                     const tags = document.createElement('div');
@@ -449,6 +537,7 @@
                                 if(this.readyState === 4) {
                                     try {
                                         const folderContentJson = JSON.parse(this.responseText);
+                                        window.App.Components.FolderBreadcrumbs.show(folderContentJson.parent_folders);
 
                                         // add tasks first
                                         for(var i = 0; i < folderContentJson.tasks.length; i++) {
@@ -458,7 +547,6 @@
                                                 listItem
                                             );
                                         }
-
 
                                         // add folders last
                                         for(var i = 0; i < folderContentJson.folders.length; i++) {
@@ -493,10 +581,7 @@
     <body>
         <div id="app">
             <div class="app-title">Task Manager</div>
-            <div class="folder-breadcrumbs">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-folder" viewBox="0 0 16 16"> <path d="M.54 3.87.5 3a2 2 0 0 1 2-2h3.672a2 2 0 0 1 1.414.586l.828.828A2 2 0 0 0 9.828 3h3.982a2 2 0 0 1 1.992 2.181l-.637 7A2 2 0 0 1 13.174 14H2.826a2 2 0 0 1-1.991-1.819l-.637-7a1.99 1.99 0 0 1 .342-1.31zM2.19 4a1 1 0 0 0-.996 1.09l.637 7a1 1 0 0 0 .995.91h10.348a1 1 0 0 0 .995-.91l.637-7A1 1 0 0 0 13.81 4H2.19zm4.69-1.707A1 1 0 0 0 6.172 2H2.5a1 1 0 0 0-1 .981l.006.139C1.72 3.042 1.95 3 2.19 3h5.396l-.707-.707z"/> </svg>
-                <span class="breadcrumb">/</span>
-            </div>
+            <div class="folder-breadcrumbs" id="folder-breadcrumbs"></div>
             <div class="list" id="folder-content-list"></div>
         </div>
 

@@ -30,11 +30,14 @@ class FolderContentController extends Controller
 
 
     public function list (Request $request) {
+
         $selectedFolderId = $request->input('folder', null);
+
         $tasks = $this->taskService->search($selectedFolderId);
         $folders = $this->folderService->search($selectedFolderId);
 
         return new Response([
+            'parent_folders' => $this->folderService->getParentFolders($selectedFolderId),
             'tasks' => $tasks,
             'folders' => $folders,
         ]);
