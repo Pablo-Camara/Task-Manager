@@ -84,6 +84,13 @@
                 cursor: auto;
             }
 
+            .loading-status {
+                color: #FFFFFF;
+                text-align: center;
+                font-size: 14px;
+                margin-top: 10px;
+            }
+
             .list .list-item {
                 padding: 14px 0 14px 0;
                 border-bottom: 1px dashed rgba(70, 107, 119, 0.44);
@@ -227,6 +234,11 @@
         </style>
 
         <script>
+
+            window.Translation = {
+                opening_folder: "{{ __('Opening folder.. please wait') }}"
+            };
+
             window.App = {
                 Helpers: {
                     getVerticalCenter: function (elementHeight, containerHeight) {
@@ -234,6 +246,21 @@
                     }
                 },
                 Components: {
+                    LoadingStatus: {
+                        el: function () {
+                            return document.getElementById('loading-status');
+                        },
+                        show: function(message) {
+                            const el = this.el();
+                            el.innerText = message;
+                            el.style.display = 'block';
+                        },
+                        hide: function () {
+                            const el = this.el();
+                            el.style.display = 'none';
+                            el.innerHTML = '';
+                        }
+                    },
                     FolderBreadcrumbs: {
                         parentFolders: [],
                         el: function () {
@@ -269,6 +296,8 @@
                                     folder.classList.add('current');
                                 }
                             }
+
+                            el.style.display = 'block';
                         },
                         createRootFolderEl: function () {
                             const rootFolderEl = document.createElement('div');
@@ -311,6 +340,9 @@
                         el: function () {
                             return document.getElementById('folder-content-list');
                         },
+                        show: function () {
+                            this.el().style.display = 'block';
+                        },
                         addListItem: function (listItemObj) {
                             const newListItem = this.Components.ListItem.createEl(listItemObj);
                             this.el().appendChild(newListItem.listItemEl);
@@ -351,6 +383,7 @@
                                     listItem.appendChild(listItemOptions);
                                     listItem.appendChild(listItemTitle);
                                     listItem.appendChild(timeSpent);
+                                    //TODO: only show parent folders in Item when viewing 'All tasks in folder and subfolders'
                                     //listItem.appendChild(parentFolders);
                                     listItem.appendChild(tags);
 
@@ -533,11 +566,16 @@
                             xhr.withCredentials = true;
 
                             window.App.Components.FolderContentList.clearListItems();
+                            window.App.Components.LoadingStatus.show(
+                                window.Translation.opening_folder
+                            );
                             xhr.addEventListener("readystatechange", function() {
                                 if(this.readyState === 4) {
+                                    window.App.Components.LoadingStatus.hide();
                                     try {
                                         const folderContentJson = JSON.parse(this.responseText);
                                         window.App.Components.FolderBreadcrumbs.show(folderContentJson.parent_folders);
+                                        window.App.Components.FolderContentList.show();
 
                                         // add tasks first
                                         for(var i = 0; i < folderContentJson.tasks.length; i++) {
@@ -581,8 +619,9 @@
     <body>
         <div id="app">
             <div class="app-title">Task Manager</div>
-            <div class="folder-breadcrumbs" id="folder-breadcrumbs"></div>
-            <div class="list" id="folder-content-list"></div>
+            <div class="folder-breadcrumbs" id="folder-breadcrumbs" style="display: none"></div>
+            <div class="loading-status" id="loading-status" style="display: none"></div>
+            <div class="list" id="folder-content-list" style="display: none"></div>
         </div>
 
 
