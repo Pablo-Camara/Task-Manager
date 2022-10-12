@@ -15,7 +15,10 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         $this->call([
-            TaskActionsSeeder::class
+            TaskActionsSeeder::class,
+
+            //temporary:
+            TestSeeder::class
         ]);
     }
 }

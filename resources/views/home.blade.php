@@ -49,8 +49,28 @@
                 border-bottom: 1px solid #1f3942;
             }
 
-            .list {
+            .folder-breadcrumbs {
+                position: relative;
+                padding-left: 24px;
+                border-bottom: 1px solid #1f3942;
+                padding-bottom: 7px;
+                padding-top: 5px;
+                background: white;
+            }
 
+            .folder-breadcrumbs svg {
+                position: absolute;
+                left: 7px;
+                top: 10px;
+
+                cursor: pointer;
+            }
+
+            .folder-breadcrumbs .breadcrumb {
+                margin-left: 6px;
+                margin-right: 6px;
+                color: #000000;
+                font-size: 12px;
             }
 
             .list .list-item {
@@ -141,7 +161,7 @@
                 font-size: 12px;
                 margin-top: 10px;
 
-                padding-left: 50px;
+                padding-left: 40px;
                 padding-right: 30px;
             }
 
@@ -192,8 +212,6 @@
                 display: inline-block;
                 margin-top: 8px;
             }
-
-
 
         </style>
 
@@ -475,7 +493,10 @@
     <body>
         <div id="app">
             <div class="app-title">Task Manager</div>
-
+            <div class="folder-breadcrumbs">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-folder" viewBox="0 0 16 16"> <path d="M.54 3.87.5 3a2 2 0 0 1 2-2h3.672a2 2 0 0 1 1.414.586l.828.828A2 2 0 0 0 9.828 3h3.982a2 2 0 0 1 1.992 2.181l-.637 7A2 2 0 0 1 13.174 14H2.826a2 2 0 0 1-1.991-1.819l-.637-7a1.99 1.99 0 0 1 .342-1.31zM2.19 4a1 1 0 0 0-.996 1.09l.637 7a1 1 0 0 0 .995.91h10.348a1 1 0 0 0 .995-.91l.637-7A1 1 0 0 0 13.81 4H2.19zm4.69-1.707A1 1 0 0 0 6.172 2H2.5a1 1 0 0 0-1 .981l.006.139C1.72 3.042 1.95 3 2.19 3h5.396l-.707-.707z"/> </svg>
+                <span class="breadcrumb">/</span>
+            </div>
             <div class="list" id="folder-content-list"></div>
         </div>
 

@@ -18,6 +18,57 @@ class TestSeeder extends Seeder
      */
     public function run()
     {
+        $this->createRealitySimulationItems();
+        $this->createStandardTestingItems();
+    }
+
+    private function createRealitySimulationItems () {
+
+        $folder1 = new Folder();
+        $folder1->name = 'camara.pt';
+        $folder1->save();
+
+        $folder2 = new Folder();
+        $folder2->parent_folder_id = $folder1->id;
+        $folder2->name = 'task-manager.camara.pt';
+        $folder2->save();
+
+        $task1 = new Task();
+        $task1->title = 'Create MVP';
+        $task1->folder_id = $folder2->id;
+        $task1->save();
+
+        $tag1 = new Tag();
+        $tag1->name = 'PHP 8';
+        $tag1->save();
+
+        $tag2 = new Tag();
+        $tag2->name = 'Laravel 9';
+        $tag2->save();
+
+        $tag3 = new Tag();
+        $tag3->name = 'MySql';
+        $tag3->save();
+
+        $taskTag = new TaskTag();
+        $taskTag->task_id = $task1->id;
+        $taskTag->tag_id = $tag1->id;
+        $taskTag->save();
+
+        $taskTag = new TaskTag();
+        $taskTag->task_id = $task1->id;
+        $taskTag->tag_id = $tag2->id;
+        $taskTag->save();
+
+        $taskTag = new TaskTag();
+        $taskTag->task_id = $task1->id;
+        $taskTag->tag_id = $tag3->id;
+        $taskTag->save();
+
+
+    }
+
+    private function createStandardTestingItems() {
         // create task without folder
         $taskWithoutFolder = new Task();
         $taskWithoutFolder->title = 'Task without folder';
@@ -87,6 +138,5 @@ class TestSeeder extends Seeder
         $folderTag1->folder_id = $folderWithoutParentFolderWithTags->id;
         $folderTag1->tag_id = $tag3->id;
         $folderTag1->save();
-
     }
 }
