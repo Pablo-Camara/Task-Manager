@@ -863,6 +863,14 @@
 
                                             const listItemTitleTextEl = this.createTitleEl(listItemObj);
                                             listItemTitleContainer.appendChild(listItemTitleTextEl);
+
+                                            window.App.Components.FolderContentList
+                                                    .Components.ListItem
+                                                    .Components.TimeInteraction.centerTimeInteractionEl(listItemObj);
+
+                                                    window.App.Components.FolderContentList
+                                                    .Components.ListItem
+                                                    .Components.ItemOptions.centerMainComponents(listItemObj);
                                         }
                                     },
                                     TimeSpent: {
