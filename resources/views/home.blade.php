@@ -679,53 +679,7 @@
                                                 createEditTaskMenuItemEl: function (listItemOptionsMenuEl, listItemObj) {
                                                     const editMenuItemEl = this.createMenuItemEl(window.Translation.edit);
                                                     editMenuItemEl.onclick = function (e) {
-                                                        const listItemTitleEl = document.getElementById(
-                                                            'list-item-title-' + listItemObj.id + '-' + listItemObj.list_item_type
-                                                        );
-
-                                                        const listItemTitleInputEl = document.createElement('textarea');
-                                                        listItemTitleInputEl.setAttribute(
-                                                            'id',
-                                                            'list-item-title-input-' + listItemObj.id + '-' + listItemObj.list_item_type
-                                                        );
-                                                        listItemTitleInputEl.value = listItemObj.title;
-
-                                                        listItemTitleEl.innerHTML = '';
-                                                        listItemTitleEl.appendChild(listItemTitleInputEl);
-
-                                                        listItemTitleInputEl.style.height = listItemTitleInputEl.scrollHeight + 'px';
-                                                        listItemTitleInputEl.focus();
-
-                                                        listItemTitleInputEl.onkeyup = function () {
-                                                            listItemTitleInputEl.style.height = 0;
-                                                            listItemTitleInputEl.style.height = listItemTitleInputEl.scrollHeight + 'px';
-
-                                                            const listItemEl = document.getElementById(
-                                                                'list-item-' + listItemObj.id + '-' + listItemObj.list_item_type
-                                                            );
-                                                            const timeInteractionEl = document.getElementById(
-                                                                'time-interaction-' + listItemObj.id + '-' + listItemObj.list_item_type
-                                                            );
-
-                                                            window.App.Components.FolderContentList.Components.ListItem.Components.TimeInteraction.centerTimeInteractionEl(
-                                                                timeInteractionEl,
-                                                                listItemEl
-                                                            );
-
-                                                            const listItemOptionsEl = document.getElementById(
-                                                                'list-item-options-' + listItemObj.id + '-' + listItemObj.list_item_type
-                                                            );
-                                                            const listItemOptionsMenuEl = document.getElementById(
-                                                                'list-item-options-menu-' + listItemObj.id + '-' + listItemObj.list_item_type
-                                                            );
-
-                                                            window.App.Components.FolderContentList.Components.ListItem.Components.ItemOptions.centerMainComponents(
-                                                                listItemOptionsEl,
-                                                                listItemOptionsMenuEl,
-                                                                listItemEl
-                                                            );
-                                                        };
-
+                                                        window.App.Components.FolderContentList.Components.ListItem.Components.ItemTitle.enableEditMode(listItemObj);
                                                         listItemOptionsMenuEl.style.display = 'none';
                                                     };
                                                     return editMenuItemEl;
@@ -775,6 +729,73 @@
                                             listItemTitle.appendChild(listItemTitleTextEl);
                                             return listItemTitle;
                                         },
+                                        getEl: function (listItemObj) {
+                                            return document.getElementById(
+                                                'list-item-title-' + listItemObj.id + '-' + listItemObj.list_item_type
+                                            );
+                                        },
+                                        createTextarea: function (listItemObj) {
+                                            const textareaEl = document.createElement('textarea');
+                                            textareaEl.setAttribute(
+                                                'id',
+                                                'list-item-title-input-' + listItemObj.id + '-' + listItemObj.list_item_type
+                                            );
+                                            textareaEl.value = listItemObj.title;
+
+                                            return textareaEl;
+                                        },
+                                        makeTextareaHeightAutoResize: function (textareaEl , optionalOnResizeCallback) {
+                                            textareaEl.style.height = textareaEl.scrollHeight + 'px';
+
+                                            textareaEl.onkeyup = function () {
+                                                textareaEl.style.height = 0;
+                                                textareaEl.style.height = textareaEl.scrollHeight + 'px';
+
+                                                if (typeof optionalOnResizeCallback === 'function') {
+                                                    optionalOnResizeCallback();
+                                                }
+                                            };
+                                        },
+                                        enableEditMode: function (listItemObj) {
+                                            const listItemTitleEl = this.getEl(listItemObj);
+
+                                            const listItemTitleInputEl = this.createTextarea(listItemObj);
+
+                                            listItemTitleEl.innerHTML = '';
+                                            listItemTitleEl.appendChild(listItemTitleInputEl);
+
+                                            this.makeTextareaHeightAutoResize(
+                                                listItemTitleInputEl,
+                                                function () {
+                                                    const listItemEl = document.getElementById(
+                                                        'list-item-' + listItemObj.id + '-' + listItemObj.list_item_type
+                                                    );
+                                                    const timeInteractionEl = document.getElementById(
+                                                        'time-interaction-' + listItemObj.id + '-' + listItemObj.list_item_type
+                                                    );
+
+                                                    window.App.Components.FolderContentList.Components.ListItem.Components.TimeInteraction.centerTimeInteractionEl(
+                                                        timeInteractionEl,
+                                                        listItemEl
+                                                    );
+
+                                                    const listItemOptionsEl = document.getElementById(
+                                                        'list-item-options-' + listItemObj.id + '-' + listItemObj.list_item_type
+                                                    );
+                                                    const listItemOptionsMenuEl = document.getElementById(
+                                                        'list-item-options-menu-' + listItemObj.id + '-' + listItemObj.list_item_type
+                                                    );
+
+                                                    window.App.Components.FolderContentList.Components.ListItem.Components.ItemOptions.centerMainComponents(
+                                                        listItemOptionsEl,
+                                                        listItemOptionsMenuEl,
+                                                        listItemEl
+                                                    );
+                                                }
+                                            );
+
+                                            listItemTitleInputEl.focus();
+                                        }
                                     },
                                     TimeSpent: {
                                         createEl: function (listItemObj) {
