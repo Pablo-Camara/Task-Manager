@@ -345,7 +345,29 @@
                     },
                     isElementVisible: function (elem) {
                         return !!elem && !!( elem.offsetWidth || elem.offsetHeight || elem.getClientRects().length );
-                    }
+                    },
+                    createTextarea: function (id, value) {
+                        const textareaEl = document.createElement('textarea');
+                        textareaEl.setAttribute(
+                            'id',
+                            id
+                        );
+                        textareaEl.value = value;
+
+                        return textareaEl;
+                    },
+                    makeTextareaHeightAutoResize: function (textareaEl , optionalOnResizeCallback) {
+                        textareaEl.style.height = textareaEl.scrollHeight + 'px';
+
+                        textareaEl.onkeyup = function () {
+                            textareaEl.style.height = 0;
+                            textareaEl.style.height = textareaEl.scrollHeight + 'px';
+
+                            if (typeof optionalOnResizeCallback === 'function') {
+                                optionalOnResizeCallback();
+                            }
+                        };
+                    },
                 },
                 Components: {
                     LoadingStatus: {
@@ -700,6 +722,12 @@
                                         },
                                     },
                                     ItemTitle: {
+                                        getElId: function (listItemObj) {
+                                            return 'list-item-title-' + listItemObj.id + '-' + listItemObj.list_item_type;
+                                        },
+                                        getTextareaElId: function (listItemObj) {
+                                            return 'list-item-title-input-' + listItemObj.id + '-' + listItemObj.list_item_type;
+                                        },
                                         createEl: function (listItemObj) {
                                             const listItemTitle = document.createElement('div');
                                             listItemTitle.classList.add('list-item-title');
@@ -710,7 +738,7 @@
                                             listItemTitleTextEl.innerText = listItemTitleText;
                                             listItemTitleTextEl.setAttribute(
                                                 'id',
-                                                'list-item-title-' + listItemObj.id + '-' + listItemObj.list_item_type
+                                                this.getElId(listItemObj)
                                             );
 
                                             switch (listItemObj.list_item_type) {
@@ -731,40 +759,21 @@
                                         },
                                         getEl: function (listItemObj) {
                                             return document.getElementById(
-                                                'list-item-title-' + listItemObj.id + '-' + listItemObj.list_item_type
+                                                this.getElId(listItemObj)
                                             );
-                                        },
-                                        createTextarea: function (listItemObj) {
-                                            const textareaEl = document.createElement('textarea');
-                                            textareaEl.setAttribute(
-                                                'id',
-                                                'list-item-title-input-' + listItemObj.id + '-' + listItemObj.list_item_type
-                                            );
-                                            textareaEl.value = listItemObj.title;
-
-                                            return textareaEl;
-                                        },
-                                        makeTextareaHeightAutoResize: function (textareaEl , optionalOnResizeCallback) {
-                                            textareaEl.style.height = textareaEl.scrollHeight + 'px';
-
-                                            textareaEl.onkeyup = function () {
-                                                textareaEl.style.height = 0;
-                                                textareaEl.style.height = textareaEl.scrollHeight + 'px';
-
-                                                if (typeof optionalOnResizeCallback === 'function') {
-                                                    optionalOnResizeCallback();
-                                                }
-                                            };
                                         },
                                         enableEditMode: function (listItemObj) {
                                             const listItemTitleEl = this.getEl(listItemObj);
 
-                                            const listItemTitleInputEl = this.createTextarea(listItemObj);
+                                            const listItemTitleInputEl = window.App.Helpers.createTextarea(
+                                                this.getTextareaElId(listItemObj),
+                                                listItemObj.title
+                                            );
 
                                             listItemTitleEl.innerHTML = '';
                                             listItemTitleEl.appendChild(listItemTitleInputEl);
 
-                                            this.makeTextareaHeightAutoResize(
+                                            window.App.Helpers.makeTextareaHeightAutoResize(
                                                 listItemTitleInputEl,
                                                 function () {
                                                     const listItemEl = document.getElementById(
