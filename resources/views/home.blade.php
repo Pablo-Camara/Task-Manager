@@ -147,7 +147,7 @@
                 cursor: pointer;
             }
 
-            .list .list-item .list-item-title span textarea {
+            .list .list-item .list-item-title textarea {
                 width: 100%;
                 background: rgba(0, 0, 0, 0.08);
                 border: 1px solid #0b4356;
@@ -751,56 +751,87 @@
                                         },
                                     },
                                     ItemTitle: {
+                                        getContainerElId: function (listItemObj) {
+                                            return 'list-item-title-container-' + listItemObj.id + '-' + listItemObj.list_item_type;
+                                        },
+                                        getContainerEl: function (listItemObj) {
+                                            return document.getElementById(
+                                                this.getContainerElId(listItemObj)
+                                            );
+                                        },
                                         getElId: function (listItemObj) {
                                             return 'list-item-title-' + listItemObj.id + '-' + listItemObj.list_item_type;
-                                        },
-                                        getTextareaElId: function (listItemObj) {
-                                            return 'list-item-title-input-' + listItemObj.id + '-' + listItemObj.list_item_type;
-                                        },
-                                        createEl: function (listItemObj) {
-                                            const listItemTitle = document.createElement('div');
-                                            listItemTitle.classList.add('list-item-title');
-                                            listItemTitle.innerHTML = '';
-
-                                            const listItemTitleText = listItemObj.list_item_type === 'task' ? listItemObj.title : listItemObj.name;
-                                            const listItemTitleTextEl = document.createElement('span');
-                                            listItemTitleTextEl.innerText = listItemTitleText;
-                                            listItemTitleTextEl.setAttribute(
-                                                'id',
-                                                this.getElId(listItemObj)
-                                            );
-
-                                            switch (listItemObj.list_item_type) {
-                                                case 'task':
-                                                    listItemTitle.innerHTML += '<svg style="color: white" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-activity" viewBox="0 0 16 16"> <path fill-rule="evenodd" d="M6 2a.5.5 0 0 1 .47.33L10 12.036l1.53-4.208A.5.5 0 0 1 12 7.5h3.5a.5.5 0 0 1 0 1h-3.15l-1.88 5.17a.5.5 0 0 1-.94 0L6 3.964 4.47 8.171A.5.5 0 0 1 4 8.5H.5a.5.5 0 0 1 0-1h3.15l1.88-5.17A.5.5 0 0 1 6 2Z" fill="white"></path> </svg>';
-                                                    break;
-                                                case 'folder':
-                                                    listItemTitle.innerHTML += '<svg style="color: white" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-folder" viewBox="0 0 16 16"> <path d="M.54 3.87.5 3a2 2 0 0 1 2-2h3.672a2 2 0 0 1 1.414.586l.828.828A2 2 0 0 0 9.828 3h3.982a2 2 0 0 1 1.992 2.181l-.637 7A2 2 0 0 1 13.174 14H2.826a2 2 0 0 1-1.991-1.819l-.637-7a1.99 1.99 0 0 1 .342-1.31zM2.19 4a1 1 0 0 0-.996 1.09l.637 7a1 1 0 0 0 .995.91h10.348a1 1 0 0 0 .995-.91l.637-7A1 1 0 0 0 13.81 4H2.19zm4.69-1.707A1 1 0 0 0 6.172 2H2.5a1 1 0 0 0-1 .981l.006.139C1.72 3.042 1.95 3 2.19 3h5.396l-.707-.707z" fill="white"></path> </svg>';
-
-                                                    listItemTitle.onclick = function (e) {
-                                                        window.App.Views.FolderContent.switchToFolder(listItemObj.id);
-                                                    };
-                                                    break;
-                                            }
-
-                                            listItemTitle.appendChild(listItemTitleTextEl);
-                                            return listItemTitle;
                                         },
                                         getEl: function (listItemObj) {
                                             return document.getElementById(
                                                 this.getElId(listItemObj)
                                             );
                                         },
+                                        getTextareaElId: function (listItemObj) {
+                                            return 'list-item-title-input-' + listItemObj.id + '-' + listItemObj.list_item_type;
+                                        },
+                                        getIcon: function (listItemObj) {
+                                            switch (listItemObj.list_item_type) {
+                                                case 'task':
+                                                    return '<svg style="color: white" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-activity" viewBox="0 0 16 16"> <path fill-rule="evenodd" d="M6 2a.5.5 0 0 1 .47.33L10 12.036l1.53-4.208A.5.5 0 0 1 12 7.5h3.5a.5.5 0 0 1 0 1h-3.15l-1.88 5.17a.5.5 0 0 1-.94 0L6 3.964 4.47 8.171A.5.5 0 0 1 4 8.5H.5a.5.5 0 0 1 0-1h3.15l1.88-5.17A.5.5 0 0 1 6 2Z" fill="white"></path> </svg>';
+                                                case 'folder':
+                                                    return '<svg style="color: white" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-folder" viewBox="0 0 16 16"> <path d="M.54 3.87.5 3a2 2 0 0 1 2-2h3.672a2 2 0 0 1 1.414.586l.828.828A2 2 0 0 0 9.828 3h3.982a2 2 0 0 1 1.992 2.181l-.637 7A2 2 0 0 1 13.174 14H2.826a2 2 0 0 1-1.991-1.819l-.637-7a1.99 1.99 0 0 1 .342-1.31zM2.19 4a1 1 0 0 0-.996 1.09l.637 7a1 1 0 0 0 .995.91h10.348a1 1 0 0 0 .995-.91l.637-7A1 1 0 0 0 13.81 4H2.19zm4.69-1.707A1 1 0 0 0 6.172 2H2.5a1 1 0 0 0-1 .981l.006.139C1.72 3.042 1.95 3 2.19 3h5.396l-.707-.707z" fill="white"></path> </svg>';
+                                            }
+                                            return '';
+                                        },
+                                        createContainerEl: function (listItemObj) {
+                                            const listItemTitleContainer = document.createElement('div');
+                                            listItemTitleContainer.classList.add('list-item-title');
+                                            listItemTitleContainer.setAttribute(
+                                                'id',
+                                                this.getContainerElId(listItemObj)
+                                            );
+                                            listItemTitleContainer.innerHTML = '';
+                                            const icon = this.getIcon(listItemObj);
+                                            listItemTitleContainer.innerHTML += icon;
+
+                                            return listItemTitleContainer;
+                                        },
+                                        createTitleEl: function (listItemObj) {
+                                            const listItemTitleTextEl = document.createElement('span');
+                                            listItemTitleTextEl.setAttribute(
+                                                'id',
+                                                this.getElId(listItemObj)
+                                            );
+
+
+                                            switch (listItemObj.list_item_type) {
+                                                case 'task':
+                                                    listItemTitleTextEl.innerText = listItemObj.title;
+                                                    break;
+                                                case 'folder':
+                                                    listItemTitleTextEl.innerText = listItemObj.name;
+                                                    listItemTitleTextEl.onclick = function (e) {
+                                                        window.App.Views.FolderContent.switchToFolder(listItemObj.id);
+                                                    };
+                                                    break;
+                                            }
+                                            return listItemTitleTextEl;
+                                        },
+                                        createEl: function (listItemObj) {
+                                            const listItemTitleContainer = this.createContainerEl(listItemObj);
+                                            const listItemTitleTextEl = this.createTitleEl(listItemObj);
+                                            listItemTitleContainer.appendChild(listItemTitleTextEl);
+                                            return listItemTitleContainer;
+                                        },
                                         enableEditMode: function (listItemObj) {
-                                            const listItemTitleEl = this.getEl(listItemObj);
+                                            const listItemTitleContainer = this.getContainerEl(listItemObj);
+                                            listItemTitleContainer.innerHTML = '';
+
+                                            const icon = this.getIcon(listItemObj);
+                                            listItemTitleContainer.innerHTML += icon;
 
                                             const listItemTitleInputEl = window.App.Helpers.createTextarea(
                                                 this.getTextareaElId(listItemObj),
                                                 listItemObj.title
                                             );
 
-                                            listItemTitleEl.innerHTML = '';
-                                            listItemTitleEl.appendChild(listItemTitleInputEl);
+                                            listItemTitleContainer.appendChild(listItemTitleInputEl);
 
                                             window.App.Helpers.makeTextareaHeightAutoResize(
                                                 listItemTitleInputEl,
@@ -816,6 +847,22 @@
                                             );
 
                                             listItemTitleInputEl.focus();
+
+                                            const $this = this;
+                                            listItemTitleInputEl.addEventListener('focusout', (event) => {
+                                                listItemObj.title = event.target.value;
+                                                $this.disableEditMode(listItemObj);
+                                            });
+                                        },
+                                        disableEditMode: function (listItemObj) {
+                                            const listItemTitleContainer = this.getContainerEl(listItemObj);
+                                            listItemTitleContainer.innerHTML = '';
+
+                                            const icon = this.getIcon(listItemObj);
+                                            listItemTitleContainer.innerHTML += icon;
+
+                                            const listItemTitleTextEl = this.createTitleEl(listItemObj);
+                                            listItemTitleContainer.appendChild(listItemTitleTextEl);
                                         }
                                     },
                                     TimeSpent: {
