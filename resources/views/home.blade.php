@@ -471,28 +471,29 @@
                             const newListItem = this.Components.ListItem.createEl(listItemObj);
                             this.el().appendChild(newListItem.listItemEl);
 
-                            this.Components.ListItem.Components.TimeInteraction.centerTimeInteractionEl(
-                                newListItem.timeInteractionEl,
-                                newListItem.listItemEl
-                            );
+                            this.Components.ListItem
+                            .Components.TimeInteraction.centerTimeInteractionEl(listItemObj);
 
-                            this.Components.ListItem.Components.ItemOptions.centerMainComponents(
-                                newListItem.listItemOptionsEl,
-                                newListItem.listItemOptionsMenuEl,
-                                newListItem.listItemEl
-                            );
+                            this.Components.ListItem
+                            .Components.ItemOptions.centerMainComponents(listItemObj);
                         },
                         clearListItems: function () {
                             this.el().innerHTML = '';
                         },
                         Components: {
                             ListItem: {
+                                getElId: function (listItemObj) {
+                                    return 'list-item-' + listItemObj.id + '-' + listItemObj.list_item_type;
+                                },
+                                getEl: function (listItemObj) {
+                                    return document.getElementById(this.getElId(listItemObj));
+                                },
                                 createEl: function (listItemObj) {
                                     const listItem = document.createElement('div');
                                     listItem.classList.add('list-item');
                                     listItem.setAttribute(
                                         'id',
-                                        'list-item-' + listItemObj.id + '-' + listItemObj.list_item_type
+                                        this.getElId(listItemObj)
                                     );
 
                                     const timeInteraction = this.Components.TimeInteraction.createEl(listItemObj);
@@ -522,12 +523,18 @@
                                 },
                                 Components: {
                                     TimeInteraction: {
+                                        getElId: function (listItemObj) {
+                                            return 'time-interaction-' + listItemObj.id + '-' + listItemObj.list_item_type;
+                                        },
+                                        getEl: function (listItemObj) {
+                                            return document.getElementById(this.getElId(listItemObj));
+                                        },
                                         createEl: function (listItemObj) {
                                             const timeInteraction = document.createElement('div');
                                             timeInteraction.classList.add('time-interaction');
                                             timeInteraction.setAttribute(
                                                 'id',
-                                                'time-interaction-' + listItemObj.id + '-' + listItemObj.list_item_type
+                                                this.getElId(listItemObj)
                                             );
 
                                             if (listItemObj.list_item_type === 'task') {
@@ -564,7 +571,11 @@
 
                                             return pauseButton;
                                         },
-                                        centerTimeInteractionEl: function (timeInteractionButtonEl, listItemEl) {
+                                        centerTimeInteractionEl: function (listItemObj) {
+                                            const listItemEl = window.App.Components.FolderContentList
+                                            .Components.ListItem.getEl(listItemObj);
+
+                                            const timeInteractionButtonEl = this.getEl(listItemObj);
                                             // center time interaction vertically
                                             if ( timeInteractionButtonEl.style.display !== 'none' ) {
                                                 const timeInteractionYPos = window.App.Helpers.getVerticalCenter(
@@ -578,12 +589,18 @@
                                     ItemOptions: {
                                         Components: {
                                             ToggleButton: {
+                                                getElId: function (listItemObj) {
+                                                    return 'list-item-options-' + listItemObj.id + '-' + listItemObj.list_item_type;
+                                                },
+                                                getEl: function (listItemObj) {
+                                                    return document.getElementById(this.getElId(listItemObj));
+                                                },
                                                 createEl: function (listItemObj) {
                                                     const listItemOptions = document.createElement('div');
                                                     listItemOptions.classList.add('list-item-options');
                                                     listItemOptions.setAttribute(
                                                         'id',
-                                                        'list-item-options-' + listItemObj.id + '-' + listItemObj.list_item_type
+                                                        this.getElId(listItemObj)
                                                     );
 
                                                     const optionDot1 = document.createElement('div');
@@ -624,6 +641,12 @@
                                                 },
                                             },
                                             Menu: {
+                                                getElId: function (listItemObj) {
+                                                    return 'list-item-options-menu-' + listItemObj.id + '-' + listItemObj.list_item_type;
+                                                },
+                                                getEl: function (listItemObj) {
+                                                    return document.getElementById(this.getElId(listItemObj));
+                                                },
                                                 createEl: function (listItemObj) {
                                                     const listItemOptionsMenuEl = document.createElement('div');
                                                     listItemOptionsMenuEl.classList.add('list-item-options-menu');
@@ -631,7 +654,7 @@
 
                                                     listItemOptionsMenuEl.setAttribute(
                                                         'id',
-                                                        'list-item-options-menu-' + listItemObj.id + '-' + listItemObj.list_item_type
+                                                        this.getElId(listItemObj)
                                                     );
 
                                                     switch (listItemObj.list_item_type) {
@@ -708,17 +731,23 @@
                                                 },
                                             }
                                         },
-                                        centerMainComponents: function (listItemOptionsEl, listItemOptionsMenuEl, listItemEl) {
+                                        centerMainComponents: function (listItemObj) {
+                                            const listItemEl = window.App.Components.FolderContentList
+                                            .Components.ListItem.getEl(listItemObj);
+
+                                            const toggleButtonEl = this.Components.ToggleButton.getEl(listItemObj);
+                                            const menuEl = this.Components.Menu.getEl(listItemObj);
+
                                             // center list item options 3 dots btn vertically
                                             const listItemOptionsBtnYPos = window.App.Helpers.getVerticalCenter(
-                                                listItemOptionsEl.offsetHeight,
+                                                toggleButtonEl.offsetHeight,
                                                 listItemEl.offsetHeight
                                             );
-                                            listItemOptionsEl.style.top = listItemOptionsBtnYPos + 'px';
+                                            toggleButtonEl.style.top = listItemOptionsBtnYPos + 'px';
 
                                             // set list item options menu position
-                                            listItemOptionsMenuEl.style.top = listItemOptionsEl.style.top;
-                                            listItemOptionsMenuEl.style.right = listItemOptionsEl.offsetWidth + 'px';
+                                            menuEl.style.top = toggleButtonEl.style.top;
+                                            menuEl.style.right = toggleButtonEl.offsetWidth + 'px';
                                         },
                                     },
                                     ItemTitle: {
@@ -776,30 +805,13 @@
                                             window.App.Helpers.makeTextareaHeightAutoResize(
                                                 listItemTitleInputEl,
                                                 function () {
-                                                    const listItemEl = document.getElementById(
-                                                        'list-item-' + listItemObj.id + '-' + listItemObj.list_item_type
-                                                    );
-                                                    const timeInteractionEl = document.getElementById(
-                                                        'time-interaction-' + listItemObj.id + '-' + listItemObj.list_item_type
-                                                    );
+                                                    window.App.Components.FolderContentList
+                                                    .Components.ListItem
+                                                    .Components.TimeInteraction.centerTimeInteractionEl(listItemObj);
 
-                                                    window.App.Components.FolderContentList.Components.ListItem.Components.TimeInteraction.centerTimeInteractionEl(
-                                                        timeInteractionEl,
-                                                        listItemEl
-                                                    );
-
-                                                    const listItemOptionsEl = document.getElementById(
-                                                        'list-item-options-' + listItemObj.id + '-' + listItemObj.list_item_type
-                                                    );
-                                                    const listItemOptionsMenuEl = document.getElementById(
-                                                        'list-item-options-menu-' + listItemObj.id + '-' + listItemObj.list_item_type
-                                                    );
-
-                                                    window.App.Components.FolderContentList.Components.ListItem.Components.ItemOptions.centerMainComponents(
-                                                        listItemOptionsEl,
-                                                        listItemOptionsMenuEl,
-                                                        listItemEl
-                                                    );
+                                                    window.App.Components.FolderContentList
+                                                    .Components.ListItem
+                                                    .Components.ItemOptions.centerMainComponents(listItemObj);
                                                 }
                                             );
 
