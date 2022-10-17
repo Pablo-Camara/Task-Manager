@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\FolderContentController;
+use App\Http\Controllers\FolderController;
 use App\Http\Controllers\TaskController;
 use Illuminate\Support\Facades\Route;
 
@@ -19,3 +20,5 @@ Route::post('/folder-content/list', [FolderContentController::class, 'list']);
 
 
 Route::post('/tasks/edit-title', [TaskController::class, 'editTitle']);
+
+Route::post('/folders/edit-name', [FolderController::class, 'editName']);

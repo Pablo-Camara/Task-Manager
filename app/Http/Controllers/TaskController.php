@@ -41,7 +41,7 @@ class TaskController extends Controller
 
         if ($taskSaved) {
             return new Response([
-                'message' => __('Task updated')
+                'message' => __('Task title updated')
             ], 200);
         }
 
