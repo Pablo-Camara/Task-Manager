@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Folder;
+use Illuminate\Support\Facades\DB;
 
 class FolderService
 {
@@ -17,7 +18,7 @@ class FolderService
         $folders = Folder::select(
             [
                 'id',
-                'name',
+                DB::raw('name AS title'),
             ]
         )
         ->with(

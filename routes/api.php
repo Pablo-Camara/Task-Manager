@@ -19,6 +19,6 @@ use Illuminate\Support\Facades\Route;
 Route::post('/folder-content/list', [FolderContentController::class, 'list']);
 
 
-Route::post('/tasks/edit-title', [TaskController::class, 'editTitle']);
+Route::post('/tasks/edit-name', [TaskController::class, 'editName']);
 
 Route::post('/folders/edit-name', [FolderController::class, 'editName']);

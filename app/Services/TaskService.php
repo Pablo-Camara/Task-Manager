@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Helpers\Statuses\TaskStatuses;
 use App\Models\Task;
+use Illuminate\Support\Facades\DB;
 
 class TaskService
 {
@@ -29,7 +30,7 @@ class TaskService
         $tasks = Task::select(
             [
                 'id',
-                'title',
+                DB::raw('name AS title'),
                 'folder_id'
             ]
         )

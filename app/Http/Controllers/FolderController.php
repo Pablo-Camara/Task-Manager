@@ -14,7 +14,7 @@ class FolderController extends Controller
         Validator::make(
             $request->all(),
             [
-                'folder_id' => 'required|exists:folders,id',
+                'id' => 'required|exists:folders,id',
                 'name' => 'required|max:255'
             ],
             [
@@ -27,12 +27,12 @@ class FolderController extends Controller
          * @var Folder
          */
         $folder = Folder::find(
-            $request->input('folder_id')
+            $request->input('id')
         );
 
         if (empty($folder)) {
             throw ValidationException::withMessages([
-                'folder_id' => __('Folder not found')
+                'id' => __('Folder not found')
             ]);
         }
 

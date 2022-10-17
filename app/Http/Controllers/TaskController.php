@@ -10,12 +10,12 @@ use Illuminate\Validation\ValidationException;
 
 class TaskController extends Controller
 {
-    public function editTitle(Request $request) {
+    public function editName(Request $request) {
         Validator::make(
             $request->all(),
             [
-                'task_id' => 'required|exists:tasks,id',
-                'title' => 'required|max:2048'
+                'id' => 'required|exists:tasks,id',
+                'name' => 'required|max:2048'
             ],
             [
                 'title.required' => __('The task title cannot be empty'),
@@ -27,16 +27,16 @@ class TaskController extends Controller
          * @var Task
          */
         $task = Task::find(
-            $request->input('task_id')
+            $request->input('id')
         );
 
         if (empty($task)) {
             throw ValidationException::withMessages([
-                'task_id' => __('Task not found')
+                'id' => __('Task not found')
             ]);
         }
 
-        $task->title = $request->input('title');
+        $task->name = $request->input('name');
         $taskSaved = $task->save();
 
         if ($taskSaved) {

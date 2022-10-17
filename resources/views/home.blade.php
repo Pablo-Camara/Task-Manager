@@ -894,7 +894,7 @@
                                     },
                                     ItemTitle: {
                                         api: {
-                                            task: "{{ url('/api/tasks/edit-title') }}",
+                                            task: "{{ url('/api/tasks/edit-name') }}",
                                             folder: "{{ url('/api/folders/edit-name') }}"
                                         },
                                         getContainerElId: function (listItemObj) {
@@ -948,13 +948,12 @@
                                                 this.getElId(listItemObj)
                                             );
 
+                                            listItemTitleTextEl.innerText = listItemObj.title;
 
                                             switch (listItemObj.list_item_type) {
                                                 case 'task':
-                                                    listItemTitleTextEl.innerText = listItemObj.title;
                                                     break;
                                                 case 'folder':
-                                                    listItemTitleTextEl.innerText = listItemObj.name;
                                                     listItemTitleTextEl.onclick = function (e) {
                                                         window.App.Views.FolderContent.switchToFolder(listItemObj.id);
                                                     };
@@ -975,22 +974,19 @@
                                             const icon = this.getIcon(listItemObj);
                                             listItemTitleContainer.innerHTML += icon;
 
-                                            var listItemTitle = '';
                                             var listItemTitleMaxlength = 255;
                                             switch (listItemObj.list_item_type) {
                                                 case 'task':
-                                                    listItemTitle = listItemObj.title;
                                                     listItemTitleMaxlength = 2048;
                                                     break;
                                                 case 'folder':
-                                                    listItemTitle = listItemObj.name;
                                                     listItemTitleMaxlength = 255;
                                                     break;
                                             }
 
                                             const listItemTitleInputEl = window.App.Helpers.createTextarea(
                                                 this.getTextareaElId(listItemObj),
-                                                listItemTitle
+                                                listItemObj.title
                                             );
                                             //TODO: Max length of list-item should be equal to allowed in db
                                            listItemTitleInputEl.setAttribute('maxlength', listItemTitleMaxlength);
@@ -1018,14 +1014,7 @@
                                                     event.target.value,
                                                     listItemObj,
                                                     function (newTitle, listItemObjParam) {
-                                                        switch (listItemObjParam.list_item_type) {
-                                                            case 'task':
-                                                                listItemObjParam.title = newTitle;
-                                                                break;
-                                                            case 'folder':
-                                                                listItemObjParam.name = newTitle;
-                                                                break;
-                                                        }
+                                                        listItemObjParam.title = newTitle;
                                                         $this.disableEditMode(listItemObjParam);
                                                     }
                                                 );
@@ -1115,18 +1104,10 @@
                                             xhr.open("POST", this.api[listItemObj.list_item_type], true);
                                             xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
 
-                                            const reqObj = {};
-
-                                            switch (listItemObj.list_item_type) {
-                                                case 'task':
-                                                    reqObj.task_id = listItemObj.id;
-                                                    reqObj.title = newTitle;
-                                                    break;
-                                                case 'folder':
-                                                    reqObj.folder_id = listItemObj.id;
-                                                    reqObj.name = newTitle;
-                                                    break;
-                                            }
+                                            const reqObj = {
+                                                id: listItemObj.id,
+                                                name: newTitle
+                                            };
 
                                             xhr.send(JSON.stringify(reqObj));
 
