@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Helpers\Statuses\TaskStatuses;
 use App\Models\Task;
 
 class TaskService
@@ -39,6 +40,8 @@ class TaskService
                 }
             ]
         );
+
+        $tasks = $tasks->where('task_status_id', '=', TaskStatuses::ACTIVE);
 
         if (empty($folderId)) {
             $tasks = $tasks->whereNull('folder_id');

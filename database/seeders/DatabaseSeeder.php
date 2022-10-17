@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             TaskActionsSeeder::class,
+            TaskStatusSeeder::class,
 
             //temporary:
             TestSeeder::class
