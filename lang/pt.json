@@ -4,5 +4,13 @@
     "Mark as Completed": "Marcar como Concluído",
     "Mark as On Hold": "Marcar como Em espera",
     "Mark as Deprecated": "Marcar como Descontinuado",
-    "Delete": "Apagar"
+    "Delete": "Apagar",
+
+    "Task not found": "Tarefa não encontrada",
+    "Task updated": "Tarefa actualizada",
+
+    "Saving changes..": "Guardando alterações..",
+    "Failed to save changes": "Falha ao guardar alterações",
+    "The task title cannot be empty": "O título da tarefa não pode ficar vazio",
+    "The task title cannot have more than 2048 characters": "O título da tarefa não pode ter mais de 2048 caracteres"
 }

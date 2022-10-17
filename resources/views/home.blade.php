@@ -98,6 +98,48 @@
                 min-height: 82px;
             }
 
+            .list .list-item .save-status {
+                color: white;
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                z-index: 9999999;
+            }
+
+            .list .list-item .save-status.info {
+                background: rgba(0, 158, 255, 0.93);
+                color: #ffffff;
+            }
+
+
+            .list .list-item .save-status.success {
+                background: rgba(39, 255, 0, 0.93);
+                color: #032f40;
+            }
+
+            .list .list-item .save-status.error {
+                background: rgba(255, 0, 0, 0.93);
+                color: #ffffff;
+            }
+
+            .list .list-item .save-status .save-status-text {
+                position: absolute;
+                top: 40%;
+                width: 100%;
+                text-align: center;
+                padding: 14px 0;
+            }
+
+            .list .list-item .save-status .save-status-text .ok-btn {
+                background: white;
+                color: black;
+                padding: 10px 0;
+                max-width: 100px;
+                margin: 10px auto;
+                cursor: pointer;
+            }
 
             .list .list-item .time-interaction {
                 height: 20px;
@@ -313,7 +355,11 @@
                 mark_as_completed: "{{ __('Mark as Completed') }}",
                 mark_as_on_hold: "{{ __('Mark as On Hold') }}",
                 mark_as_deprecated: "{{ __('Mark as Deprecated') }}",
-                delete: "{{ __('Delete') }}"
+                delete: "{{ __('Delete') }}",
+                saving_changes: "{{ __('Saving changes..') }}",
+                saving_changes_failed: "{{ __('Failed to save changes') }}",
+
+                ok: "{{ __('Ok') }}",
             };
 
             window.App = {
@@ -483,7 +529,7 @@
                         Components: {
                             ListItem: {
                                 getElId: function (listItemObj) {
-                                    return 'list-item-' + listItemObj.id + '-' + listItemObj.list_item_type;
+                                    return  listItemObj.list_item_type + '-' + listItemObj.id;
                                 },
                                 getEl: function (listItemObj) {
                                     return document.getElementById(this.getElId(listItemObj));
@@ -496,6 +542,7 @@
                                         this.getElId(listItemObj)
                                     );
 
+                                    const saveStatus = this.Components.SaveStatus.createEl(listItemObj);
                                     const timeInteraction = this.Components.TimeInteraction.createEl(listItemObj);
                                     const listItemOptions = this.Components.ItemOptions.Components.ToggleButton.createEl(listItemObj);
                                     const listItemOptionsMenu = this.Components.ItemOptions.Components.Menu.createEl(listItemObj);
@@ -504,6 +551,7 @@
                                     //const parentFolders = this.Components.ParentFolders.createEl(listItemObj);
                                     const tags = this.Components.Tags.createEl(listItemObj);
 
+                                    listItem.appendChild(saveStatus);
                                     listItem.appendChild(timeInteraction);
                                     listItem.appendChild(listItemOptions);
                                     listItem.appendChild(listItemOptionsMenu);
@@ -522,6 +570,105 @@
                                     };
                                 },
                                 Components: {
+                                    SaveStatus: {
+                                        getContainerElId: function (listItemObj) {
+                                            return 'list-item-save-status-' + listItemObj.id + '-' + listItemObj.list_item_type;
+                                        },
+                                        getContainerEl: function (listItemObj) {
+                                            return document.getElementById(this.getContainerElId(listItemObj));
+                                        },
+                                        getElId: function (listItemObj) {
+                                            return 'list-item-save-status-text-' + listItemObj.id + '-' + listItemObj.list_item_type;
+                                        },
+                                        getEl: function (listItemObj) {
+                                            return document.getElementById(this.getElId(listItemObj));
+                                        },
+                                        createEl: function (listItemObj) {
+                                            const saveStatusEl = document.createElement('div');
+                                            saveStatusEl.classList.add('save-status');
+                                            saveStatusEl.setAttribute('id', this.getContainerElId(listItemObj));
+
+                                            const saveStatusTextEl = document.createElement('div');
+                                            saveStatusTextEl.classList.add('save-status-text');
+                                            saveStatusTextEl.setAttribute('id', this.getElId(listItemObj));
+
+                                            saveStatusEl.appendChild(saveStatusTextEl);
+
+                                            saveStatusEl.style.display = 'none';
+
+                                            return saveStatusEl;
+                                        },
+                                        resetColorClasses: function (listItemObj, except = []) {
+                                            const containerEl = this.getContainerEl(listItemObj);
+                                            const colorClasses = ['error', 'info', 'success'];
+
+                                            for(var i = 0; i < colorClasses.length; i++) {
+                                                const colorClass = colorClasses[i];
+
+                                                if (except.indexOf(colorClass) === -1) {
+                                                    containerEl.classList.remove(colorClass);
+                                                }
+                                            }
+                                        },
+                                        showInfoMessage: function (message, listItemObj) {
+                                            this.showMessage(message, 'info', listItemObj);
+                                        },
+                                        showErrorMessage: function (message, listItemObj, okBtnCallback) {
+                                            this.showMessage(message, 'error', listItemObj, true, okBtnCallback);
+                                        },
+                                        showSuccessMessage: function (message, listItemObj) {
+                                            this.showMessage(message, 'success', listItemObj);
+                                        },
+                                        showMessage: function (message, colorClass, listItemObj, showOkBtn = false, okBtnCallback = null) {
+                                            const containerEl = this.getContainerEl(listItemObj);
+                                            const textEl = this.getEl(listItemObj);
+
+                                            textEl.innerHTML = '';
+                                            textEl.innerText = message;
+
+                                            if (showOkBtn === true) {
+                                                const okBtn = document.createElement('div');
+                                                okBtn.classList.add('ok-btn');
+                                                okBtn.innerText = window.Translation.ok;
+
+                                                const $this = this;
+                                                okBtn.onclick = function (e) {
+                                                    $this.hide(listItemObj);
+
+                                                    if (
+                                                        typeof okBtnCallback === 'function'
+                                                    ) {
+                                                        okBtnCallback();
+                                                    }
+                                                };
+
+                                                textEl.appendChild(okBtn);
+                                            }
+
+                                            containerEl.classList.add(colorClass);
+                                            this.resetColorClasses(listItemObj, [colorClass]);
+                                            containerEl.style.display = 'block';
+
+                                            const center = window.App.Helpers.getVerticalCenter(
+                                                textEl.offsetHeight,
+                                                containerEl.offsetHeight
+                                            );
+
+                                            textEl.style.top = center + 'px';
+
+                                            window.location.href = '#' + this.getElId(listItemObj);
+                                        },
+                                        hide: function (listItemObj) {
+                                            const containerEl = this.getContainerEl(listItemObj);
+                                            const textEl = this.getEl(listItemObj);
+
+                                            textEl.innerText = '';
+                                            containerEl.style.display = 'none';
+
+                                            window.location.href = '#' + window.App.Components.FolderContentList
+                                            .Components.ListItem.getElId(listItemObj);
+                                        }
+                                    },
                                     TimeInteraction: {
                                         getElId: function (listItemObj) {
                                             return 'time-interaction-' + listItemObj.id + '-' + listItemObj.list_item_type;
@@ -751,6 +898,7 @@
                                         },
                                     },
                                     ItemTitle: {
+                                        api: "{{ url('/api/tasks/edit-title') }}",
                                         getContainerElId: function (listItemObj) {
                                             return 'list-item-title-container-' + listItemObj.id + '-' + listItemObj.list_item_type;
                                         },
@@ -769,6 +917,9 @@
                                         },
                                         getTextareaElId: function (listItemObj) {
                                             return 'list-item-title-input-' + listItemObj.id + '-' + listItemObj.list_item_type;
+                                        },
+                                        getTextareaEl: function (listItemObj) {
+                                            return document.getElementById(this.getTextareaElId(listItemObj));
                                         },
                                         getIcon: function (listItemObj) {
                                             switch (listItemObj.list_item_type) {
@@ -830,6 +981,8 @@
                                                 this.getTextareaElId(listItemObj),
                                                 listItemObj.title
                                             );
+                                            //TODO: Max length of list-item should be equal to allowed in db
+                                           listItemTitleInputEl.setAttribute('maxlength', 2048);
 
                                             listItemTitleContainer.appendChild(listItemTitleInputEl);
 
@@ -850,8 +1003,13 @@
 
                                             const $this = this;
                                             listItemTitleInputEl.addEventListener('focusout', (event) => {
-                                                listItemObj.title = event.target.value;
-                                                $this.disableEditMode(listItemObj);
+                                                $this.saveTitle(
+                                                    event.target.value,
+                                                    listItemObj,
+                                                    function (listItemObjParam) {
+                                                        $this.disableEditMode(listItemObjParam);
+                                                    }
+                                                );
                                             });
                                         },
                                         disableEditMode: function (listItemObj) {
@@ -871,6 +1029,79 @@
                                                     window.App.Components.FolderContentList
                                                     .Components.ListItem
                                                     .Components.ItemOptions.centerMainComponents(listItemObj);
+                                        },
+                                        saveTitle: function (newTitle, listItemObj, onSaveCallback) {
+
+                                            var xhr = new XMLHttpRequest();
+                                            xhr.withCredentials = true;
+
+                                            window.App.Components.FolderContentList
+                                            .Components.ListItem
+                                            .Components.SaveStatus.showInfoMessage(
+                                                window.Translation.saving_changes,
+                                                listItemObj
+                                            );
+
+                                            const $this = this;
+                                            xhr.addEventListener("readystatechange", function() {
+                                                if(
+                                                    this.readyState === 4
+                                                ) {
+
+                                                    if ( this.status === 200 ) {
+                                                        listItemObj.title = newTitle;
+                                                        if (
+                                                            typeof onSaveCallback === 'function'
+                                                        ) {
+                                                            onSaveCallback(listItemObj);
+                                                        }
+
+                                                        window.App.Components.FolderContentList
+                                                        .Components.ListItem
+                                                        .Components.SaveStatus.hide(listItemObj);
+                                                        return;
+                                                    }
+
+                                                    try {
+                                                        const jsonRes = JSON.parse(this.responseText);
+
+                                                        if (
+                                                            typeof jsonRes.message !== 'undefined'
+                                                        ) {
+                                                            window.App.Components.FolderContentList
+                                                            .Components.ListItem
+                                                            .Components.SaveStatus.showErrorMessage(
+                                                                jsonRes.message,
+                                                                listItemObj,
+                                                                function () {
+                                                                    $this.getTextareaEl(listItemObj).focus();
+                                                                }
+                                                            );
+                                                            return;
+                                                        }
+                                                    } catch (error) {}
+
+                                                    window.App.Components.FolderContentList
+                                                        .Components.ListItem
+                                                        .Components.SaveStatus.showErrorMessage(
+                                                            window.Translation.saving_changes_failed,
+                                                            listItemObj,
+                                                            function () {
+                                                                $this.getTextareaEl(listItemObj).focus();
+                                                            }
+                                                        );
+                                                }
+                                            });
+
+                                            xhr.open("POST", this.api, true);
+                                            xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+                                            xhr.send(JSON.stringify(
+                                                {
+                                                    task_id: listItemObj.id,
+                                                    title: newTitle
+                                                }
+                                            ));
+
                                         }
                                     },
                                     TimeSpent: {
