@@ -351,14 +351,23 @@
             window.Translation = {
                 opening_folder: "{{ __('Opening folder.. please wait') }}",
 
-                edit: "{{ __('Edit') }}",
+                task: {
+                    save: "{{ __('Save task name') }}",
+                    edit: "{{ __('Edit task name') }}",
+                    cancel: "{{ __('Cancel editing task name') }}",
+                    delete: "{{ __('Delete task') }}",
+                },
+                folder: {
+                    save: "{{ __('Save folder name') }}",
+                    edit: "{{ __('Edit folder name') }}",
+                    cancel: "{{ __('Cancel editing folder name') }}",
+                    delete: "{{ __('Delete folder') }}",
+                },
                 mark_as_completed: "{{ __('Mark as Completed') }}",
                 mark_as_on_hold: "{{ __('Mark as On Hold') }}",
                 mark_as_deprecated: "{{ __('Mark as Deprecated') }}",
-                delete: "{{ __('Delete') }}",
                 saving_changes: "{{ __('Saving changes..') }}",
                 saving_changes_failed: "{{ __('Failed to save changes') }}",
-
                 ok: "{{ __('Ok') }}",
             };
 
@@ -529,7 +538,7 @@
                         Components: {
                             ListItem: {
                                 getElId: function (listItemObj) {
-                                    return  listItemObj.list_item_type + '-' + listItemObj.id;
+                                    return listItemObj.list_item_type + '-' + listItemObj.id;
                                 },
                                 getEl: function (listItemObj) {
                                     return document.getElementById(this.getElId(listItemObj));
@@ -799,19 +808,39 @@
                                                         this.getElId(listItemObj)
                                                     );
 
-                                                    switch (listItemObj.list_item_type) {
-                                                        case 'task':
-                                                            this.addTaskMenuItemsToMenuEl(listItemOptionsMenuEl, listItemObj);
-                                                            break;
-                                                        case 'folder':
-                                                            this.addFolderMenuItemsToMenuEl(listItemOptionsMenuEl, listItemObj);
-                                                            break;
-                                                    }
+                                                    this.renderRootMenuForListItem(listItemObj, listItemOptionsMenuEl);
 
                                                     return listItemOptionsMenuEl;
                                                 },
-                                                addTaskMenuItemsToMenuEl: function (listItemOptionsMenuEl, listItemObj) {
-                                                    const editMenuItemEl = this.createEditListItemTitleMenuItemEl(listItemOptionsMenuEl, listItemObj);
+                                                renderRootMenuForListItem: function (listItemObj, listItemOptionsMenuEl) {
+                                                    if (
+                                                        typeof listItemOptionsMenuEl === 'undefined'
+                                                    ) {
+                                                        listItemOptionsMenuEl = this.getEl(listItemObj);
+                                                    }
+
+                                                    switch (listItemObj.list_item_type) {
+                                                        case 'task':
+                                                            this.renderRootMenuItemsForTask(listItemOptionsMenuEl, listItemObj);
+                                                            break;
+                                                        case 'folder':
+                                                            this.renderRootMenuItemsForFolder(listItemOptionsMenuEl, listItemObj);
+                                                            break;
+                                                    }
+                                                },
+                                                createMenuItemEl: function (innerText, colorClass) {
+                                                    const menuItemEl = document.createElement('div');
+                                                    menuItemEl.classList.add('menu-item');
+
+                                                    if (typeof colorClass !== 'undefined') {
+                                                        menuItemEl.classList.add(colorClass);
+                                                    }
+
+                                                    menuItemEl.innerText = innerText;
+                                                    return menuItemEl;
+                                                },
+                                                renderRootMenuItemsForTask: function (listItemOptionsMenuEl, listItemObj) {
+                                                    const editListItemTitleMenuItemEl = this.createEditListItemTitleMenuItemEl(listItemOptionsMenuEl, listItemObj);
 
                                                     const markCompletedMenuItemEl = this.createMenuItemEl(
                                                         window.Translation.mark_as_completed,
@@ -829,47 +858,93 @@
                                                     );
 
                                                     const deleteMenuItemEl =  this.createMenuItemEl(
-                                                        window.Translation.delete,
+                                                        window.Translation[listItemObj.list_item_type].delete,
                                                         'red'
                                                     );
 
                                                     listItemOptionsMenuEl.innerHTML = '';
-                                                    listItemOptionsMenuEl.appendChild(editMenuItemEl);
+                                                    listItemOptionsMenuEl.appendChild(editListItemTitleMenuItemEl);
                                                     listItemOptionsMenuEl.appendChild(markCompletedMenuItemEl);
                                                     listItemOptionsMenuEl.appendChild(markOnHoldMenuItemEl);
                                                     listItemOptionsMenuEl.appendChild(markDeprecatedMenuItemEl);
                                                     listItemOptionsMenuEl.appendChild(deleteMenuItemEl);
                                                 },
-                                                addFolderMenuItemsToMenuEl: function (listItemOptionsMenuEl, listItemObj) {
-                                                    const editMenuItemEl = this.createEditListItemTitleMenuItemEl(listItemOptionsMenuEl, listItemObj);
+                                                renderRootMenuItemsForFolder: function (listItemOptionsMenuEl, listItemObj) {
+                                                    const editListItemTitleMenuItemEl = this.createEditListItemTitleMenuItemEl(listItemOptionsMenuEl, listItemObj);
 
                                                     const deleteMenuItemEl =  this.createMenuItemEl(
-                                                        window.Translation.delete,
+                                                        window.Translation[listItemObj.list_item_type].delete,
                                                         'red'
                                                     );
 
                                                     listItemOptionsMenuEl.innerHTML = '';
-                                                    listItemOptionsMenuEl.appendChild(editMenuItemEl);
+                                                    listItemOptionsMenuEl.appendChild(editListItemTitleMenuItemEl);
                                                     listItemOptionsMenuEl.appendChild(deleteMenuItemEl);
                                                 },
-                                                createMenuItemEl: function (innerText, colorClass) {
-                                                    const menuItemEl = document.createElement('div');
-                                                    menuItemEl.classList.add('menu-item');
+                                                renderEditingListItemTitleMenuItems: function (listItemOptionsMenuEl, listItemObj) {
+                                                    const saveListItemTitleMenuItemEl = this.createSaveListItemTitleMenuItemEl(listItemOptionsMenuEl, listItemObj);
+                                                    const cancelEditListItemTitleMenuItemEl = this.createCancelEditListItemTitleMenuItemEl(listItemOptionsMenuEl, listItemObj);
 
-                                                    if (typeof colorClass !== 'undefined') {
-                                                        menuItemEl.classList.add(colorClass);
-                                                    }
-
-                                                    menuItemEl.innerText = innerText;
-                                                    return menuItemEl;
+                                                    listItemOptionsMenuEl.innerHTML = '';
+                                                    listItemOptionsMenuEl.appendChild(saveListItemTitleMenuItemEl);
+                                                    listItemOptionsMenuEl.appendChild(cancelEditListItemTitleMenuItemEl);
                                                 },
                                                 createEditListItemTitleMenuItemEl: function (listItemOptionsMenuEl, listItemObj) {
-                                                    const editMenuItemEl = this.createMenuItemEl(window.Translation.edit);
-                                                    editMenuItemEl.onclick = function (e) {
-                                                        window.App.Components.FolderContentList.Components.ListItem.Components.ItemTitle.enableEditMode(listItemObj);
-                                                        listItemOptionsMenuEl.style.display = 'none';
+                                                    const editListItemTitleMenuItemEl = this.createMenuItemEl(window.Translation[listItemObj.list_item_type].edit);
+
+                                                    const $this = this;
+                                                    editListItemTitleMenuItemEl.onclick = function (e) {
+                                                        window.App.Components.FolderContentList
+                                                            .Components.ListItem
+                                                                .Components.ItemTitle.enableEditMode(listItemObj);
+
+                                                        $this.renderEditingListItemTitleMenuItems(
+                                                            listItemOptionsMenuEl,
+                                                            listItemObj
+                                                        );
                                                     };
-                                                    return editMenuItemEl;
+                                                    return editListItemTitleMenuItemEl;
+                                                },
+                                                createSaveListItemTitleMenuItemEl: function (listItemOptionsMenuEl, listItemObj) {
+                                                    const saveMenuItemEl = this.createMenuItemEl(window.Translation[listItemObj.list_item_type].save, 'green');
+                                                    const $this = this;
+                                                    saveMenuItemEl.onclick = function (e) {
+
+                                                        const textareaEl = window.App.Components.FolderContentList
+                                                                            .Components.ListItem
+                                                                                .Components.ItemTitle.getTextareaEl(listItemObj);
+
+                                                        window.App.Components.FolderContentList
+                                                            .Components.ListItem
+                                                            .Components.ItemTitle.saveTitle(
+                                                                textareaEl.value,
+                                                                listItemObj,
+                                                                function (newTitle, listItemObjParam) {
+                                                                    listItemObjParam.title = newTitle;
+
+                                                                    window.App.Components.FolderContentList
+                                                                        .Components.ListItem
+                                                                        .Components.ItemTitle.disableEditMode(listItemObjParam);
+                                                                }
+                                                            );
+
+                                                        $this.renderRootMenuForListItem(listItemObj, listItemOptionsMenuEl);
+                                                    };
+                                                    return saveMenuItemEl;
+                                                },
+                                                createCancelEditListItemTitleMenuItemEl: function (listItemOptionsMenuEl, listItemObj) {
+                                                    const cancelMenuItemEl = this.createMenuItemEl(window.Translation[listItemObj.list_item_type].cancel, 'red');
+                                                    const $this = this;
+                                                    cancelMenuItemEl.onclick = function (e) {
+                                                        listItemOptionsMenuEl.style.display = 'none';
+
+                                                        window.App.Components.FolderContentList
+                                                                        .Components.ListItem
+                                                                        .Components.ItemTitle.disableEditMode(listItemObj);
+
+                                                        $this.renderRootMenuForListItem(listItemObj, listItemOptionsMenuEl);
+                                                    };
+                                                    return cancelMenuItemEl;
                                                 },
                                             }
                                         },
@@ -1007,18 +1082,6 @@
                                             );
 
                                             listItemTitleInputEl.focus();
-
-                                            const $this = this;
-                                            listItemTitleInputEl.addEventListener('focusout', (event) => {
-                                                $this.saveTitle(
-                                                    event.target.value,
-                                                    listItemObj,
-                                                    function (newTitle, listItemObjParam) {
-                                                        listItemObjParam.title = newTitle;
-                                                        $this.disableEditMode(listItemObjParam);
-                                                    }
-                                                );
-                                            });
                                         },
                                         disableEditMode: function (listItemObj) {
                                             const listItemTitleContainer = this.getContainerEl(listItemObj);

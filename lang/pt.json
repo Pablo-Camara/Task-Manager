@@ -1,10 +1,14 @@
 {
     "Opening folder.. please wait": "Abrindo pasta.. por favor espere",
-    "Edit": "Editar",
+    "Edit task name": "Editar nome da tarefa",
+    "Edit folder name": "Editar nome da pasta",
+    "Cancel editing task name": "Cancelar editar nome da tarefa",
+    "Cancel editing folder name": "Cancel editing folder name",
     "Mark as Completed": "Marcar como Concluído",
     "Mark as On Hold": "Marcar como Em espera",
     "Mark as Deprecated": "Marcar como Descontinuado",
-    "Delete": "Apagar",
+    "Delete task": "Apagar tarefa",
+    "Delete folder": "Apagar pasta",
 
     "Task not found": "Tarefa não encontrada",
     "Task updated": "Tarefa actualizada",
