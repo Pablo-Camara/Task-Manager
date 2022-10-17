@@ -655,8 +655,6 @@
                                             );
 
                                             textEl.style.top = center + 'px';
-
-                                            window.location.href = '#' + this.getElId(listItemObj);
                                         },
                                         hide: function (listItemObj) {
                                             const containerEl = this.getContainerEl(listItemObj);
@@ -664,9 +662,6 @@
 
                                             textEl.innerText = '';
                                             containerEl.style.display = 'none';
-
-                                            window.location.href = '#' + window.App.Components.FolderContentList
-                                            .Components.ListItem.getElId(listItemObj);
                                         }
                                     },
                                     TimeInteraction: {
