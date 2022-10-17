@@ -18,8 +18,8 @@ class FolderController extends Controller
                 'name' => 'required|max:255'
             ],
             [
-                'folder.required' => __('The folder name cannot be empty'),
-                'folder.max' => __('The folder name cannot have more than 255 characters'),
+                'name.required' => __('The folder name cannot be empty'),
+                'name.max' => __('The folder name cannot have more than 255 characters'),
             ]
         )->validate();
 

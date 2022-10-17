@@ -98,7 +98,7 @@
                 min-height: 82px;
             }
 
-            .list .list-item .save-status {
+            .list .list-item .info-overlay {
                 color: white;
                 position: absolute;
                 top: 0;
@@ -108,23 +108,23 @@
                 z-index: 9999999;
             }
 
-            .list .list-item .save-status.info {
+            .list .list-item .info-overlay.info {
                 background: rgba(0, 158, 255, 0.93);
                 color: #ffffff;
             }
 
 
-            .list .list-item .save-status.success {
+            .list .list-item .info-overlay.success {
                 background: rgba(39, 255, 0, 0.93);
                 color: #032f40;
             }
 
-            .list .list-item .save-status.error {
+            .list .list-item .info-overlay.error {
                 background: rgba(255, 0, 0, 0.93);
                 color: #ffffff;
             }
 
-            .list .list-item .save-status .save-status-text {
+            .list .list-item .info-overlay .info-overlay-text {
                 position: absolute;
                 top: 40%;
                 width: 100%;
@@ -132,7 +132,7 @@
                 padding: 14px 0;
             }
 
-            .list .list-item .save-status .save-status-text .ok-btn {
+            .list .list-item .info-overlay .info-overlay-text .ok-btn {
                 background: white;
                 color: black;
                 padding: 10px 0;
@@ -542,7 +542,7 @@
                                         this.getElId(listItemObj)
                                     );
 
-                                    const saveStatus = this.Components.SaveStatus.createEl(listItemObj);
+                                    const infoOverlay = this.Components.InfoOverlay.createEl(listItemObj);
                                     const timeInteraction = this.Components.TimeInteraction.createEl(listItemObj);
                                     const listItemOptions = this.Components.ItemOptions.Components.ToggleButton.createEl(listItemObj);
                                     const listItemOptionsMenu = this.Components.ItemOptions.Components.Menu.createEl(listItemObj);
@@ -551,7 +551,7 @@
                                     //const parentFolders = this.Components.ParentFolders.createEl(listItemObj);
                                     const tags = this.Components.Tags.createEl(listItemObj);
 
-                                    listItem.appendChild(saveStatus);
+                                    listItem.appendChild(infoOverlay);
                                     listItem.appendChild(timeInteraction);
                                     listItem.appendChild(listItemOptions);
                                     listItem.appendChild(listItemOptionsMenu);
@@ -570,33 +570,33 @@
                                     };
                                 },
                                 Components: {
-                                    SaveStatus: {
+                                    InfoOverlay: {
                                         getContainerElId: function (listItemObj) {
-                                            return 'list-item-save-status-' + listItemObj.id + '-' + listItemObj.list_item_type;
+                                            return 'list-item-info-overlay-' + listItemObj.id + '-' + listItemObj.list_item_type;
                                         },
                                         getContainerEl: function (listItemObj) {
                                             return document.getElementById(this.getContainerElId(listItemObj));
                                         },
                                         getElId: function (listItemObj) {
-                                            return 'list-item-save-status-text-' + listItemObj.id + '-' + listItemObj.list_item_type;
+                                            return 'list-item-info-overlay-text-' + listItemObj.id + '-' + listItemObj.list_item_type;
                                         },
                                         getEl: function (listItemObj) {
                                             return document.getElementById(this.getElId(listItemObj));
                                         },
                                         createEl: function (listItemObj) {
-                                            const saveStatusEl = document.createElement('div');
-                                            saveStatusEl.classList.add('save-status');
-                                            saveStatusEl.setAttribute('id', this.getContainerElId(listItemObj));
+                                            const infoOverlayEl = document.createElement('div');
+                                            infoOverlayEl.classList.add('info-overlay');
+                                            infoOverlayEl.setAttribute('id', this.getContainerElId(listItemObj));
 
-                                            const saveStatusTextEl = document.createElement('div');
-                                            saveStatusTextEl.classList.add('save-status-text');
-                                            saveStatusTextEl.setAttribute('id', this.getElId(listItemObj));
+                                            const infoOverlayTextEl = document.createElement('div');
+                                            infoOverlayTextEl.classList.add('info-overlay-text');
+                                            infoOverlayTextEl.setAttribute('id', this.getElId(listItemObj));
 
-                                            saveStatusEl.appendChild(saveStatusTextEl);
+                                            infoOverlayEl.appendChild(infoOverlayTextEl);
 
-                                            saveStatusEl.style.display = 'none';
+                                            infoOverlayEl.style.display = 'none';
 
-                                            return saveStatusEl;
+                                            return infoOverlayEl;
                                         },
                                         resetColorClasses: function (listItemObj, except = []) {
                                             const containerEl = this.getContainerEl(listItemObj);
@@ -1045,7 +1045,7 @@
 
                                             window.App.Components.FolderContentList
                                             .Components.ListItem
-                                            .Components.SaveStatus.showInfoMessage(
+                                            .Components.InfoOverlay.showInfoMessage(
                                                 window.Translation.saving_changes,
                                                 listItemObj
                                             );
@@ -1065,7 +1065,7 @@
 
                                                         window.App.Components.FolderContentList
                                                         .Components.ListItem
-                                                        .Components.SaveStatus.hide(listItemObj);
+                                                        .Components.InfoOverlay.hide(listItemObj);
                                                         return;
                                                     }
 
@@ -1077,7 +1077,7 @@
                                                         ) {
                                                             window.App.Components.FolderContentList
                                                             .Components.ListItem
-                                                            .Components.SaveStatus.showErrorMessage(
+                                                            .Components.InfoOverlay.showErrorMessage(
                                                                 jsonRes.message,
                                                                 listItemObj,
                                                                 function () {
@@ -1090,7 +1090,7 @@
 
                                                     window.App.Components.FolderContentList
                                                         .Components.ListItem
-                                                        .Components.SaveStatus.showErrorMessage(
+                                                        .Components.InfoOverlay.showErrorMessage(
                                                             window.Translation.saving_changes_failed,
                                                             listItemObj,
                                                             function () {

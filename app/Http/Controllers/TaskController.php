@@ -18,8 +18,8 @@ class TaskController extends Controller
                 'name' => 'required|max:2048'
             ],
             [
-                'title.required' => __('The task title cannot be empty'),
-                'title.max' => __('The task title cannot have more than 2048 characters'),
+                'name.required' => __('The task name cannot be empty'),
+                'name.max' => __('The task name cannot have more than 2048 characters'),
             ]
         )->validate();
 
@@ -41,7 +41,7 @@ class TaskController extends Controller
 
         if ($taskSaved) {
             return new Response([
-                'message' => __('Task title updated')
+                'message' => __('Task name updated')
             ], 200);
         }
 
