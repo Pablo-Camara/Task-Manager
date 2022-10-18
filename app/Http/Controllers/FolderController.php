@@ -49,4 +49,34 @@ class FolderController extends Controller
             'message' => __('Failed to save changes')
         ], 500);
     }
+
+    public function setStatus(Request $request) {
+        Validator::make(
+            $request->all(),
+            [
+                'id' => 'required|exists:folders,id',
+                'new_status_id' => 'required|exists:folder_statuses,id'
+            ]
+        )->validate();
+
+        /**
+         * @var Folder
+         */
+        $folder = Folder::find(
+            $request->input('id')
+        );
+
+        $folder->folder_status_id = $request->input('new_status_id');
+        $folderSaved = $folder->save();
+
+        if ($folderSaved) {
+            return new Response([
+                'message' => __('Folder status updated')
+            ], 200);
+        }
+
+        return new Response([
+            'message' => __('Failed to save changes')
+        ], 500);
+    }
 }

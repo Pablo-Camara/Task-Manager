@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Helpers\Statuses\FolderStatuses;
 use App\Models\Folder;
 use Illuminate\Support\Facades\DB;
 
@@ -28,6 +29,8 @@ class FolderService
                 }
             ]
         );
+
+        $folders = $folders->where('folder_status_id', '=', FolderStatuses::ACTIVE);
 
         if (empty($folderId)) {
             $folders = $folders->whereNull('parent_folder_id');

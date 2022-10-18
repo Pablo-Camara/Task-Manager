@@ -812,6 +812,9 @@
 
                                                     return listItemOptionsMenuEl;
                                                 },
+                                                hide: function (listItemObj) {
+                                                    this.getEl(listItemObj).style.display = 'none';
+                                                },
                                                 renderRootMenuForListItem: function (listItemObj, listItemOptionsMenuEl) {
                                                     if (
                                                         typeof listItemOptionsMenuEl === 'undefined'
@@ -842,24 +845,40 @@
                                                 renderRootMenuItemsForTask: function (listItemOptionsMenuEl, listItemObj) {
                                                     const editListItemTitleMenuItemEl = this.createEditListItemTitleMenuItemEl(listItemOptionsMenuEl, listItemObj);
 
-                                                    const markCompletedMenuItemEl = this.createMenuItemEl(
+                                                    const markCompletedMenuItemEl = this.createChangeListItemStatusMenuItemEl(
                                                         window.Translation.mark_as_completed,
-                                                        'green'
+                                                        'green',
+                                                        window.App.Components.FolderContentList
+                                                            .Components.ListItem
+                                                            .Components.ItemStatus.statuses.task.COMPLETED,
+                                                        listItemObj
                                                     );
 
-                                                    const markOnHoldMenuItemEl = this.createMenuItemEl(
+                                                    const markOnHoldMenuItemEl = this.createChangeListItemStatusMenuItemEl(
                                                         window.Translation.mark_as_on_hold,
-                                                        'old-moss-green'
+                                                        'old-moss-green',
+                                                        window.App.Components.FolderContentList
+                                                            .Components.ListItem
+                                                            .Components.ItemStatus.statuses.task.ON_HOLD,
+                                                        listItemObj
                                                     );
 
-                                                    const markDeprecatedMenuItemEl = this.createMenuItemEl(
+                                                    const markDeprecatedMenuItemEl = this.createChangeListItemStatusMenuItemEl(
                                                         window.Translation.mark_as_deprecated,
-                                                        'gray'
+                                                        'gray',
+                                                        window.App.Components.FolderContentList
+                                                            .Components.ListItem
+                                                            .Components.ItemStatus.statuses.task.DEPRECATED,
+                                                        listItemObj
                                                     );
 
-                                                    const deleteMenuItemEl =  this.createMenuItemEl(
+                                                    const deleteMenuItemEl =  this.createChangeListItemStatusMenuItemEl(
                                                         window.Translation[listItemObj.list_item_type].delete,
-                                                        'red'
+                                                        'red',
+                                                        window.App.Components.FolderContentList
+                                                            .Components.ListItem
+                                                            .Components.ItemStatus.statuses.task.DELETED,
+                                                        listItemObj
                                                     );
 
                                                     listItemOptionsMenuEl.innerHTML = '';
@@ -872,9 +891,13 @@
                                                 renderRootMenuItemsForFolder: function (listItemOptionsMenuEl, listItemObj) {
                                                     const editListItemTitleMenuItemEl = this.createEditListItemTitleMenuItemEl(listItemOptionsMenuEl, listItemObj);
 
-                                                    const deleteMenuItemEl =  this.createMenuItemEl(
+                                                    const deleteMenuItemEl =  this.createChangeListItemStatusMenuItemEl(
                                                         window.Translation[listItemObj.list_item_type].delete,
-                                                        'red'
+                                                        'red',
+                                                        window.App.Components.FolderContentList
+                                                            .Components.ListItem
+                                                            .Components.ItemStatus.statuses.folder.DELETED,
+                                                        listItemObj
                                                     );
 
                                                     listItemOptionsMenuEl.innerHTML = '';
@@ -946,6 +969,31 @@
                                                     };
                                                     return cancelMenuItemEl;
                                                 },
+                                                createChangeListItemStatusMenuItemEl: function (menuItemText, colorClass, newStatusId, listItemObj) {
+                                                    const menuItemEl = this.createMenuItemEl(
+                                                        menuItemText,
+                                                        colorClass
+                                                    );
+
+                                                    menuItemEl.onclick = function (e) {
+                                                        window.App.Components.FolderContentList
+                                                            .Components.ListItem
+                                                            .Components.ItemOptions.Components.Menu.hide(listItemObj);
+
+                                                        window.App.Components.FolderContentList
+                                                            .Components.ListItem
+                                                            .Components.ItemStatus.setStatus(
+                                                                newStatusId,
+                                                                listItemObj,
+                                                                function (new_status_id, listItemObj) {
+                                                                    window.App.Components.FolderContentList
+                                                                    .Components.ListItem.getEl(listItemObj).remove();
+                                                                }
+                                                            )
+                                                    };
+
+                                                    return menuItemEl;
+                                                }
                                             }
                                         },
                                         centerMainComponents: function (listItemObj) {
@@ -1118,6 +1166,9 @@
                                                 if(
                                                     this.readyState === 4
                                                 ) {
+                                                    window.App.Components.FolderContentList
+                                                        .Components.ListItem
+                                                        .Components.InfoOverlay.hide(listItemObj);
 
                                                     if ( this.status === 200 ) {
                                                         if (
@@ -1125,10 +1176,6 @@
                                                         ) {
                                                             onSaveCallback(newTitle, listItemObj);
                                                         }
-
-                                                        window.App.Components.FolderContentList
-                                                        .Components.ListItem
-                                                        .Components.InfoOverlay.hide(listItemObj);
                                                         return;
                                                     }
 
@@ -1174,6 +1221,92 @@
 
                                             xhr.send(JSON.stringify(reqObj));
 
+                                        }
+                                    },
+                                    ItemStatus: {
+                                        api: {
+                                            task: "{{ url('/api/tasks/set-status') }}",
+                                            folder: "{{ url('/api/folders/set-status') }}",
+                                        },
+                                        statuses: {
+                                            task: {
+                                                ACTIVE: 1,
+                                                DELETED: 666,
+                                                COMPLETED: 777,
+                                                ON_HOLD: 999,
+                                                DEPRECATED: 404
+                                            },
+                                            folder: {
+                                                ACTIVE: 1,
+                                                DELETED: 666,
+                                            }
+                                        },
+                                        setStatus: function (new_status_id, listItemObj, onSaveCallback) {
+                                            var xhr = new XMLHttpRequest();
+                                            xhr.withCredentials = true;
+
+                                            //TODO: change:
+                                            window.App.Components.FolderContentList
+                                            .Components.ListItem
+                                            .Components.InfoOverlay.showInfoMessage(
+                                                window.Translation.saving_changes,
+                                                listItemObj
+                                            );
+
+                                            const $this = this;
+                                            xhr.addEventListener("readystatechange", function() {
+                                                if(
+                                                    this.readyState === 4
+                                                ) {
+                                                    window.App.Components.FolderContentList
+                                                        .Components.ListItem
+                                                        .Components.InfoOverlay.hide(listItemObj);
+
+                                                    if ( this.status === 200 ) {
+                                                        if (
+                                                            typeof onSaveCallback === 'function'
+                                                        ) {
+                                                            onSaveCallback(new_status_id, listItemObj);
+                                                        }
+                                                        return;
+                                                    }
+
+                                                    try {
+                                                        const jsonRes = JSON.parse(this.responseText);
+
+                                                        if (
+                                                            typeof jsonRes.message !== 'undefined'
+                                                        ) {
+                                                            window.App.Components.FolderContentList
+                                                            .Components.ListItem
+                                                            .Components.InfoOverlay.showErrorMessage(
+                                                                jsonRes.message,
+                                                                listItemObj
+                                                            );
+                                                            return;
+                                                        }
+                                                    } catch (error) {}
+
+                                                    //TODO: change
+                                                    window.App.Components.FolderContentList
+                                                        .Components.ListItem
+                                                        .Components.InfoOverlay.showErrorMessage(
+                                                            window.Translation.saving_changes_failed,
+                                                            listItemObj
+                                                        );
+                                                }
+                                            });
+
+
+                                            xhr.open("POST", this.api[listItemObj.list_item_type], true);
+                                            xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+                                            const reqObj = {
+                                                id: listItemObj.id,
+                                                new_status_id: new_status_id
+                                            };
+
+                                            xhr.send(JSON.stringify(reqObj));
                                         }
                                     },
                                     TimeSpent: {

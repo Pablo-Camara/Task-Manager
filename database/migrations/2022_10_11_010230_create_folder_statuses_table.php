@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('task_statuses', function (Blueprint $table) {
+        Schema::create('folder_statuses', function (Blueprint $table) {
             $table->unsignedBigInteger('id');
 
             $table->string('name')->index();
@@ -30,6 +30,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('task_statuses');
+        Schema::dropIfExists('folder_statuses');
     }
 };

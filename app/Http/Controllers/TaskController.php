@@ -30,18 +30,43 @@ class TaskController extends Controller
             $request->input('id')
         );
 
-        if (empty($task)) {
-            throw ValidationException::withMessages([
-                'id' => __('Task not found')
-            ]);
-        }
-
         $task->name = $request->input('name');
         $taskSaved = $task->save();
 
         if ($taskSaved) {
             return new Response([
                 'message' => __('Task name updated')
+            ], 200);
+        }
+
+        return new Response([
+            'message' => __('Failed to save changes')
+        ], 500);
+    }
+
+
+    public function setStatus(Request $request) {
+        Validator::make(
+            $request->all(),
+            [
+                'id' => 'required|exists:tasks,id',
+                'new_status_id' => 'required|exists:task_statuses,id'
+            ]
+        )->validate();
+
+        /**
+         * @var Task
+         */
+        $task = Task::find(
+            $request->input('id')
+        );
+
+        $task->task_status_id = $request->input('new_status_id');
+        $taskSaved = $task->save();
+
+        if ($taskSaved) {
+            return new Response([
+                'message' => __('Task status updated')
             ], 200);
         }
 
