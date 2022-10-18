@@ -41,6 +41,10 @@
                 }
             }
 
+            .app-header {
+                position: relative;
+            }
+
             .app-title {
                 font-size: 22px;
                 color: #FFFFFF;
@@ -211,6 +215,7 @@
                 top: 2px;
             }
 
+            .app-header .folder-options-toggle,
             .list .list-item .list-item-options {
                 position: absolute;
                 right: 0;
@@ -222,6 +227,7 @@
             }
 
 
+            .app-header .folder-options-toggle .option-dot,
             .list .list-item .list-item-options .option-dot {
                 height: 8px;
                 width: 8px;
@@ -233,6 +239,7 @@
                 margin-bottom: 2px;
             }
 
+            .app-header .folder-options-menu,
             .list .list-item .list-item-options-menu {
                 position: absolute;
                 background: white;
@@ -241,6 +248,7 @@
                 min-width: 165px;
             }
 
+            .app-header .folder-options-menu .menu-item,
             .list .list-item .list-item-options-menu .menu-item {
                 color: #022c3f;
                 font-size: 12px;
@@ -249,39 +257,48 @@
                 cursor: pointer;
             }
 
+            .app-header .folder-options-menu .menu-item:last-child,
             .list .list-item .list-item-options-menu .menu-item:last-child {
                 border-bottom: 0;
             }
 
+            .app-header .folder-options-menu .menu-item:hover,
             .list .list-item .list-item-options-menu .menu-item:hover {
                 color: #FFFFFF;
                 background-color: #022c3f;
             }
 
+            .app-header .folder-options-menu .menu-item.green,
             .list .list-item .list-item-options-menu .menu-item.green {
                 color: #008000;
             }
 
+            .app-header .folder-options-menu .menu-item.green:hover,
             .list .list-item .list-item-options-menu .menu-item.green:hover {
                 color: #30ff30;
             }
 
+            .app-header .folder-options-menu .menu-item.old-moss-green,
             .list .list-item .list-item-options-menu .menu-item.old-moss-green {
                 color: #8f8f40;
             }
 
+            .app-header .folder-options-menu .menu-item.old-moss-green:hover,
             .list .list-item .list-item-options-menu .menu-item.old-moss-green:hover {
                 color: #868600;
             }
 
+            .app-header .folder-options-menu .menu-item.gray,
             .list .list-item .list-item-options-menu .menu-item.gray {
                 color: #808080;
             }
 
+            .app-header .folder-options-menu .menu-item.gray:hover,
             .list .list-item .list-item-options-menu .menu-item.gray:hover {
                 color: #aea8a8;
             }
 
+            .app-header .folder-options-menu .menu-item.red,
             .list .list-item .list-item-options-menu .menu-item.red {
                 color: #ff0000;
             }
@@ -426,6 +443,176 @@
                     },
                 },
                 Components: {
+                    AppHeader: {
+                        el: function () {
+                            return document.getElementById('app-header');
+                        },
+                        show: function () {
+                            const el = this.el();
+                            el.innerHTML = '';
+
+                            const appTitle = this.Components.AppTitle.createEl();
+
+                            const folderOptionsToggleButton = this.Components.FolderOptionsMenu
+                                                                .Components.ToggleButton.createEl();
+
+                            const folderOptionsMenu = this.Components.FolderOptionsMenu
+                                                        .Components.Menu.createEl();
+
+
+
+                            el.appendChild(appTitle);
+                            el.appendChild(folderOptionsToggleButton);
+                            el.appendChild(folderOptionsMenu);
+                            this.Components.FolderOptionsMenu.centerMainComponents();
+                        },
+                        Components: {
+                            AppTitle: {
+                                createEl: function () {
+                                    const appTitleEl = document.createElement('div');
+                                    appTitleEl.classList.add('app-title');
+                                    appTitleEl.innerText = 'Task Manager';
+                                    return appTitleEl;
+                                }
+                            },
+                            FolderOptionsMenu: {
+                                Components: {
+                                    ToggleButton: {
+                                        getElId: function () {
+                                            return 'folder-options-toggle';
+                                        },
+                                        el: function () {
+                                            return document.getElementById(this.getElId());
+                                        },
+                                        createEl: function () {
+                                            const folderOptionsToggleEl = document.createElement('div');
+                                            folderOptionsToggleEl.classList.add('folder-options-toggle');
+                                            folderOptionsToggleEl.setAttribute(
+                                                'id',
+                                                this.getElId()
+                                            );
+
+                                            const optionDot1 = document.createElement('div');
+                                            optionDot1.classList.add('option-dot');
+
+                                            const optionDot2 = document.createElement('div');
+                                            optionDot2.classList.add('option-dot');
+
+                                            const optionDot3 = document.createElement('div');
+                                            optionDot3.classList.add('option-dot');
+
+                                            folderOptionsToggleEl.appendChild(optionDot1);
+                                            folderOptionsToggleEl.appendChild(optionDot2);
+                                            folderOptionsToggleEl.appendChild(optionDot3);
+
+                                            folderOptionsToggleEl.onclick = function (e) {
+                                                const menuEl = window.App.Components.AppHeader
+                                                                .Components.FolderOptionsMenu
+                                                                    .Components.Menu.toggleShow(
+                                                                        [
+                                                                            folderOptionsToggleEl,
+                                                                            optionDot1,
+                                                                            optionDot2,
+                                                                            optionDot3
+                                                                        ]
+                                                                    );
+                                            };
+
+                                            return folderOptionsToggleEl;
+                                        },
+                                    },
+                                    Menu: {
+                                        getElId: function () {
+                                            return 'folder-options-menu';
+                                        },
+                                        el: function () {
+                                            return document.getElementById(this.getElId());
+                                        },
+                                        createEl: function () {
+                                            const folderOptionsMenuEl = document.createElement('div');
+                                            folderOptionsMenuEl.classList.add('folder-options-menu');
+                                            folderOptionsMenuEl.style.display = 'none';
+
+                                            folderOptionsMenuEl.setAttribute(
+                                                'id',
+                                                this.getElId()
+                                            );
+
+                                            this.renderRootMenu(folderOptionsMenuEl);
+
+                                            return folderOptionsMenuEl;
+                                        },
+                                        hide: function () {
+                                            this.el().style.display = 'none';
+                                        },
+                                        toggleShow: function (hideOnClickOutsideElementExceptions = []) {
+                                            const menuEl = this.el();
+                                            if (menuEl.style.display === 'block') {
+                                                menuEl.style.display = 'none';
+                                            } else {
+                                                menuEl.style.display = 'block';
+                                                window.App.Helpers.hideOnClickOutsideElement(
+                                                    menuEl,
+                                                    hideOnClickOutsideElementExceptions
+                                                );
+                                            }
+                                        },
+                                        renderRootMenu: function (folderOptionsMenuEl) {
+                                            if (
+                                                typeof folderOptionsMenuEl === 'undefined'
+                                            ) {
+                                                folderOptionsMenuEl = this.el();
+                                            }
+
+                                            folderOptionsMenuEl.innerHTML = '';
+
+                                            const createNewTaskMenuItemEl = this.createMenuItemEl(
+                                                'Create new task',
+                                                'green'
+                                            );
+
+                                            const createNewFolderMenuItemEl = this.createMenuItemEl(
+                                                'Create new folder',
+                                                'green'
+                                            );
+
+                                            folderOptionsMenuEl.appendChild(createNewTaskMenuItemEl);
+                                            folderOptionsMenuEl.appendChild(createNewFolderMenuItemEl);
+
+                                        },
+                                        createMenuItemEl: function (innerText, colorClass) {
+                                            const menuItemEl = document.createElement('div');
+                                            menuItemEl.classList.add('menu-item');
+
+                                            if (typeof colorClass !== 'undefined') {
+                                                menuItemEl.classList.add(colorClass);
+                                            }
+
+                                            menuItemEl.innerText = innerText;
+                                            return menuItemEl;
+                                        },
+                                    }
+                                },
+                                centerMainComponents: function () {
+                                    const appHeaderEl = window.App.Components.AppHeader.el();
+
+                                    const toggleButtonEl = this.Components.ToggleButton.el();
+                                    const menuEl = this.Components.Menu.el();
+
+                                    // center list item options 3 dots btn vertically
+                                    const folderOptionsToggleBtnYPos = window.App.Helpers.getVerticalCenter(
+                                        toggleButtonEl.offsetHeight,
+                                        appHeaderEl.offsetHeight
+                                    );
+                                    toggleButtonEl.style.top = folderOptionsToggleBtnYPos + 'px';
+
+                                    // set list item options menu position
+                                    menuEl.style.top = toggleButtonEl.style.top;
+                                    menuEl.style.right = toggleButtonEl.offsetWidth + 'px';
+                                },
+                            }
+                        },
+                    },
                     LoadingStatus: {
                         el: function () {
                             return document.getElementById('loading-status');
@@ -769,24 +956,18 @@
                                                     listItemOptions.appendChild(optionDot3);
 
                                                     listItemOptions.onclick = function (e) {
-                                                        const menuEl = document.getElementById(
-                                                            'list-item-options-menu-' + listItemObj.id + '-' + listItemObj.list_item_type
-                                                        );
-
-                                                        if (menuEl.style.display === 'block') {
-                                                            menuEl.style.display = 'none';
-                                                        } else {
-                                                            menuEl.style.display = 'block';
-                                                            window.App.Helpers.hideOnClickOutsideElement(
-                                                                menuEl,
-                                                                [
-                                                                    listItemOptions,
-                                                                    optionDot1,
-                                                                    optionDot2,
-                                                                    optionDot3
-                                                                ]
-                                                            );
-                                                        }
+                                                        window.App.Components.FolderContentList
+                                                            .Components.ListItem
+                                                                .Components.ItemOptions
+                                                                    .Components.Menu.toggleShow(
+                                                                        listItemObj,
+                                                                        [
+                                                                            listItemOptions,
+                                                                            optionDot1,
+                                                                            optionDot2,
+                                                                            optionDot3
+                                                                        ]
+                                                                    );
                                                     };
 
                                                     return listItemOptions;
@@ -815,6 +996,18 @@
                                                 },
                                                 hide: function (listItemObj) {
                                                     this.getEl(listItemObj).style.display = 'none';
+                                                },
+                                                toggleShow: function (listItemObj, hideOnClickOutsideElementExceptions = []) {
+                                                    const menuEl = this.getEl(listItemObj);
+                                                    if (menuEl.style.display === 'block') {
+                                                        menuEl.style.display = 'none';
+                                                    } else {
+                                                        menuEl.style.display = 'block';
+                                                        window.App.Helpers.hideOnClickOutsideElement(
+                                                            menuEl,
+                                                            hideOnClickOutsideElementExceptions
+                                                        );
+                                                    }
                                                 },
                                                 renderRootMenuForListItem: function (listItemObj, listItemOptionsMenuEl) {
                                                     if (
@@ -1390,6 +1583,7 @@
                         api: "{{ url('/api/folder-content/list') }}",
                         currentFolderId: null,
                         show: function () {
+                            window.App.Components.AppHeader.show();
                             this.fetchFolderContent();
                         },
                         setCurrentFolderId: function (folderId) {
@@ -1469,7 +1663,7 @@
     </head>
     <body>
         <div id="app">
-            <div class="app-title">Task Manager</div>
+            <div id="app-header" class="app-header"></div>
             <div class="folder-breadcrumbs" id="folder-breadcrumbs" style="display: none"></div>
             <div class="loading-status" id="loading-status" style="display: none"></div>
             <div class="list" id="folder-content-list" style="display: none"></div>
