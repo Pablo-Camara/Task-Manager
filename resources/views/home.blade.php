@@ -248,6 +248,11 @@
                 min-width: 165px;
             }
 
+            .app-header .folder-options-menu .menu-item.has-icon span
+             {
+                margin-left: 24px;
+             }
+
             .app-header .folder-options-menu .menu-item,
             .list .list-item .list-item-options-menu .menu-item {
                 color: #022c3f;
@@ -257,12 +262,28 @@
                 cursor: pointer;
             }
 
+            .app-header .folder-options-menu .menu-item svg {
+                position: absolute;
+            }
+
+            .app-header .folder-options-menu .menu-item {
+                color: #022c3f;
+                background-color: #FFFFFF;
+                border-bottom: 1px solid #022c3f;
+            }
+
             .app-header .folder-options-menu .menu-item:last-child,
             .list .list-item .list-item-options-menu .menu-item:last-child {
                 border-bottom: 0;
             }
 
-            .app-header .folder-options-menu .menu-item:hover,
+
+            .app-header .folder-options-menu .menu-item:hover {
+                color: #FFFFFF;
+                background-color: #022c3f;
+            }
+
+
             .list .list-item .list-item-options-menu .menu-item:hover {
                 color: #FFFFFF;
                 background-color: #022c3f;
@@ -566,29 +587,71 @@
 
                                             folderOptionsMenuEl.innerHTML = '';
 
+                                            const hoverIconForCreateNewTaskMenuEl = '<svg style="color: white;" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-activity" viewBox="0 0 16 16"> <path fill-rule="evenodd" d="M6 2a.5.5 0 0 1 .47.33L10 12.036l1.53-4.208A.5.5 0 0 1 12 7.5h3.5a.5.5 0 0 1 0 1h-3.15l-1.88 5.17a.5.5 0 0 1-.94 0L6 3.964 4.47 8.171A.5.5 0 0 1 4 8.5H.5a.5.5 0 0 1 0-1h3.15l1.88-5.17A.5.5 0 0 1 6 2Z" fill="white"></path> </svg>';
+                                            const iconForCreateNewTaskMenuItemEl = '<svg style="color: rgb(2, 44, 63);" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-activity" viewBox="0 0 16 16"> <path fill-rule="evenodd" d="M6 2a.5.5 0 0 1 .47.33L10 12.036l1.53-4.208A.5.5 0 0 1 12 7.5h3.5a.5.5 0 0 1 0 1h-3.15l-1.88 5.17a.5.5 0 0 1-.94 0L6 3.964 4.47 8.171A.5.5 0 0 1 4 8.5H.5a.5.5 0 0 1 0-1h3.15l1.88-5.17A.5.5 0 0 1 6 2Z" fill="#022c3f"></path> </svg>';
+
                                             const createNewTaskMenuItemEl = this.createMenuItemEl(
                                                 'Create new task',
-                                                'green'
+                                                null,
+                                                iconForCreateNewTaskMenuItemEl,
+                                                hoverIconForCreateNewTaskMenuEl
                                             );
+
+
+                                            const hoverIconForCreateNewFolderMenuItemEl = '<svg style="color: white" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-folder" viewBox="0 0 16 16"> <path d="M.54 3.87.5 3a2 2 0 0 1 2-2h3.672a2 2 0 0 1 1.414.586l.828.828A2 2 0 0 0 9.828 3h3.982a2 2 0 0 1 1.992 2.181l-.637 7A2 2 0 0 1 13.174 14H2.826a2 2 0 0 1-1.991-1.819l-.637-7a1.99 1.99 0 0 1 .342-1.31zM2.19 4a1 1 0 0 0-.996 1.09l.637 7a1 1 0 0 0 .995.91h10.348a1 1 0 0 0 .995-.91l.637-7A1 1 0 0 0 13.81 4H2.19zm4.69-1.707A1 1 0 0 0 6.172 2H2.5a1 1 0 0 0-1 .981l.006.139C1.72 3.042 1.95 3 2.19 3h5.396l-.707-.707z" fill="white"></path> </svg>';
+                                            const iconForCreateNewFolderMenuItemEl = '<svg style="color: rgb(2, 44, 63);" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-folder" viewBox="0 0 16 16"> <path d="M.54 3.87.5 3a2 2 0 0 1 2-2h3.672a2 2 0 0 1 1.414.586l.828.828A2 2 0 0 0 9.828 3h3.982a2 2 0 0 1 1.992 2.181l-.637 7A2 2 0 0 1 13.174 14H2.826a2 2 0 0 1-1.991-1.819l-.637-7a1.99 1.99 0 0 1 .342-1.31zM2.19 4a1 1 0 0 0-.996 1.09l.637 7a1 1 0 0 0 .995.91h10.348a1 1 0 0 0 .995-.91l.637-7A1 1 0 0 0 13.81 4H2.19zm4.69-1.707A1 1 0 0 0 6.172 2H2.5a1 1 0 0 0-1 .981l.006.139C1.72 3.042 1.95 3 2.19 3h5.396l-.707-.707z" fill="#022c3f"></path> </svg>';
 
                                             const createNewFolderMenuItemEl = this.createMenuItemEl(
                                                 'Create new folder',
-                                                'green'
+                                                null,
+                                                iconForCreateNewFolderMenuItemEl,
+                                                hoverIconForCreateNewFolderMenuItemEl
                                             );
 
                                             folderOptionsMenuEl.appendChild(createNewTaskMenuItemEl);
                                             folderOptionsMenuEl.appendChild(createNewFolderMenuItemEl);
 
                                         },
-                                        createMenuItemEl: function (innerText, colorClass) {
+                                        createMenuItemEl: function (innerText, colorClass, activeSvgIcon, hoverSvgIcon) {
                                             const menuItemEl = document.createElement('div');
                                             menuItemEl.classList.add('menu-item');
 
-                                            if (typeof colorClass !== 'undefined') {
+                                            if (
+                                                typeof colorClass === 'string'
+                                            ) {
                                                 menuItemEl.classList.add(colorClass);
                                             }
 
-                                            menuItemEl.innerText = innerText;
+                                            const menuItemTextEl = document.createElement('span');
+                                            menuItemTextEl.innerText = innerText;
+
+                                            if (
+                                                typeof activeSvgIcon !== 'undefined'
+                                            ) {
+                                                menuItemEl.classList.add('has-icon');
+                                                menuItemEl.innerHTML = '';
+                                                menuItemEl.innerHTML += activeSvgIcon;
+
+                                                if (
+                                                    typeof hoverSvgIcon !== 'undefined'
+                                                ) {
+                                                    menuItemEl.onmouseenter = function (e) {
+                                                        menuItemEl.innerHTML = '';
+                                                        menuItemEl.innerHTML += hoverSvgIcon;
+                                                        menuItemEl.appendChild(menuItemTextEl);
+                                                    };
+
+                                                    menuItemEl.onmouseleave = function (e) {
+                                                        menuItemEl.innerHTML = '';
+                                                        menuItemEl.innerHTML += activeSvgIcon;
+                                                        menuItemEl.appendChild(menuItemTextEl);
+                                                    };
+                                                }
+                                            }
+
+
+
+                                            menuItemEl.appendChild(menuItemTextEl);
                                             return menuItemEl;
                                         },
                                     }
