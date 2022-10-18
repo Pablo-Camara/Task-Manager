@@ -350,6 +350,7 @@
 
             window.Translation = {
                 opening_folder: "{{ __('Opening folder.. please wait') }}",
+                folder_is_empty: "{{ __('This folder is empty') }}",
 
                 task: {
                     save: "{{ __('Save task name') }}",
@@ -1432,6 +1433,16 @@
                                             listItem.list_item_type = 'folder';
                                             window.App.Components.FolderContentList.addListItem(
                                                 listItem
+                                            );
+                                        }
+
+                                        if (
+                                            folderContentJson.tasks.length === 0
+                                            &&
+                                            folderContentJson.folders.length === 0
+                                        ) {
+                                            window.App.Components.LoadingStatus.show(
+                                                window.Translation.folder_is_empty
                                             );
                                         }
 
