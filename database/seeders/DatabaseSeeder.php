@@ -20,7 +20,7 @@ class DatabaseSeeder extends Seeder
             TaskStatusSeeder::class,
 
             //temporary:
-            TestSeeder::class
+            //TestSeeder::class
         ]);
     }
 }
