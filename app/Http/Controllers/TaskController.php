@@ -74,4 +74,26 @@ class TaskController extends Controller
             'message' => __('Failed to save changes')
         ], 500);
     }
+
+    public function createNew(Request $request) {
+        Validator::make(
+            $request->all(),
+            [
+                'current-folder' => 'exists:folders,id',
+            ]
+        )->validate();
+
+        $currentFolderId = $request->input('current-folder');
+
+        $newTask = new Task();
+        $newTask->name = 'New task';
+
+        if (!empty($currentFolderId)) {
+            $newTask->folder_id = $currentFolderId;
+        }
+
+        $newTask->save();
+
+        return new Response($newTask->toArray());
+    }
 }

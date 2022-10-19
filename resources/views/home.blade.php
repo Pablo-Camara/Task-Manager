@@ -597,6 +597,11 @@
                                                 hoverIconForCreateNewTaskMenuEl
                                             );
 
+                                            createNewTaskMenuItemEl.onclick = function (e) {
+                                                window.App.Components.FolderContentList.addNewListItem('task');
+                                                folderOptionsMenuEl.style.display = 'none';
+                                            };
+
 
                                             const hoverIconForCreateNewFolderMenuItemEl = '<svg style="color: white" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-folder" viewBox="0 0 16 16"> <path d="M.54 3.87.5 3a2 2 0 0 1 2-2h3.672a2 2 0 0 1 1.414.586l.828.828A2 2 0 0 0 9.828 3h3.982a2 2 0 0 1 1.992 2.181l-.637 7A2 2 0 0 1 13.174 14H2.826a2 2 0 0 1-1.991-1.819l-.637-7a1.99 1.99 0 0 1 .342-1.31zM2.19 4a1 1 0 0 0-.996 1.09l.637 7a1 1 0 0 0 .995.91h10.348a1 1 0 0 0 .995-.91l.637-7A1 1 0 0 0 13.81 4H2.19zm4.69-1.707A1 1 0 0 0 6.172 2H2.5a1 1 0 0 0-1 .981l.006.139C1.72 3.042 1.95 3 2.19 3h5.396l-.707-.707z" fill="white"></path> </svg>';
                                             const iconForCreateNewFolderMenuItemEl = '<svg style="color: rgb(2, 44, 63);" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-folder" viewBox="0 0 16 16"> <path d="M.54 3.87.5 3a2 2 0 0 1 2-2h3.672a2 2 0 0 1 1.414.586l.828.828A2 2 0 0 0 9.828 3h3.982a2 2 0 0 1 1.992 2.181l-.637 7A2 2 0 0 1 13.174 14H2.826a2 2 0 0 1-1.991-1.819l-.637-7a1.99 1.99 0 0 1 .342-1.31zM2.19 4a1 1 0 0 0-.996 1.09l.637 7a1 1 0 0 0 .995.91h10.348a1 1 0 0 0 .995-.91l.637-7A1 1 0 0 0 13.81 4H2.19zm4.69-1.707A1 1 0 0 0 6.172 2H2.5a1 1 0 0 0-1 .981l.006.139C1.72 3.042 1.95 3 2.19 3h5.396l-.707-.707z" fill="#022c3f"></path> </svg>';
@@ -607,6 +612,11 @@
                                                 iconForCreateNewFolderMenuItemEl,
                                                 hoverIconForCreateNewFolderMenuItemEl
                                             );
+
+                                            createNewFolderMenuItemEl.onclick = function (e) {
+                                                window.App.Components.FolderContentList.addNewListItem('folder');
+                                                folderOptionsMenuEl.style.display = 'none';
+                                            };
 
                                             folderOptionsMenuEl.appendChild(createNewTaskMenuItemEl);
                                             folderOptionsMenuEl.appendChild(createNewFolderMenuItemEl);
@@ -689,7 +699,7 @@
                             const el = this.el();
                             el.style.display = 'none';
                             el.innerHTML = '';
-                        }
+                        },
                     },
                     FolderBreadcrumbs: {
                         parentFolders: [],
@@ -767,6 +777,14 @@
                         }
                     },
                     FolderContentList: {
+                        apis: {
+                            task: {
+                                create_new: "{{ url('/api/tasks/create-new') }}"
+                            },
+                            folder: {
+                                create_new: "{{ url('/api/folders/create-new') }}"
+                            },
+                        },
                         el: function () {
                             return document.getElementById('folder-content-list');
                         },
@@ -782,6 +800,39 @@
 
                             this.Components.ListItem
                             .Components.ItemOptions.centerMainComponents(listItemObj);
+                        },
+                        addNewListItem: function (listItemType) {
+                            // in case we have "This folder is empty" visible..
+                            window.App.Components.LoadingStatus.hide();
+
+                            var xhr = new XMLHttpRequest();
+                            xhr.withCredentials = true;
+
+                            const $this = this;
+                            xhr.addEventListener("readystatechange", function() {
+                                if(this.readyState === 4) {
+                                    const listItemObj = JSON.parse(this.responseText);
+                                    listItemObj.list_item_type = listItemType;
+                                    listItemObj.tags = [];
+                                    listItemObj.title = listItemObj.name;
+                                    listItemObj.time_spent_today = '00:00:00';
+
+                                    delete listItemObj.name;
+                                    $this.addListItem(listItemObj);
+                                }
+                            });
+
+                            const currentFolderId = window.App.Views.FolderContent.getCurrentFolderId();
+
+                            var urlStr = this.apis[listItemType].create_new;
+
+                            if (currentFolderId != null) {
+                                urlStr += '?current-folder=' + currentFolderId;
+                            }
+
+                            xhr.open("POST", urlStr);
+                            xhr.send();
+
                         },
                         clearListItems: function () {
                             this.el().innerHTML = '';

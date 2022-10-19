@@ -79,4 +79,24 @@ class FolderController extends Controller
             'message' => __('Failed to save changes')
         ], 500);
     }
+
+    public function createNew(Request $request) {
+        Validator::make(
+            $request->all(),
+            [
+                'current-folder' => 'exists:folders,id',
+            ]
+        )->validate();
+
+        $currentFolderId = $request->input('current-folder');
+
+        $newFolder = new Folder();
+        $newFolder->name = 'New folder';
+        if (!empty($currentFolderId)) {
+            $newFolder->parent_folder_id = $currentFolderId;
+        }
+        $newFolder->save();
+
+        return new Response($newFolder->toArray());
+    }
 }
