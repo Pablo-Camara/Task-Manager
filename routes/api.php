@@ -3,6 +3,7 @@
 use App\Http\Controllers\FolderContentController;
 use App\Http\Controllers\FolderController;
 use App\Http\Controllers\TaskController;
+use App\Http\Controllers\TaskTimeInteractionController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -22,6 +23,9 @@ Route::post('/folder-content/list', [FolderContentController::class, 'list']);
 Route::post('/tasks/edit-name', [TaskController::class, 'editName']);
 Route::post('/tasks/set-status', [TaskController::class, 'setStatus']);
 Route::post('/tasks/create-new', [TaskController::class, 'createNew']);
+Route::post('/tasks/time-interaction/start', [TaskTimeInteractionController::class, 'startTimeInteraction']);
+Route::post('/tasks/time-interaction/end', [TaskTimeInteractionController::class, 'endTimeInteraction']);
+
 
 Route::post('/folders/edit-name', [FolderController::class, 'editName']);
 Route::post('/folders/set-status', [FolderController::class, 'setStatus']);
