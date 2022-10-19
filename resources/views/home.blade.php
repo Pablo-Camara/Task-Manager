@@ -976,6 +976,10 @@
                                         }
                                     },
                                     TimeInteraction: {
+                                        apis: {
+                                            start: "{{ url('/api/tasks/time-interaction/start') }}",
+                                            end: "{{ url('/api/tasks/time-interaction/end') }}"
+                                        },
                                         getElId: function (listItemObj) {
                                             return 'time-interaction-' + listItemObj.id + '-' + listItemObj.list_item_type;
                                         },
@@ -991,8 +995,19 @@
                                             );
 
                                             if (listItemObj.list_item_type === 'task') {
-                                                const playButton = this.createPlayButtonEl(listItemObj);
-                                                const pauseButton = this.createPauseButtonEl(listItemObj);
+                                                const $this = this;
+                                                const playButton = this.Components.PlayButton.createEl(
+                                                    listItemObj,
+                                                    function (e) {
+                                                        $this.startTimeInteraction(listItemObj);
+                                                    }
+                                                );
+                                                const pauseButton = this.Components.PauseButton.createEl(
+                                                    listItemObj,
+                                                    function (e) {
+                                                        $this.endTimeInteraction(listItemObj);
+                                                    }
+                                                );
 
                                                 timeInteraction.appendChild(playButton);
                                                 timeInteraction.appendChild(pauseButton);
@@ -1002,27 +1017,41 @@
 
                                             return timeInteraction;
                                         },
-                                        createPlayButtonEl: function (listItemObj) {
-                                            const playButton = document.createElement('div');
-                                            playButton.classList.add('play');
-                                            //playButton.style.display = 'none';
-                                            return playButton;
+                                        startTimeInteraction: function (listItemObj) {
+                                            var xhr = new XMLHttpRequest();
+                                            xhr.withCredentials = true;
+
+                                            const $this = this;
+                                            xhr.addEventListener("readystatechange", function() {
+                                                if(this.readyState === 4) {
+                                                    if ( this.status === 201 ) {
+                                                        $this.Components.PlayButton.hide(listItemObj);
+                                                        $this.Components.PauseButton.show(listItemObj);
+                                                        return;
+                                                    }
+                                                }
+                                            });
+
+                                            xhr.open("POST", this.apis.start + '?task_id=' + listItemObj.id);
+                                            xhr.send();
                                         },
-                                        createPauseButtonEl: function (listItemObj) {
-                                            const pauseButton = document.createElement('div');
-                                            pauseButton.classList.add('pause');
-                                            pauseButton.style.display = 'none';
+                                        endTimeInteraction: function (listItemObj) {
+                                            var xhr = new XMLHttpRequest();
+                                            xhr.withCredentials = true;
 
-                                            const pauseCol1 = document.createElement('div');
-                                            pauseCol1.classList.add('pause-col');
+                                            const $this = this;
+                                            xhr.addEventListener("readystatechange", function() {
+                                                if(this.readyState === 4) {
+                                                    if ( this.status === 200 ) {
+                                                        $this.Components.PauseButton.hide(listItemObj);
+                                                        $this.Components.PlayButton.show(listItemObj);
+                                                        return;
+                                                    }
+                                                }
+                                            });
 
-                                            const pauseCol2 = document.createElement('div');
-                                            pauseCol2.classList.add('pause-col');
-
-                                            pauseButton.appendChild(pauseCol1);
-                                            pauseButton.appendChild(pauseCol2);
-
-                                            return pauseButton;
+                                            xhr.open("POST", this.apis.end + '?task_id=' + listItemObj.id);
+                                            xhr.send();
                                         },
                                         centerTimeInteractionEl: function (listItemObj) {
                                             const listItemEl = window.App.Components.FolderContentList
@@ -1038,6 +1067,77 @@
                                                 timeInteractionButtonEl.style.top = timeInteractionYPos + 'px';
                                             }
                                         },
+                                        Components: {
+                                            PlayButton: {
+                                                getElId: function (listItemObj) {
+                                                    return 'li-time-interaction-start-' + listItemObj.list_item_type + '-' + listItemObj.id;
+                                                },
+                                                getEl: function (listItemObj) {
+                                                    return document.getElementById(this.getElId(listItemObj));
+                                                },
+                                                createEl: function (listItemObj, onclickEvent) {
+                                                    const playButton = document.createElement('div');
+                                                    playButton.classList.add('play');
+                                                    playButton.setAttribute(
+                                                        'id',
+                                                        this.getElId(listItemObj)
+                                                    );
+
+                                                    //playButton.style.display = 'none';
+
+                                                    if (typeof onclickEvent !== 'undefined') {
+                                                        playButton.onclick = onclickEvent;
+                                                    }
+
+                                                    return playButton;
+                                                },
+                                                hide: function (listItemObj) {
+                                                    this.getEl(listItemObj).style.display = 'none';
+                                                },
+                                                show: function (listItemObj) {
+                                                    this.getEl(listItemObj).style.display = 'inline-block';
+                                                },
+                                            },
+                                            PauseButton: {
+                                                getElId: function (listItemObj) {
+                                                    return 'li-time-interaction-end-' + listItemObj.list_item_type + '-' + listItemObj.id;
+                                                },
+                                                getEl: function (listItemObj) {
+                                                    return document.getElementById(this.getElId(listItemObj));
+                                                },
+                                                createEl: function (listItemObj, onclickEvent) {
+                                                    const pauseButton = document.createElement('div');
+                                                    pauseButton.classList.add('pause');
+                                                    pauseButton.setAttribute(
+                                                        'id',
+                                                        this.getElId(listItemObj)
+                                                    );
+
+                                                    pauseButton.style.display = 'none';
+
+                                                    const pauseCol1 = document.createElement('div');
+                                                    pauseCol1.classList.add('pause-col');
+
+                                                    const pauseCol2 = document.createElement('div');
+                                                    pauseCol2.classList.add('pause-col');
+
+                                                    pauseButton.appendChild(pauseCol1);
+                                                    pauseButton.appendChild(pauseCol2);
+
+                                                    if (typeof onclickEvent !== 'undefined') {
+                                                        pauseButton.onclick = onclickEvent;
+                                                    }
+
+                                                    return pauseButton;
+                                                },
+                                                hide: function (listItemObj) {
+                                                    this.getEl(listItemObj).style.display = 'none';
+                                                },
+                                                show: function (listItemObj) {
+                                                    this.getEl(listItemObj).style.display = 'inline-block';
+                                                },
+                                            }
+                                        }
                                     },
                                     ItemOptions: {
                                         Components: {
