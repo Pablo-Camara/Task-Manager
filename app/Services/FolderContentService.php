@@ -13,7 +13,7 @@ class FolderContentService
 
     /**
      *
-     * @param TaskService $folderService
+     * @param TaskService $taskService
      */
     private $taskService;
 

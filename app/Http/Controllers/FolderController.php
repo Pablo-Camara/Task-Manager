@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Folder;
+use App\Services\FolderService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
@@ -80,7 +81,7 @@ class FolderController extends Controller
         ], 500);
     }
 
-    public function createNew(Request $request) {
+    public function createNew(Request $request, FolderService $folderService) {
         Validator::make(
             $request->all(),
             [
@@ -97,6 +98,8 @@ class FolderController extends Controller
         }
         $newFolder->save();
 
-        return new Response($newFolder->toArray());
+        return new Response(
+            $folderService->convertToListItemObj($newFolder)
+        );
     }
 }

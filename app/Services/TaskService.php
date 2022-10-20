@@ -59,4 +59,16 @@ class TaskService
 
         return $tasks;
     }
+
+
+    public function convertToListItemObj(Task $task) {
+        return [
+            'id' => $task->id,
+            'title' => $task->name,
+            'tags' => $task->tags,
+            'folder_id' => $task->folder_id,
+            'parent_folders' => $this->folderService->getParentFolders($task->folder_id),
+            'time_spent_today' => '00:00:00'
+        ];
+    }
 }

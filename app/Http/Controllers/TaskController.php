@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Task;
+use App\Services\TaskService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
@@ -75,7 +76,7 @@ class TaskController extends Controller
         ], 500);
     }
 
-    public function createNew(Request $request) {
+    public function createNew(Request $request, TaskService $taskService) {
         Validator::make(
             $request->all(),
             [
@@ -94,6 +95,8 @@ class TaskController extends Controller
 
         $newTask->save();
 
-        return new Response($newTask->toArray());
+        return new Response(
+            $taskService->convertToListItemObj($newTask)
+        );
     }
 }

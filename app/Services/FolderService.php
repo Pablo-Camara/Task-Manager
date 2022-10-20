@@ -87,4 +87,14 @@ class FolderService
 
         return $parentFolders;
     }
+
+    public function convertToListItemObj(Folder $folder) {
+        return [
+            'id' => $folder->id,
+            'title' => $folder->name,
+            'tags' => $folder->tags,
+            'parent_folder_id' => $folder->parent_folder_id,
+            'parent_folders' => $this->getParentFolders($folder->parent_folder_id)
+        ];
+    }
 }
