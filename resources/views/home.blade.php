@@ -813,11 +813,6 @@
                                 if(this.readyState === 4) {
                                     const listItemObj = JSON.parse(this.responseText);
                                     listItemObj.list_item_type = listItemType;
-                                    listItemObj.tags = [];
-                                    listItemObj.title = listItemObj.name;
-                                    listItemObj.time_spent_today = '00:00:00';
-
-                                    delete listItemObj.name;
                                     $this.addListItem(listItemObj);
                                 }
                             });
@@ -1775,14 +1770,21 @@
                                             const tags = document.createElement('div');
                                             tags.classList.add('tags');
 
-                                            for(var i = 0; i < listItemObj.tags.length; i++) {
-                                                const tag = listItemObj.tags[i];
-                                                const tagName = tag.name;
-                                                const tagEl = document.createElement('span');
-                                                tagEl.innerText = tagName;
+                                            if (
+                                                typeof listItemObj.tags !== undefined
+                                                &&
+                                                Array.isArray(listItemObj.tags)
+                                            ) {
+                                                for(var i = 0; i < listItemObj.tags.length; i++) {
+                                                    const tag = listItemObj.tags[i];
+                                                    const tagName = tag.name;
+                                                    const tagEl = document.createElement('span');
+                                                    tagEl.innerText = tagName;
 
-                                                tags.appendChild(tagEl);
+                                                    tags.appendChild(tagEl);
+                                                }
                                             }
+
 
                                             return tags;
                                         }
