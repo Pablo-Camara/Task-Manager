@@ -25,4 +25,11 @@ class Task extends Model
     {
         return $this->belongsTo(Folder::class);
     }
+
+    public function timeInteractions() {
+        return $this->belongsToMany(
+            TaskTimeInteraction::class,
+            'task_time_intereactions'
+        );
+    }
 }

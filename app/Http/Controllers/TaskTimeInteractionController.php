@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\TaskTimeInteraction;
+use App\Services\TaskTimeInteractionService;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use DateInterval;
@@ -15,7 +16,10 @@ use Illuminate\Validation\ValidationException;
 
 class TaskTimeInteractionController extends Controller
 {
-    public function startTimeInteraction(Request $request) {
+    public function startTimeInteraction(
+        Request $request,
+        TaskTimeInteractionService $taskTimeInteractionService
+    ) {
         Validator::make(
             $request->all(),
             [
@@ -25,13 +29,7 @@ class TaskTimeInteractionController extends Controller
 
         $taskId = $request->input('task_id');
 
-        $totalUnEndedTimeInteractions = TaskTimeInteraction::where(
-            'task_id', '=', $taskId
-        )->whereNull(
-            'ended_at'
-        )->count();
-
-        if ($totalUnEndedTimeInteractions > 0) {
+        if (!empty($taskTimeInteractionService->getRunningTimer($taskId))) {
             //TODO: translate
             throw ValidationException::withMessages([
                 'time_interaction' => 'Cannot start the timer again because it has already been started.'
@@ -47,7 +45,10 @@ class TaskTimeInteractionController extends Controller
         ], Response::HTTP_CREATED);
     }
 
-    public function endTimeInteraction(Request $request) {
+    public function endTimeInteraction(
+        Request $request,
+        TaskTimeInteractionService $taskTimeInteractionService
+    ) {
         Validator::make(
             $request->all(),
             [
@@ -57,11 +58,7 @@ class TaskTimeInteractionController extends Controller
 
         $taskId = $request->input('task_id');
 
-        $unEndedTimeInteraction = TaskTimeInteraction::where(
-            'task_id', '=', $taskId
-        )->whereNull(
-            'ended_at'
-        )->first();
+        $unEndedTimeInteraction = $taskTimeInteractionService->getRunningTimer($taskId);
 
         if (empty($unEndedTimeInteraction)) {
              //TODO: translate

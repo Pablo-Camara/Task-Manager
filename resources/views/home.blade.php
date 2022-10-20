@@ -1078,7 +1078,11 @@
                                                         this.getElId(listItemObj)
                                                     );
 
-                                                    //playButton.style.display = 'none';
+                                                    if (
+                                                        listItemObj.is_timer_running == true
+                                                    ) {
+                                                        playButton.style.display = 'none';
+                                                    }
 
                                                     if (typeof onclickEvent !== 'undefined') {
                                                         playButton.onclick = onclickEvent;
@@ -1108,7 +1112,11 @@
                                                         this.getElId(listItemObj)
                                                     );
 
-                                                    pauseButton.style.display = 'none';
+                                                    if (
+                                                        listItemObj.is_timer_running == false
+                                                    ) {
+                                                        pauseButton.style.display = 'none';
+                                                    }
 
                                                     const pauseCol1 = document.createElement('div');
                                                     pauseCol1.classList.add('pause-col');

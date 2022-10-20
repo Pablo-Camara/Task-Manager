@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Helpers\Statuses\TaskStatuses;
 use App\Models\Task;
+use App\Models\TaskTimeInteraction;
 use Illuminate\Support\Facades\DB;
 
 class TaskService
@@ -13,10 +14,17 @@ class TaskService
      */
     private $folderService;
 
+    /**
+     * @var TaskTimeInteractionService
+     */
+    private $taskTimeInteractionService;
+
     public function __construct(
-        FolderService $folderService
+        FolderService $folderService,
+        TaskTimeInteractionService $taskTimeInteractionService
     ) {
         $this->folderService = $folderService;
+        $this->taskTimeInteractionService = $taskTimeInteractionService;
     }
 
     /**
@@ -55,6 +63,15 @@ class TaskService
         foreach ($tasks as $key => $task) {
             $tasks[$key]['parent_folders'] = $this->folderService->getParentFolders($task['folder_id']);
             $tasks[$key]['time_spent_today'] = '00:00:00';
+
+            $runningTimer = $this->taskTimeInteractionService->getRunningTimer($task['id']);
+            $isTimerRunning = false;
+
+            if (!empty($runningTimer)) {
+                $isTimerRunning = true;
+            }
+
+            $tasks[$key]['is_timer_running'] = $isTimerRunning;
         }
 
         return $tasks;
