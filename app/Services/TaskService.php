@@ -62,7 +62,9 @@ class TaskService
 
         foreach ($tasks as $key => $task) {
             $tasks[$key]['parent_folders'] = $this->folderService->getParentFolders($task['folder_id']);
-            $tasks[$key]['time_spent_today'] = '00:00:00';
+
+            $totalTimeSpentToday = $this->taskTimeInteractionService->getTotalTimeSpentToday($task['id']);
+            $tasks[$key]['time_spent_today'] = $totalTimeSpentToday;
 
             $runningTimer = $this->taskTimeInteractionService->getRunningTimer($task['id']);
             $isTimerRunning = false;
@@ -85,7 +87,8 @@ class TaskService
             'tags' => $task->tags,
             'folder_id' => $task->folder_id,
             'parent_folders' => $this->folderService->getParentFolders($task->folder_id),
-            'time_spent_today' => '00:00:00'
+            'time_spent_today' => '00:00:00',
+            'is_timer_running' => false,
         ];
     }
 }

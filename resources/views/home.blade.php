@@ -151,6 +151,8 @@
                 position: absolute;
                 left: 5px;
                 text-align: center;
+
+                z-index: 99999999;
             }
 
             .list .list-item .time-interaction .play {

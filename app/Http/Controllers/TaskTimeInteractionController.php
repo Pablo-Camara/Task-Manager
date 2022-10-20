@@ -32,9 +32,11 @@ class TaskTimeInteractionController extends Controller
         if (!empty($taskTimeInteractionService->getRunningTimer($taskId))) {
             //TODO: translate
             throw ValidationException::withMessages([
-                'time_interaction' => 'Cannot start the timer again because it has already been started.'
+                'time_interaction' => 'You have already started the timer for this task.'
             ]);
         }
+
+        $taskTimeInteractionService->stopAllRunningTimers();
 
         $newTimeInteraction = new TaskTimeInteraction();
         $newTimeInteraction->task_id = $taskId;
