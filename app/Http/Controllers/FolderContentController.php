@@ -29,8 +29,7 @@ class FolderContentController extends Controller
     }
 
 
-    public function list (Request $request) {
-
+    public function list(Request $request) {
         $selectedFolderId = $request->input('folder', null);
 
         $tasks = $this->taskService->search($selectedFolderId);
@@ -42,4 +41,16 @@ class FolderContentController extends Controller
             'folders' => $folders,
         ]);
     }
+
+
+    public function listFolders(Request $request) {
+        $selectedFolderId = $request->input('folder', null);
+        $folders = $this->folderService->search($selectedFolderId);
+
+        return new Response([
+            'parent_folders' => $this->folderService->getParentFolders($selectedFolderId),
+            'folders' => $folders,
+        ]);
+    }
+
 }

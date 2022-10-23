@@ -102,4 +102,34 @@ class FolderController extends Controller
             $folderService->convertToListItemObj($newFolder)
         );
     }
+
+    public function changeParentFolder(Request $request) {
+        Validator::make(
+            $request->all(),
+            [
+                'id' => 'exists:folders,id',
+                'new-parent-folder' => 'exists:folders,id',
+            ]
+        )->validate();
+
+        /**
+         * @var Folder
+         */
+        $folder = Folder::find(
+            $request->input('id')
+        );
+
+        $folder->parent_folder_id = $request->input('new-parent-folder');
+        $folderSaved = $folder->save();
+
+        if ($folderSaved) {
+            return new Response([
+                'message' => __('Folder moved successfully')
+            ], 200);
+        }
+
+        return new Response([
+            'message' => __('Failed to move folder')
+        ], 500);
+    }
 }

@@ -99,4 +99,35 @@ class TaskController extends Controller
             $taskService->convertToListItemObj($newTask)
         );
     }
+
+
+    public function changeParentFolder(Request $request) {
+        Validator::make(
+            $request->all(),
+            [
+                'id' => 'required|exists:tasks,id',
+                'new-parent-folder' => 'required|exists:folders,id'
+            ]
+        )->validate();
+
+        /**
+         * @var Task
+         */
+        $task = Task::find(
+            $request->input('id')
+        );
+
+        $task->folder_id = $request->input('new-parent-folder');
+        $taskSaved = $task->save();
+
+        if ($taskSaved) {
+            return new Response([
+                'message' => __('Task moved successfully')
+            ], 200);
+        }
+
+        return new Response([
+            'message' => __('Failed to move task')
+        ], 500);
+    }
 }

@@ -66,8 +66,8 @@
                 position: absolute;
                 left: 7px;
                 top: 10px;
-
                 cursor: pointer;
+                color: #073140;
             }
 
             .folder-breadcrumbs .breadcrumb-separator {
@@ -102,14 +102,85 @@
                 min-height: 82px;
             }
 
+            .list .list-item.choose-folder-overlay-visible {
+                min-height: 300px;
+                overflow: hidden;
+            }
+
+            .list .list-item .choose-folder-overlay,
             .list .list-item .info-overlay {
-                color: white;
                 position: absolute;
                 top: 0;
                 left: 0;
                 right: 0;
                 bottom: 0;
-                z-index: 9999999;
+            }
+
+            .list .list-item .choose-folder-overlay {
+                z-index: 99999999;
+                background: rgb(0 32 43 / 94%);
+                color: #ffffff;
+            }
+
+            .list .list-item .choose-folder-overlay .close-btn {
+                color: red;
+                font-size: 22px;
+                position: absolute;
+                top: 0px;
+                right: 10px;
+                cursor: pointer;
+            }
+
+            .list .list-item .choose-folder-overlay .folders-list {
+                padding: 0 10px;
+                max-height: 250px;
+                overflow: auto;
+            }
+
+            .list .list-item .choose-folder-overlay .folders-list .folders-list-item {
+                position: relative;
+                border-bottom: 1px dashed rgba(70, 107, 119, 0.44);
+                padding-bottom: 6px;
+                padding-top: 6px;
+            }
+
+            .list .list-item .choose-folder-overlay .folders-list .folders-list-item .folder-name {
+                position: relative;
+            }
+
+            .list .list-item .choose-folder-overlay .folders-list .folders-list-item .folder-name svg {
+                color: white;
+                position: absolute;
+                top: 3px;
+            }
+
+            .list .list-item .choose-folder-overlay .folders-list .folders-list-item .folder-name span {
+                color: #FFFFFF;
+                font-size: 14px;
+                position: relative;
+                cursor: pointer;
+                margin-left: 24px;
+            }
+
+            .list .list-item .choose-folder-overlay .folders-list .folders-list-item .select-folder-container {
+                text-align: right;
+            }
+
+            .list .list-item .choose-folder-overlay .folders-list .folders-list-item .select-folder-link {
+                font-size: 12px;
+                text-decoration: underline;
+                cursor: pointer;
+                display: inline-block;
+            }
+
+            .list .list-item .info-overlay {
+                color: white;
+                z-index: 999999999;
+            }
+
+            .list .list-item .choose-folder-overlay .title {
+                text-align: center;
+                padding: 14px 0;
             }
 
             .list .list-item .info-overlay.info {
@@ -152,7 +223,7 @@
                 left: 5px;
                 text-align: center;
 
-                z-index: 99999999;
+                z-index: 9999999;
             }
 
             .list .list-item .time-interaction .play {
@@ -189,10 +260,8 @@
                 font-size: 14px;
                 padding-left: 40px;
                 padding-right: 30px;
-
                 position: relative;
-
-                cursor: pointer;
+                word-break: break-all;
             }
 
             .list .list-item .list-item-title textarea {
@@ -336,7 +405,7 @@
                 padding-right: 30px;
             }
 
-            .list .list-item .folder {
+            .list .list-item > .folder {
                 color: #7a9fa4;
                 text-align: left;
                 font-size: 12px;
@@ -395,12 +464,14 @@
                 task: {
                     save: "{{ __('Save task name') }}",
                     edit: "{{ __('Edit task name') }}",
+                    move: "{{ __('Move to different folder') }}",
                     cancel: "{{ __('Cancel editing task name') }}",
                     delete: "{{ __('Delete task') }}",
                 },
                 folder: {
                     save: "{{ __('Save folder name') }}",
                     edit: "{{ __('Edit folder name') }}",
+                    move: "{{ __('Move to different folder') }}",
                     cancel: "{{ __('Cancel editing folder name') }}",
                     delete: "{{ __('Delete folder') }}",
                 },
@@ -689,59 +760,92 @@
                         },
                     },
                     LoadingStatus: {
-                        el: function () {
-                            return document.getElementById('loading-status');
+                        mainElId: function () {
+                            return 'loading-status';
                         },
-                        show: function(message) {
-                            const el = this.el();
+                        getEl: function (elId) {
+                            return document.getElementById(elId);
+                        },
+                        createEl: function (elId) {
+                            const loadingStatusEl = document.createElement('div');
+                            loadingStatusEl.classList.add('loading-status');
+                            loadingStatusEl.setAttribute(
+                                'id',
+                                elId
+                            );
+                            loadingStatusEl.style.display = 'none';
+                            return loadingStatusEl;
+                        },
+                        show: function(message, elId = null) {
+                            const el = this.getEl(elId != null ? elId : this.mainElId());
                             el.innerText = message;
                             el.style.display = 'block';
                         },
-                        hide: function () {
-                            const el = this.el();
+                        hide: function (elId = null) {
+                            const el = this.getEl(elId != null ? elId : this.mainElId());
                             el.style.display = 'none';
                             el.innerHTML = '';
                         },
                     },
                     FolderBreadcrumbs: {
-                        parentFolders: [],
-                        el: function () {
-                            return document.getElementById('folder-breadcrumbs');
+                        getMainElId: function () {
+                            return 'folder-breadcrumbs';
                         },
-                        show: function (parentFolders) {
-                            const el = this.el();
-                            const rootFolderEl = this.createRootFolderEl();
+                        getEl: function (elId) {
+                            return document.getElementById(elId);
+                        },
+                        createEl: function (elId, parentFolders, switchToFolderFunc) {
+                            const folderBreadcrumbsContainer = document.createElement('div');
+                            folderBreadcrumbsContainer.classList.add('folder-breadcrumbs');
+                            folderBreadcrumbsContainer.setAttribute('id', elId);
+
+                            this.createElInnerEls(
+                                folderBreadcrumbsContainer,
+                                parentFolders,
+                                switchToFolderFunc
+                            );
+
+                            return folderBreadcrumbsContainer;
+                        },
+                        createElInnerEls: function (el, parentFolders, switchToFolderFunc) {
+                            const rootFolderEl = this.createRootFolderEl(switchToFolderFunc);
 
                             el.innerHTML = '';
                             el.appendChild(rootFolderEl);
 
-                            if (
-                                typeof parentFolders !== 'undefined'
-                            ) {
-                                this.setParentFolders(parentFolders);
-                            }
 
-                            const currentParentFolders = this.getParentFolders();
-                            for(var i = 0; i < currentParentFolders.length; i++) {
-                                const currentFolder = currentParentFolders[i];
-                                const folder = this.createFolderEl(currentFolder);
+                            for(var i = 0; i < parentFolders.length; i++) {
+                                const currentFolder = parentFolders[i];
+                                const folder = this.createFolderEl(currentFolder, switchToFolderFunc);
                                 el.appendChild(folder);
 
-                                if (i+1 < currentParentFolders.length) {
+                                if (i+1 < parentFolders.length) {
                                     const breadcrumbSeparator = this.createBreadcrumbSeparatorEl();
                                     el.appendChild(breadcrumbSeparator);
-
-                                    folder.onclick = function (e) {
-                                        window.App.Views.FolderContent.switchToFolder(currentFolder.id);
-                                    };
                                 } else {
                                     folder.classList.add('current');
                                 }
                             }
-
+                        },
+                        showMainEl: function (parentFolders) {
+                            this.show(
+                                this.getMainElId(),
+                                parentFolders,
+                                function (folderId) {
+                                    window.App.Views.FolderContent.switchToFolder(folderId);
+                                }
+                            );
+                        },
+                        show: function (elId, parentFolders, switchToFolderFunc) {
+                            const el = this.getEl(elId);
+                            this.createElInnerEls(
+                                el,
+                                parentFolders,
+                                switchToFolderFunc
+                            );
                             el.style.display = 'block';
                         },
-                        createRootFolderEl: function () {
+                        createRootFolderEl: function (switchToFolderFunc) {
                             const rootFolderEl = document.createElement('div');
                             rootFolderEl.style.display = 'inline-block';
 
@@ -752,15 +856,27 @@
                             rootFolderEl.appendChild(breadcrumbSeparator);
 
                             rootFolderEl.onclick = function () {
-                                window.App.Views.FolderContent.switchToFolder(null);
+                                if (
+                                    typeof switchToFolderFunc === 'function'
+                                ) {
+                                    switchToFolderFunc(null);
+                                }
                             };
 
                             return rootFolderEl;
                         },
-                        createFolderEl: function (folder) {
+                        createFolderEl: function (folder, switchToFolderFunc) {
                             const folderEl = document.createElement('span');
                             folderEl.classList.add('folder');
                             folderEl.innerText = folder.name;
+
+                            folderEl.onclick = function (e) {
+                                if (
+                                    typeof switchToFolderFunc === 'function'
+                                ) {
+                                    switchToFolderFunc(folder.id);
+                                }
+                            };
 
                             return folderEl;
                         },
@@ -770,12 +886,6 @@
                             breadcrumbSeparator.innerText = '/';
 
                             return breadcrumbSeparator;
-                        },
-                        setParentFolders: function (parentFolders) {
-                            this.parentFolders = parentFolders;
-                        },
-                        getParentFolders: function () {
-                            return this.parentFolders;
                         }
                     },
                     FolderContentList: {
@@ -970,6 +1080,332 @@
 
                                             textEl.innerText = '';
                                             containerEl.style.display = 'none';
+                                        }
+                                    },
+                                    ChooseFolderOverlay: {
+                                        getElId: function (listItemObj) {
+                                            return 'li-choose-folder-overlay-' + listItemObj.list_item_type + '-' + listItemObj.id;
+                                        },
+                                        getEl: function (listItemObj) {
+                                            return document.getElementById(this.getElId(listItemObj));
+                                        },
+                                        createEl: function (listItemObj) {
+                                            const chooseFolderOverlayEl = document.createElement('div');
+                                            chooseFolderOverlayEl.classList.add('choose-folder-overlay');
+                                            chooseFolderOverlayEl.setAttribute(
+                                                'id',
+                                                this.getElId(listItemObj)
+                                            );
+
+                                            const $this = this;
+
+                                            const closeBtn = this.Components.CloseButton.createEl(
+                                                listItemObj,
+                                                function (e) {
+                                                    $this.hide(listItemObj);
+                                                }
+                                            );
+                                            const titleEl = this.Components.Title.createEl();
+                                            const folderBreadcrumbsEl = this.Components.FolderBreadcrumbs.createEl(listItemObj);
+                                            const loadingStatusEl = this.Components.LoadingStatus.createEl(listItemObj);
+                                            const foldersList = this.Components.FoldersList.createEl(listItemObj);
+
+                                            chooseFolderOverlayEl.appendChild(closeBtn);
+                                            chooseFolderOverlayEl.appendChild(titleEl);
+                                            chooseFolderOverlayEl.appendChild(folderBreadcrumbsEl);
+                                            chooseFolderOverlayEl.appendChild(loadingStatusEl);
+                                            chooseFolderOverlayEl.appendChild(foldersList);
+
+                                            return chooseFolderOverlayEl;
+                                        },
+                                        show: function(listItemObj) {
+                                            const listItemEl = window.App.Components.FolderContentList
+                                                .Components.ListItem.getEl(listItemObj);
+                                            listItemEl.classList.add('choose-folder-overlay-visible');
+
+                                            const existingEl = this.getEl(listItemObj);
+                                            if(existingEl) {
+                                                existingEl.style.display = 'block';
+                                                this.Components.FoldersList.fetchFoldersInFolder(null, listItemObj);
+                                                return;
+                                            }
+
+                                            const chooseFolderOverlayEl = this.createEl(listItemObj);
+                                            chooseFolderOverlayEl.style.display = 'block';
+
+                                            const infoOverlayEl = window.App.Components.FolderContentList
+                                                .Components.ListItem
+                                                    .Components.InfoOverlay.getContainerEl(listItemObj);
+
+                                            infoOverlayEl.parentNode.insertBefore(chooseFolderOverlayEl, infoOverlayEl);
+                                            this.Components.FoldersList.fetchFoldersInFolder(null, listItemObj);
+                                        },
+                                        hide: function (listItemObj) {
+                                            const listItemEl = window.App.Components.FolderContentList
+                                                .Components.ListItem.getEl(listItemObj);
+
+                                            listItemEl.classList.remove('choose-folder-overlay-visible');
+
+                                            this.getEl(listItemObj).style.display = 'none';
+                                        },
+                                        Components: {
+                                            CloseButton: {
+                                                createEl: function (listItemObj, onclickEvent) {
+                                                    const closeBtn = document.createElement('div');
+                                                    closeBtn.classList.add('close-btn');
+                                                    closeBtn.innerText = 'x';
+                                                    closeBtn.onclick = onclickEvent;
+                                                    return closeBtn;
+                                                }
+                                            },
+                                            Title: {
+                                                createEl: function (listItemObj, onclickEvent) {
+                                                    const titleEl = document.createElement('div');
+                                                    titleEl.classList.add('title');
+                                                    //TODO: translate
+                                                    titleEl.innerText = 'Choose the destination folder:';
+                                                    return titleEl;
+                                                }
+                                            },
+                                            FolderBreadcrumbs: {
+                                                getElId: function (listItemObj) {
+                                                    return 'cfo-folder-breadcrumbs-' + listItemObj.list_item_type + '-' + listItemObj.id;
+                                                },
+                                                createEl: function (listItemObj) {
+                                                    const folderBreadcrumbsEl = window.App.Components.FolderBreadcrumbs.createEl(
+                                                        this.getElId(listItemObj),
+                                                        [],
+                                                        function (folderId) {
+                                                            window.App.Components.FolderContentList
+                                                                .Components.ListItem
+                                                                    .Components.ChooseFolderOverlay
+                                                                        .Components.FoldersList.switchToFolder(folderId, listItemObj);
+                                                        }
+                                                    );
+                                                    return folderBreadcrumbsEl;
+                                                }
+                                            },
+                                            LoadingStatus: {
+                                                getElId: function (listItemObj) {
+                                                    return 'cfo-loading-status-' + listItemObj.list_item_type + '-' + listItemObj.id;
+                                                },
+                                                createEl: function (listItemObj) {
+                                                    const loadingStatusEl = window.App.Components.LoadingStatus.createEl(
+                                                        this.getElId(listItemObj)
+                                                    );
+                                                    return loadingStatusEl;
+                                                },
+                                                show: function (message, listItemObj) {
+                                                    window.App.Components.LoadingStatus.show(message, this.getElId(listItemObj));
+                                                },
+                                                hide: function (listItemObj) {
+                                                    window.App.Components.LoadingStatus.hide(this.getElId(listItemObj));
+                                                },
+                                            },
+                                            FoldersList: {
+                                                api: "{{ url('/api/folder-content/list-folders') }}",
+                                                getElId: function (listItemObj) {
+                                                    return 'cfo-folders-list-' + listItemObj.list_item_type + '-' + listItemObj.id;
+                                                },
+                                                getEl: function (listItemObj) {
+                                                    return document.getElementById(this.getElId(listItemObj));
+                                                },
+                                                createEl: function (listItemObj) {
+                                                    const foldersListEl = document.createElement('div');
+                                                    foldersListEl.classList.add('folders-list');
+                                                    foldersListEl.style.display = 'none';
+                                                    foldersListEl.setAttribute(
+                                                        'id',
+                                                        this.getElId(listItemObj)
+                                                    );
+
+                                                    return foldersListEl;
+                                                },
+                                                show: function (listItemObj) {
+                                                    this.getEl(listItemObj).style.display = 'block';
+                                                },
+                                                hide: function (listItemObj) {
+                                                    this.getEl(listItemObj).style.display = 'none';
+                                                },
+                                                switchToFolder: function (folderId, listItemObj) {
+                                                    this.setCurrentFolderId(folderId, listItemObj);
+                                                    this.fetchFoldersInFolder(folderId, listItemObj);
+                                                },
+                                                setCurrentFolderId: function (folderId, listItemObj) {
+                                                    this.getEl(listItemObj).setAttribute('data-current-folder-id', folderId);
+                                                },
+                                                getCurrentFolderId: function (folderId, listItemObj) {
+                                                    return this.getEl(listItemObj).getAttribute('data-current-folder-id');
+                                                },
+                                                clearListItems: function (listItemObj) {
+                                                    this.getEl(listItemObj).innerHTML = '';
+                                                },
+                                                addListItem: function (parentListItemObj, listItemObjToAdd) {
+                                                    const foldersListEl = this.getEl(parentListItemObj);
+
+                                                    const folderEl = document.createElement('div');
+                                                    folderEl.classList.add('folders-list-item');
+
+                                                    const folderNameEl = document.createElement('div');
+                                                    folderNameEl.classList.add('folder-name');
+
+                                                    const folderSvgEl = '<svg style="" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-folder" viewBox="0 0 16 16"> <path d="M.54 3.87.5 3a2 2 0 0 1 2-2h3.672a2 2 0 0 1 1.414.586l.828.828A2 2 0 0 0 9.828 3h3.982a2 2 0 0 1 1.992 2.181l-.637 7A2 2 0 0 1 13.174 14H2.826a2 2 0 0 1-1.991-1.819l-.637-7a1.99 1.99 0 0 1 .342-1.31zM2.19 4a1 1 0 0 0-.996 1.09l.637 7a1 1 0 0 0 .995.91h10.348a1 1 0 0 0 .995-.91l.637-7A1 1 0 0 0 13.81 4H2.19zm4.69-1.707A1 1 0 0 0 6.172 2H2.5a1 1 0 0 0-1 .981l.006.139C1.72 3.042 1.95 3 2.19 3h5.396l-.707-.707z" fill="white"></path> </svg>';
+                                                    const folderNameTextEl = document.createElement('span');
+                                                    folderNameTextEl.innerText = listItemObjToAdd.title;
+
+                                                    const $this = this;
+                                                    folderNameTextEl.onclick = function(e) {
+                                                        $this.switchToFolder(listItemObjToAdd.id, parentListItemObj);
+                                                    };
+
+                                                    folderNameEl.innerHTML = '';
+                                                    folderNameEl.innerHTML += folderSvgEl;
+                                                    folderNameEl.appendChild(folderNameTextEl);
+
+                                                    const selectFolderContainerEl = document.createElement('div');
+                                                    selectFolderContainerEl.classList.add('select-folder-container');
+
+                                                    const selectFolderLinkEl = this.Components.SelectFolderLink.createEl(
+                                                        parentListItemObj,
+                                                        listItemObjToAdd
+                                                    );
+
+                                                    selectFolderContainerEl.appendChild(selectFolderLinkEl);
+
+                                                    folderEl.appendChild(folderNameEl);
+                                                    folderEl.appendChild(selectFolderContainerEl);
+
+                                                    foldersListEl.appendChild(folderEl);
+
+                                                },
+                                                fetchFoldersInFolder: function (folderId, listItemObj) {
+                                                    var xhr = new XMLHttpRequest();
+                                                    xhr.withCredentials = true;
+
+                                                    this.clearListItems(listItemObj);
+                                                    window.App.Components.FolderContentList
+                                                        .Components.ListItem
+                                                            .Components.ChooseFolderOverlay
+                                                                .Components.LoadingStatus.show(
+                                                                    //TODO: translate:
+                                                                    'Fetching folders.. please wait',
+                                                                    listItemObj
+                                                                );
+
+                                                    const $this = this;
+                                                    xhr.addEventListener("readystatechange", function() {
+                                                        if(this.readyState === 4) {
+                                                            window.App.Components.FolderContentList
+                                                                .Components.ListItem
+                                                                    .Components.ChooseFolderOverlay
+                                                                        .Components.LoadingStatus.hide(listItemObj);
+                                                            try {
+                                                                const folderContentJson = JSON.parse(this.responseText);
+                                                                /* window.App.Components.FolderBreadcrumbs.showMainEl(
+                                                                    folderContentJson.parent_folders
+                                                                ); */
+                                                                $this.show(listItemObj);
+
+                                                                if (
+                                                                    typeof folderContentJson.parent_folders !== 'undefined'
+                                                                ) {
+                                                                    window.App.Components.FolderBreadcrumbs.show(
+                                                                        window.App.Components.FolderContentList
+                                                                            .Components.ListItem
+                                                                                .Components.ChooseFolderOverlay
+                                                                                    .Components.FolderBreadcrumbs.getElId(listItemObj),
+                                                                        folderContentJson.parent_folders,
+                                                                        function (folderId) {
+                                                                            $this.switchToFolder(folderId, listItemObj);
+                                                                        }
+                                                                    );
+
+                                                                }
+
+                                                                // add folders last
+                                                                for(var i = 0; i < folderContentJson.folders.length; i++) {
+                                                                    const listItemObjToAdd = folderContentJson.folders[i];
+                                                                    listItemObjToAdd.list_item_type = 'folder';
+                                                                    $this.addListItem(
+                                                                        listItemObj,
+                                                                        listItemObjToAdd
+                                                                    );
+                                                                }
+
+                                                                if (
+                                                                    folderContentJson.folders.length === 0
+                                                                ) {
+
+                                                                    window.App.Components.FolderContentList
+                                                                    .Components.ListItem
+                                                                        .Components.ChooseFolderOverlay
+                                                                            .Components.LoadingStatus.show(
+                                                                                //TODO: translate:
+                                                                                'This folder contains no folders',
+                                                                                listItemObj
+                                                                            );
+                                                                }
+
+                                                            } catch (error) {
+                                                                console.log(error);
+                                                                // TODO: notify could not fetch/list folder content ( unexpected invalid json response )
+                                                            }
+                                                        }
+                                                    });
+
+                                                    var urlStr = this.api;
+                                                    const currentFolderId = this.getCurrentFolderId(folderId, listItemObj);
+                                                    if (currentFolderId != null && currentFolderId !== 'null') {
+                                                        urlStr += '?folder=' + currentFolderId;
+                                                    }
+
+                                                    xhr.open("POST", urlStr);
+
+                                                    xhr.send();
+                                                },
+                                                Components: {
+                                                    SelectFolderLink: {
+                                                        api: {
+                                                            task: "{{ url('/api/tasks/move') }}",
+                                                            folder: "{{ url('/api/folders/move') }}"
+                                                        },
+                                                        createEl: function (listItemObj, selectedFolderListItemObj) {
+                                                            const selectFolderLinkEl = document.createElement('div');
+                                                            selectFolderLinkEl.classList.add('select-folder-link');
+                                                            selectFolderLinkEl.innerText = 'select folder'; //TODO: translate
+
+                                                            const $this = this;
+                                                            selectFolderLinkEl.onclick = function (e) {
+                                                                // send request to change the folder_id (in case of tasks) or parent_folder_id ( in case of folders )
+                                                                // send new-parent-folder
+                                                                // send id
+
+                                                                var xhr = new XMLHttpRequest();
+                                                                xhr.withCredentials = true;
+
+                                                                xhr.addEventListener("readystatechange", function() {
+                                                                    if(this.readyState === 4) {
+                                                                        //console.log(this.responseText);
+                                                                        if (this.status === 200) {
+                                                                            window.App.Components.FolderContentList
+                                                                                .Components.ListItem
+                                                                                    .Components.ChooseFolderOverlay.hide(listItemObj);
+                                                                        }
+                                                                    }
+                                                                });
+
+                                                                const api = $this.api[listItemObj.list_item_type];
+
+                                                                xhr.open("POST", api + '?id=' + listItemObj.id + '&new-parent-folder=' + selectedFolderListItemObj.id);
+
+                                                                xhr.send();
+                                                            };
+
+                                                            return selectFolderLinkEl;
+                                                        }
+                                                    }
+                                                }
+                                            }
                                         }
                                     },
                                     TimeInteraction: {
@@ -1258,6 +1694,8 @@
                                                 renderRootMenuItemsForTask: function (listItemOptionsMenuEl, listItemObj) {
                                                     const editListItemTitleMenuItemEl = this.createEditListItemTitleMenuItemEl(listItemOptionsMenuEl, listItemObj);
 
+                                                    const moveListItemToDifferentFolderMenuItemEl = this.createMoveListItemToDifferentFolderMenuItemEl(listItemOptionsMenuEl, listItemObj);
+
                                                     const markCompletedMenuItemEl = this.createChangeListItemStatusMenuItemEl(
                                                         window.Translation.mark_as_completed,
                                                         'green',
@@ -1296,6 +1734,7 @@
 
                                                     listItemOptionsMenuEl.innerHTML = '';
                                                     listItemOptionsMenuEl.appendChild(editListItemTitleMenuItemEl);
+                                                    listItemOptionsMenuEl.appendChild(moveListItemToDifferentFolderMenuItemEl);
                                                     listItemOptionsMenuEl.appendChild(markCompletedMenuItemEl);
                                                     listItemOptionsMenuEl.appendChild(markOnHoldMenuItemEl);
                                                     listItemOptionsMenuEl.appendChild(markDeprecatedMenuItemEl);
@@ -1303,6 +1742,8 @@
                                                 },
                                                 renderRootMenuItemsForFolder: function (listItemOptionsMenuEl, listItemObj) {
                                                     const editListItemTitleMenuItemEl = this.createEditListItemTitleMenuItemEl(listItemOptionsMenuEl, listItemObj);
+
+                                                    const moveListItemToDifferentFolderMenuItemEl = this.createMoveListItemToDifferentFolderMenuItemEl(listItemOptionsMenuEl, listItemObj);
 
                                                     const deleteMenuItemEl =  this.createChangeListItemStatusMenuItemEl(
                                                         window.Translation[listItemObj.list_item_type].delete,
@@ -1315,6 +1756,7 @@
 
                                                     listItemOptionsMenuEl.innerHTML = '';
                                                     listItemOptionsMenuEl.appendChild(editListItemTitleMenuItemEl);
+                                                    listItemOptionsMenuEl.appendChild(moveListItemToDifferentFolderMenuItemEl);
                                                     listItemOptionsMenuEl.appendChild(deleteMenuItemEl);
                                                 },
                                                 renderEditingListItemTitleMenuItems: function (listItemOptionsMenuEl, listItemObj) {
@@ -1381,6 +1823,21 @@
                                                         $this.renderRootMenuForListItem(listItemObj, listItemOptionsMenuEl);
                                                     };
                                                     return cancelMenuItemEl;
+                                                },
+                                                createMoveListItemToDifferentFolderMenuItemEl: function (listItemOptionsMenuEl, listItemObj) {
+                                                    const moveListItemToDifferentFolderMenuItemEl = this.createMenuItemEl(
+                                                        window.Translation[listItemObj.list_item_type].move
+                                                    );
+
+                                                    const $this = this;
+                                                    moveListItemToDifferentFolderMenuItemEl.onclick = function (e) {
+                                                        window.App.Components.FolderContentList
+                                                            .Components.ListItem
+                                                                .Components.ChooseFolderOverlay.show(listItemObj);
+
+                                                        listItemOptionsMenuEl.style.display = 'none';
+                                                    };
+                                                    return moveListItemToDifferentFolderMenuItemEl;
                                                 },
                                                 createChangeListItemStatusMenuItemEl: function (menuItemText, colorClass, newStatusId, listItemObj) {
                                                     const menuItemEl = this.createMenuItemEl(
@@ -1835,7 +2292,9 @@
                                     window.App.Components.LoadingStatus.hide();
                                     try {
                                         const folderContentJson = JSON.parse(this.responseText);
-                                        window.App.Components.FolderBreadcrumbs.show(folderContentJson.parent_folders);
+                                        window.App.Components.FolderBreadcrumbs.showMainEl(
+                                            folderContentJson.parent_folders
+                                        );
                                         window.App.Components.FolderContentList.show();
 
                                         // add tasks first
@@ -1867,7 +2326,7 @@
                                         }
 
                                     } catch (error) {
-                                        // notify could not fetch/list folder content ( unexpected invalid json response )
+                                        // TODO: notify could not fetch/list folder content ( unexpected invalid json response )
                                     }
                                 }
                             });

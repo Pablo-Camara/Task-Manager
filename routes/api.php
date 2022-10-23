@@ -18,11 +18,13 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::post('/folder-content/list', [FolderContentController::class, 'list']);
+Route::post('/folder-content/list-folders', [FolderContentController::class, 'listFolders']);
 
 
 Route::post('/tasks/edit-name', [TaskController::class, 'editName']);
 Route::post('/tasks/set-status', [TaskController::class, 'setStatus']);
 Route::post('/tasks/create-new', [TaskController::class, 'createNew']);
+Route::post('/tasks/move', [TaskController::class, 'changeParentFolder']);
 Route::post('/tasks/time-interaction/start', [TaskTimeInteractionController::class, 'startTimeInteraction']);
 Route::post('/tasks/time-interaction/end', [TaskTimeInteractionController::class, 'endTimeInteraction']);
 
@@ -30,4 +32,5 @@ Route::post('/tasks/time-interaction/end', [TaskTimeInteractionController::class
 Route::post('/folders/edit-name', [FolderController::class, 'editName']);
 Route::post('/folders/set-status', [FolderController::class, 'setStatus']);
 Route::post('/folders/create-new', [FolderController::class, 'createNew']);
+Route::post('/folders/move', [FolderController::class, 'changeParentFolder']);
 
