@@ -506,6 +506,17 @@
 
                         document.addEventListener('click', outsideClickListener);
                     },
+                    scrollTo: function(element, to, duration) {
+                        if (duration <= 0) return;
+                        var difference = to - element.scrollTop;
+                        var perTick = difference / duration * 10;
+
+                        setTimeout(function() {
+                            element.scrollTop = element.scrollTop + perTick;
+                            if (element.scrollTop === to) return;
+                            window.App.Helpers.scrollTo(element, to, duration - 10);
+                        }, 10);
+                    },
                     isElementVisible: function (elem) {
                         return !!elem && !!( elem.offsetWidth || elem.offsetHeight || elem.getClientRects().length );
                     },
@@ -899,15 +910,37 @@
                         show: function () {
                             this.el().style.display = 'block';
                         },
-                        addListItem: function (listItemObj) {
+                        getLastIndexForListItemType: function (listItemType) {
+                            const el = this.el();
+                            const listItems = el.querySelectorAll('.list-item');
+
+                            var lastIndex = -1;
+                            for(var i = 0; i < listItems.length; i++) {
+                                const listItem = listItems[i];
+                                if (listItem.classList.contains(listItemType)) {
+                                    lastIndex = i;
+                                }
+                            }
+
+                            return lastIndex;
+                        },
+                        addListItem: function (listItemObj, orderPositionNumber = null) {
                             const newListItem = this.Components.ListItem.createEl(listItemObj);
-                            this.el().appendChild(newListItem.listItemEl);
+                            const el = this.el();
+
+                            if (orderPositionNumber === null) {
+                                el.appendChild(newListItem.listItemEl);
+                            } else {
+                                el.insertBefore(newListItem.listItemEl, el.children[orderPositionNumber]);
+                            }
 
                             this.Components.ListItem
                             .Components.TimeInteraction.centerTimeInteractionEl(listItemObj);
 
                             this.Components.ListItem
                             .Components.ItemOptions.centerMainComponents(listItemObj);
+
+                            return newListItem.listItemEl;
                         },
                         addNewListItem: function (listItemType) {
                             // in case we have "This folder is empty" visible..
@@ -921,7 +954,20 @@
                                 if(this.readyState === 4) {
                                     const listItemObj = JSON.parse(this.responseText);
                                     listItemObj.list_item_type = listItemType;
-                                    $this.addListItem(listItemObj);
+
+                                    const tempOrderPosition = $this.getLastIndexForListItemType(listItemType) + 1;
+                                    const newListItem = $this.addListItem(listItemObj, tempOrderPosition);
+
+                                    const scrollDuration = 400;
+                                    window.App.Helpers.scrollTo(
+                                        document.documentElement,
+                                        newListItem.offsetTop,
+                                        scrollDuration
+                                    );
+                                    setTimeout(function () {
+                                        window.App.Components.FolderContentList
+                                            .Components.ListItem.enableEditTitleMode(listItemObj);
+                                    }, scrollDuration+100);
                                 }
                             });
 
@@ -983,6 +1029,14 @@
                                         listItemOptionsEl: listItemOptions,
                                         listItemOptionsMenuEl: listItemOptionsMenu,
                                     };
+                                },
+                                enableEditTitleMode: function (listItemObj) {
+                                    this.Components.ItemTitle.enableEditMode(listItemObj);
+                                    const listItemOptionsMenuEl = this.Components.ItemOptions.Components.Menu.getEl(listItemObj);
+                                    this.Components.ItemOptions.Components.Menu.renderEditingListItemTitleMenuItems(
+                                        listItemOptionsMenuEl,
+                                        listItemObj
+                                    );
                                 },
                                 Components: {
                                     InfoOverlay: {
@@ -1705,7 +1759,7 @@
                                                     return menuItemEl;
                                                 },
                                                 renderRootMenuItemsForTask: function (listItemOptionsMenuEl, listItemObj) {
-                                                    const editListItemTitleMenuItemEl = this.createEditListItemTitleMenuItemEl(listItemOptionsMenuEl, listItemObj);
+                                                    const editListItemTitleMenuItemEl = this.createEditListItemTitleMenuItemEl(listItemObj);
 
                                                     const moveListItemToDifferentFolderMenuItemEl = this.createMoveListItemToDifferentFolderMenuItemEl(listItemOptionsMenuEl, listItemObj);
 
@@ -1754,7 +1808,7 @@
                                                     listItemOptionsMenuEl.appendChild(deleteMenuItemEl);
                                                 },
                                                 renderRootMenuItemsForFolder: function (listItemOptionsMenuEl, listItemObj) {
-                                                    const editListItemTitleMenuItemEl = this.createEditListItemTitleMenuItemEl(listItemOptionsMenuEl, listItemObj);
+                                                    const editListItemTitleMenuItemEl = this.createEditListItemTitleMenuItemEl(listItemObj);
 
                                                     const moveListItemToDifferentFolderMenuItemEl = this.createMoveListItemToDifferentFolderMenuItemEl(listItemOptionsMenuEl, listItemObj);
 
@@ -1780,19 +1834,13 @@
                                                     listItemOptionsMenuEl.appendChild(saveListItemTitleMenuItemEl);
                                                     listItemOptionsMenuEl.appendChild(cancelEditListItemTitleMenuItemEl);
                                                 },
-                                                createEditListItemTitleMenuItemEl: function (listItemOptionsMenuEl, listItemObj) {
+                                                createEditListItemTitleMenuItemEl: function (listItemObj) {
                                                     const editListItemTitleMenuItemEl = this.createMenuItemEl(window.Translation[listItemObj.list_item_type].edit);
 
                                                     const $this = this;
                                                     editListItemTitleMenuItemEl.onclick = function (e) {
                                                         window.App.Components.FolderContentList
-                                                            .Components.ListItem
-                                                                .Components.ItemTitle.enableEditMode(listItemObj);
-
-                                                        $this.renderEditingListItemTitleMenuItems(
-                                                            listItemOptionsMenuEl,
-                                                            listItemObj
-                                                        );
+                                                            .Components.ListItem.enableEditTitleMode(listItemObj);
                                                     };
                                                     return editListItemTitleMenuItemEl;
                                                 },
