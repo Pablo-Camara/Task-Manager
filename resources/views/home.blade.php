@@ -1326,6 +1326,15 @@
                                                                 for(var i = 0; i < folderContentJson.folders.length; i++) {
                                                                     const listItemObjToAdd = folderContentJson.folders[i];
                                                                     listItemObjToAdd.list_item_type = 'folder';
+
+                                                                    if (
+                                                                        listItemObjToAdd.id === listItemObj.id
+                                                                        &&
+                                                                        listItemObjToAdd.list_item_type === listItemObj.list_item_type
+                                                                    ) {
+                                                                        continue;
+                                                                    }
+
                                                                     $this.addListItem(
                                                                         listItemObj,
                                                                         listItemObjToAdd
@@ -1357,6 +1366,10 @@
                                                     const currentFolderId = this.getCurrentFolderId(folderId, listItemObj);
                                                     if (currentFolderId != null && currentFolderId !== 'null') {
                                                         urlStr += '?folder=' + currentFolderId;
+
+                                                        if (window.App.Views.FolderContent.currentFolderId != null) {
+                                                            urlStr += '&current-folder=' + window.App.Views.FolderContent.currentFolderId;
+                                                        }
                                                     }
 
                                                     xhr.open("POST", urlStr);
