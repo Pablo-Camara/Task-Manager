@@ -84,10 +84,6 @@
                 cursor: pointer;
             }
 
-            .folder-breadcrumbs .folder.current {
-                cursor: auto;
-            }
-
             .loading-status {
                 color: #FFFFFF;
                 text-align: center;
@@ -264,6 +260,10 @@
                 word-break: break-all;
             }
 
+            .list .list-item.folder .list-item-title span {
+                cursor: pointer;
+            }
+
             .list .list-item .list-item-title textarea {
                 width: 100%;
                 background: rgba(0, 0, 0, 0.08);
@@ -416,10 +416,6 @@
 
             .list .list-item .folder span {
                 cursor: pointer;
-            }
-
-            .list .list-item .folder span.current {
-                cursor: auto;
             }
 
             .list .list-item .folder .breadcrumb-separator {
@@ -955,6 +951,7 @@
                                 createEl: function (listItemObj) {
                                     const listItem = document.createElement('div');
                                     listItem.classList.add('list-item');
+                                    listItem.classList.add(listItemObj.list_item_type);
                                     listItem.setAttribute(
                                         'id',
                                         this.getElId(listItemObj)
