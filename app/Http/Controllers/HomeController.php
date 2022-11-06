@@ -7,9 +7,12 @@ use Illuminate\Http\Request;
 class HomeController extends Controller
 {
 
-    public function index() {
+    public function index(Request $request) {
+        $selectedFolderId = $request->input('folder', null);
+
         return view('home', [
-            'view' => 'FolderContent'
+            'view' => 'FolderContent',
+            'folder' => $selectedFolderId
         ]);
     }
 }

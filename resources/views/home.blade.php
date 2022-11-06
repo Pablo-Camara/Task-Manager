@@ -2358,6 +2358,12 @@
                                         );
                                         window.App.Components.FolderContentList.show();
 
+                                        if (folderContentJson.current_folder_id !== null) {
+                                            window.history.pushState(null, 'Task Manager', '?folder=' + folderContentJson.current_folder_id);
+                                        } else {
+                                            window.history.pushState(null, 'Task Manager', '/');
+                                        }
+
                                         // add tasks first
                                         for(var i = 0; i < folderContentJson.tasks.length; i++) {
                                             const listItem = folderContentJson.tasks[i];
@@ -2419,6 +2425,16 @@
         @if(isset($view))
             <script>
                 window.App.currentView = '{{ $view }}';
+            </script>
+        @endif
+
+        @if(
+            isset($view) && $view === 'FolderContent'
+            &&
+            isset($folder)
+        )
+            <script>
+                window.App.Views.FolderContent.setCurrentFolderId('{{ $folder }}');
             </script>
         @endif
 
