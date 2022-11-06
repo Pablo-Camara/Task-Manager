@@ -1126,7 +1126,10 @@
                                             const existingEl = this.getEl(listItemObj);
                                             if(existingEl) {
                                                 existingEl.style.display = 'block';
-                                                this.Components.FoldersList.fetchFoldersInFolder(null, listItemObj);
+                                                this.Components.FoldersList.fetchFoldersInFolder(
+                                                    window.App.Views.FolderContent.currentFolderId,
+                                                    listItemObj
+                                                );
                                                 return;
                                             }
 
@@ -1138,7 +1141,10 @@
                                                     .Components.InfoOverlay.getContainerEl(listItemObj);
 
                                             infoOverlayEl.parentNode.insertBefore(chooseFolderOverlayEl, infoOverlayEl);
-                                            this.Components.FoldersList.fetchFoldersInFolder(null, listItemObj);
+                                            this.Components.FoldersList.fetchFoldersInFolder(
+                                                window.App.Views.FolderContent.currentFolderId,
+                                                listItemObj
+                                            );
                                         },
                                         hide: function (listItemObj) {
                                             const listItemEl = window.App.Components.FolderContentList
@@ -1234,7 +1240,7 @@
                                                 setCurrentFolderId: function (folderId, listItemObj) {
                                                     this.getEl(listItemObj).setAttribute('data-current-folder-id', folderId);
                                                 },
-                                                getCurrentFolderId: function (folderId, listItemObj) {
+                                                getCurrentFolderId: function (listItemObj) {
                                                     return this.getEl(listItemObj).getAttribute('data-current-folder-id');
                                                 },
                                                 clearListItems: function (listItemObj) {
@@ -1356,20 +1362,17 @@
                                                                 }
 
                                                             } catch (error) {
-                                                                console.log(error);
                                                                 // TODO: notify could not fetch/list folder content ( unexpected invalid json response )
                                                             }
                                                         }
                                                     });
 
                                                     var urlStr = this.api;
-                                                    const currentFolderId = this.getCurrentFolderId(folderId, listItemObj);
+                                                    const currentFolderId = this.getCurrentFolderId(listItemObj);
                                                     if (currentFolderId != null && currentFolderId !== 'null') {
                                                         urlStr += '?folder=' + currentFolderId;
-
-                                                        if (window.App.Views.FolderContent.currentFolderId != null) {
-                                                            urlStr += '&current-folder=' + window.App.Views.FolderContent.currentFolderId;
-                                                        }
+                                                    } else if (folderId != null && folderId !== 'null') {
+                                                        urlStr += '?folder=' + folderId;
                                                     }
 
                                                     xhr.open("POST", urlStr);
