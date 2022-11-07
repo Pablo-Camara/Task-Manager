@@ -4,10 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Task;
 use App\Services\TaskService;
+use App\Services\TaskTimeInteractionService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\ValidationException;
 
 class TaskController extends Controller
 {
@@ -46,7 +47,10 @@ class TaskController extends Controller
     }
 
 
-    public function setStatus(Request $request) {
+    public function setStatus(
+        Request $request,
+        TaskTimeInteractionService $taskTimeInteractionService
+    ) {
         Validator::make(
             $request->all(),
             [
@@ -62,8 +66,23 @@ class TaskController extends Controller
             $request->input('id')
         );
 
-        $task->task_status_id = $request->input('new_status_id');
-        $taskSaved = $task->save();
+        DB::beginTransaction();
+
+        try {
+            $task->task_status_id = $request->input('new_status_id');
+            $taskSaved = $task->save();
+
+            $runningTimer = $taskTimeInteractionService->getRunningTimer($task->id);
+            if (!empty($runningTimer)) {
+                $runningTimer->endTimeInteraction();
+            }
+
+            DB::commit();
+        } catch (\Throwable $th) {
+            $taskSaved = false;
+            DB::rollBack();
+        }
+
 
         if ($taskSaved) {
             return new Response([
