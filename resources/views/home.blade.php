@@ -136,6 +136,7 @@
                 text-align: center;
                 font-size: 14px;
                 margin-top: 10px;
+                padding-bottom: 10px;
             }
 
             .list .list-item {
@@ -887,6 +888,9 @@
                                 getElId: function () {
                                     return 'running-tasks-list';
                                 },
+                                getLoadingElId: function () {
+                                    return 'loading-status-rtl';
+                                },
                                 el: function () {
                                     return document.getElementById(this.getElId());
                                 },
@@ -895,10 +899,18 @@
                                     xhr.withCredentials = true;
 
                                     window.App.Components.FolderContentList.clearListItems(this.getElId());
+                                    window.App.Components.LoadingStatus.show(
+                                        'Loading..', //TODO: translate
+                                        this.getLoadingElId()
+                                    );
 
                                     const $this = this;
                                     xhr.addEventListener("readystatechange", function() {
                                         if(this.readyState === 4) {
+
+                                            window.App.Components.LoadingStatus.hide(
+                                                $this.getLoadingElId()
+                                            );
 
                                             try {
                                                 const tasksJson = JSON.parse(this.responseText);
@@ -912,6 +924,13 @@
                                                         null,
                                                         $this.getElId(),
                                                         true
+                                                    );
+                                                }
+
+                                                if (tasksJson.length == 0) {
+                                                    window.App.Components.LoadingStatus.show(
+                                                        'You are currently not working on any tasks', //TODO: translate
+                                                        $this.getLoadingElId()
                                                     );
                                                 }
 
@@ -2641,6 +2660,7 @@
                     <span>Currently working on..</span>
                     <div id="close-running-tasks" class="close-btn">X</div>
                 </div>
+                <div class="loading-status" id="loading-status-rtl" style="display: none"></div>
                 <div class="list" id="running-tasks-list"></div>
             </div>
             <div class="folder-breadcrumbs" id="folder-breadcrumbs" style="display: none"></div>
