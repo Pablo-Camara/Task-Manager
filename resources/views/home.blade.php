@@ -1158,6 +1158,10 @@
                                 getEl: function (listItemObj) {
                                     return document.getElementById(this.getElId(listItemObj));
                                 },
+                                remove: function (listItemObj) {
+                                    const el = this.getEl(listItemObj);
+                                    el.remove();
+                                },
                                 createEl: function (listItemObj, showParentFolders = false) {
                                     const listItem = document.createElement('div');
                                     listItem.classList.add('list-item');
@@ -1253,8 +1257,8 @@
                                         showErrorMessage: function (message, listItemObj, okBtnCallback) {
                                             this.showMessage(message, 'error', listItemObj, true, okBtnCallback);
                                         },
-                                        showSuccessMessage: function (message, listItemObj) {
-                                            this.showMessage(message, 'success', listItemObj);
+                                        showSuccessMessage: function (message, listItemObj, okBtnCallback = null) {
+                                            this.showMessage(message, 'success', listItemObj, okBtnCallback != null, okBtnCallback);
                                         },
                                         showMessage: function (message, colorClass, listItemObj, showOkBtn = false, okBtnCallback = null) {
                                             const containerEl = this.getContainerEl(listItemObj);
@@ -1619,20 +1623,35 @@
 
                                                             const $this = this;
                                                             selectFolderLinkEl.onclick = function (e) {
-                                                                // send request to change the folder_id (in case of tasks) or parent_folder_id ( in case of folders )
-                                                                // send new-parent-folder
-                                                                // send id
 
                                                                 var xhr = new XMLHttpRequest();
                                                                 xhr.withCredentials = true;
 
+                                                                window.App.Components.FolderContentList
+                                                                    .Components.ListItem
+                                                                        .Components.InfoOverlay.showInfoMessage(
+                                                                            'Moving item..', //TODO: translate
+                                                                            listItemObj
+                                                                        );
+
                                                                 xhr.addEventListener("readystatechange", function() {
                                                                     if(this.readyState === 4) {
-                                                                        //console.log(this.responseText);
                                                                         if (this.status === 200) {
                                                                             window.App.Components.FolderContentList
                                                                                 .Components.ListItem
                                                                                     .Components.ChooseFolderOverlay.hide(listItemObj);
+
+                                                                            window.App.Components.FolderContentList
+                                                                                .Components.ListItem
+                                                                                .Components.InfoOverlay.showSuccessMessage(
+                                                                                    'Item moved successfully', //TODO: translate
+                                                                                    listItemObj,
+                                                                                    function (e) {
+                                                                                        window.App.Components.FolderContentList
+                                                                                            .Components.ListItem.remove(listItemObj);
+                                                                                    }
+                                                                                );
+
                                                                         }
                                                                     }
                                                                 });
@@ -1698,11 +1717,11 @@
                                             xhr.withCredentials = true;
 
                                             window.App.Components.FolderContentList
-                                            .Components.ListItem
-                                            .Components.InfoOverlay.showInfoMessage(
-                                                window.Translation.task.starting_timer,
-                                                listItemObj
-                                            );
+                                                .Components.ListItem
+                                                    .Components.InfoOverlay.showInfoMessage(
+                                                        window.Translation.task.starting_timer,
+                                                        listItemObj
+                                                    );
 
                                             const $this = this;
                                             xhr.addEventListener("readystatechange", function() {
