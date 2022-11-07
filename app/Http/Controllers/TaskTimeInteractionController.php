@@ -3,12 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\TaskTimeInteraction;
+use App\Services\TaskService;
 use App\Services\TaskTimeInteractionService;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
-use DateInterval;
-use DatePeriod;
-use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Validator;
@@ -16,6 +14,7 @@ use Illuminate\Validation\ValidationException;
 
 class TaskTimeInteractionController extends Controller
 {
+
     public function startTimeInteraction(
         Request $request,
         TaskTimeInteractionService $taskTimeInteractionService
@@ -108,6 +107,20 @@ class TaskTimeInteractionController extends Controller
         return $this->timerStoppedResponse();
     }
 
+    public function runningTasks(
+        Request $request,
+        TaskTimeInteractionService $taskTimeInteractionService,
+        TaskService $taskService
+    ) {
+        $result = [];
+
+        $runningTimers = $taskTimeInteractionService->getAllRunningTimers();
+        foreach($runningTimers as $runningTimer) {
+            $result[] = $taskService->convertToListItemObj($runningTimer->task, false);
+        }
+
+        return $result;
+    }
 
     private function timerStoppedResponse () {
         return new Response([

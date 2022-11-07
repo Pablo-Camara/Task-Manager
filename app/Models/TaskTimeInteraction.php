@@ -50,4 +50,8 @@ class TaskTimeInteraction extends Model
             $this->save();
         }
     }
+
+    public function task() {
+        return $this->belongsTo(Task::class);
+    }
 }

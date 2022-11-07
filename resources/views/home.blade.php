@@ -66,6 +66,40 @@
                 border-bottom: 1px solid #1f3942;
             }
 
+            .running-tasks {
+                border-left: 2px solid white;
+                border-right: 2px solid white;
+            }
+
+            .running-tasks .header {
+                background: #ffffff;
+                padding: 10px;
+                position: relative;
+            }
+
+            .running-tasks .header svg {
+                height: 30px;
+                width: auto;
+                position: absolute;
+                left: 10px;
+                top: 6px;
+            }
+
+            .running-tasks .header span {
+                margin-left: 40px;
+                color: #002a3c;
+                font-size: 16px;
+            }
+
+            .running-tasks .header .close-btn {
+                position: absolute;
+                right: 10px;
+                top: 10px;
+                color: red;
+                font-size: 16px;
+                cursor: pointer;
+            }
+
             .folder-breadcrumbs {
                 position: relative;
                 padding-left: 24px;
@@ -780,18 +814,116 @@
                                 },
                             },
                             RunningTasksButton: {
+                                getElId: function () {
+                                    return 'show-running-tasks';
+                                },
+                                el: function () {
+                                    return document.getElementById(this.getElId());
+                                },
+                                hide: function () {
+                                    this.el().style.display = 'none';
+                                },
+                                show: function () {
+                                    this.el().style.display = 'inline-block';
+                                },
                                 createEl: function () {
                                     const containerEl = document.createElement('div');
                                     containerEl.classList.add('clock-icon');
+                                    containerEl.setAttribute(
+                                        'id',
+                                        this.getElId()
+                                    );
 
                                     const svgIconEl = '<svg style="color: white;" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-alarm" viewBox="0 0 16 16"> <path d="M8.5 5.5a.5.5 0 0 0-1 0v3.362l-1.429 2.38a.5.5 0 1 0 .858.515l1.5-2.5A.5.5 0 0 0 8.5 9V5.5z" fill="white"></path> <path d="M6.5 0a.5.5 0 0 0 0 1H7v1.07a7.001 7.001 0 0 0-3.273 12.474l-.602.602a.5.5 0 0 0 .707.708l.746-.746A6.97 6.97 0 0 0 8 16a6.97 6.97 0 0 0 3.422-.892l.746.746a.5.5 0 0 0 .707-.708l-.601-.602A7.001 7.001 0 0 0 9 2.07V1h.5a.5.5 0 0 0 0-1h-3zm1.038 3.018a6.093 6.093 0 0 1 .924 0 6 6 0 1 1-.924 0zM0 3.5c0 .753.333 1.429.86 1.887A8.035 8.035 0 0 1 4.387 1.86 2.5 2.5 0 0 0 0 3.5zM13.5 1c-.753 0-1.429.333-1.887.86a8.035 8.035 0 0 1 3.527 3.527A2.5 2.5 0 0 0 13.5 1z" fill="white"></path> </svg>';
 
                                     containerEl.innerHTML = svgIconEl;
 
+                                    const $this = this;
+                                    containerEl.onclick = function(e) {
+                                        $this.hide();
+                                        window.App.Components.RunningTasks.show();
+                                    };
+
                                     return containerEl;
                                 }
                             }
                         },
+                    },
+                    RunningTasks: {
+                        el: function () {
+                            return document.getElementById('running-tasks');
+                        },
+                        show: function () {
+                            const $this = this;
+                            this.Components.CloseButton.initialize(
+                                function(e) {
+                                    $this.hide();
+                                    window.App.Components.AppHeader.Components.RunningTasksButton.show();
+                                }
+                            );
+                            this.el().style.display = 'block';
+                            this.Components.TaskList.fetch();
+                        },
+                        hide: function () {
+                            this.el().style.display = 'none';
+                        },
+                        Components: {
+                            CloseButton: {
+                                hasInitialized: false,
+                                el: function () {
+                                    return document.getElementById('close-running-tasks');
+                                },
+                                initialize: function (onclickFunc) {
+                                    if (this.hasInitialized === false) {
+                                        this.el().onclick = onclickFunc;
+                                        this.hasInitialized = true;
+                                    }
+                                }
+                            },
+                            TaskList: {
+                                api: "{{ url('/api/tasks/running') }}",
+                                getElId: function () {
+                                    return 'running-tasks-list';
+                                },
+                                el: function () {
+                                    return document.getElementById(this.getElId());
+                                },
+                                fetch: function () {
+                                    var xhr = new XMLHttpRequest();
+                                    xhr.withCredentials = true;
+
+                                    window.App.Components.FolderContentList.clearListItems(this.getElId());
+
+                                    const $this = this;
+                                    xhr.addEventListener("readystatechange", function() {
+                                        if(this.readyState === 4) {
+
+                                            try {
+                                                const tasksJson = JSON.parse(this.responseText);
+
+                                                // add tasks
+                                                for(var i = 0; i < tasksJson.length; i++) {
+                                                    const listItem = tasksJson[i];
+                                                    listItem.list_item_type = 'task';
+                                                    window.App.Components.FolderContentList.addListItem(
+                                                        listItem,
+                                                        null,
+                                                        $this.getElId(),
+                                                        true
+                                                    );
+                                                }
+
+                                            } catch (error) {
+                                                // TODO: notify could not fetch/list folder content ( unexpected invalid json response )
+                                            }
+                                        }
+                                    });
+
+                                    xhr.open("POST", this.api);
+                                    xhr.send();
+                                }
+                            }
+                        }
                     },
                     LoadingStatus: {
                         mainElId: function () {
@@ -931,8 +1063,11 @@
                                 create_new: "{{ url('/api/folders/create-new') }}"
                             },
                         },
-                        el: function () {
-                            return document.getElementById('folder-content-list');
+                        el: function (listId) {
+                            if (listId == null) {
+                                listId = 'folder-content-list';
+                            }
+                            return document.getElementById(listId);
                         },
                         show: function () {
                             this.el().style.display = 'block';
@@ -951,9 +1086,9 @@
 
                             return lastIndex;
                         },
-                        addListItem: function (listItemObj, orderPositionNumber = null) {
-                            const newListItem = this.Components.ListItem.createEl(listItemObj);
-                            const el = this.el();
+                        addListItem: function (listItemObj, orderPositionNumber = null, listId = null, showParentFolders = false) {
+                            const newListItem = this.Components.ListItem.createEl(listItemObj, showParentFolders);
+                            const el = this.el(listId);
 
                             if (orderPositionNumber === null) {
                                 el.appendChild(newListItem.listItemEl);
@@ -1010,8 +1145,8 @@
                             xhr.send();
 
                         },
-                        clearListItems: function () {
-                            this.el().innerHTML = '';
+                        clearListItems: function (listId = null) {
+                            this.el(listId).innerHTML = '';
                         },
                         Components: {
                             ListItem: {
@@ -1021,7 +1156,7 @@
                                 getEl: function (listItemObj) {
                                     return document.getElementById(this.getElId(listItemObj));
                                 },
-                                createEl: function (listItemObj) {
+                                createEl: function (listItemObj, showParentFolders = false) {
                                     const listItem = document.createElement('div');
                                     listItem.classList.add('list-item');
                                     listItem.classList.add(listItemObj.list_item_type);
@@ -1036,7 +1171,7 @@
                                     const listItemOptionsMenu = this.Components.ItemOptions.Components.Menu.createEl(listItemObj);
                                     const listItemTitle = this.Components.ItemTitle.createEl(listItemObj);
                                     const timeSpent = this.Components.TimeSpent.createEl(listItemObj);
-                                    //const parentFolders = this.Components.ParentFolders.createEl(listItemObj);
+
                                     const tags = this.Components.Tags.createEl(listItemObj);
 
                                     listItem.appendChild(infoOverlay);
@@ -1045,8 +1180,12 @@
                                     listItem.appendChild(listItemOptionsMenu);
                                     listItem.appendChild(listItemTitle);
                                     listItem.appendChild(timeSpent);
-                                    //TODO: only show parent folders in Item when viewing 'All tasks in folder and subfolders'
-                                    //listItem.appendChild(parentFolders);
+                                    //TODO: only show parent folders in specific views, because we already have breadcrumbs
+                                    if (showParentFolders) {
+                                        const parentFolders = this.Components.ParentFolders.createEl(listItemObj);
+                                        listItem.appendChild(parentFolders);
+                                    }
+
                                     listItem.appendChild(tags);
 
                                     return {
@@ -2297,13 +2436,13 @@
 
                                                 parentFolders.appendChild(parentFolderEl);
 
+                                                parentFolderEl.onclick = function (e) {
+                                                    window.App.Views.FolderContent.switchToFolder(parentFolder.id);
+                                                };
+
                                                 if (
                                                     (i+1) < listItemObj.parent_folders.length
                                                 ) {
-                                                    parentFolderEl.onclick = function (e) {
-                                                        window.App.Views.FolderContent.switchToFolder(parentFolder.id);
-                                                    };
-
                                                     const breadcrumbSeparator = this.createBreadcrumbSeparatorEl();
                                                     parentFolders.appendChild(breadcrumbSeparator);
                                                 } else {
@@ -2443,6 +2582,14 @@
     <body>
         <div id="app">
             <div id="app-header" class="app-header"></div>
+            <div class="running-tasks" id="running-tasks" style="display: none">
+                <div class="header">
+                    <svg style="color: rgb(31, 57, 66);" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-alarm" viewBox="0 0 16 16"> <path d="M8.5 5.5a.5.5 0 0 0-1 0v3.362l-1.429 2.38a.5.5 0 1 0 .858.515l1.5-2.5A.5.5 0 0 0 8.5 9V5.5z" fill="#1f3942"></path> <path d="M6.5 0a.5.5 0 0 0 0 1H7v1.07a7.001 7.001 0 0 0-3.273 12.474l-.602.602a.5.5 0 0 0 .707.708l.746-.746A6.97 6.97 0 0 0 8 16a6.97 6.97 0 0 0 3.422-.892l.746.746a.5.5 0 0 0 .707-.708l-.601-.602A7.001 7.001 0 0 0 9 2.07V1h.5a.5.5 0 0 0 0-1h-3zm1.038 3.018a6.093 6.093 0 0 1 .924 0 6 6 0 1 1-.924 0zM0 3.5c0 .753.333 1.429.86 1.887A8.035 8.035 0 0 1 4.387 1.86 2.5 2.5 0 0 0 0 3.5zM13.5 1c-.753 0-1.429.333-1.887.86a8.035 8.035 0 0 1 3.527 3.527A2.5 2.5 0 0 0 13.5 1z" fill="#1f3942"></path> </svg>
+                    <span>Currently working on..</span>
+                    <div id="close-running-tasks" class="close-btn">X</div>
+                </div>
+                <div class="list" id="running-tasks-list"></div>
+            </div>
             <div class="folder-breadcrumbs" id="folder-breadcrumbs" style="display: none"></div>
             <div class="loading-status" id="loading-status" style="display: none"></div>
             <div class="list" id="folder-content-list" style="display: none"></div>

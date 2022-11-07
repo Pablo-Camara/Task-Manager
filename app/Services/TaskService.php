@@ -58,37 +58,52 @@ class TaskService
             $tasks = $tasks->where('folder_id', '=', $folderId);
         }
 
-        $tasks = $tasks->get()->toArray();
+        $tasks = $tasks->get();
 
         foreach ($tasks as $key => $task) {
-            $tasks[$key]['parent_folders'] = $this->folderService->getParentFolders($task['folder_id']);
+            $tasks[$key] = $this->convertToListItemObj($task, false);
+        }
 
-            $totalTimeSpentToday = $this->taskTimeInteractionService->getTotalTimeSpentToday($task['id']);
-            $tasks[$key]['time_spent_today'] = $totalTimeSpentToday;
+        return $tasks->toArray();
+    }
 
-            $runningTimer = $this->taskTimeInteractionService->getRunningTimer($task['id']);
+
+    public function convertToListItemObj(Task $task, bool $newTask = true) {
+        $listItemObj = [
+            'id' => $task->id,
+            'title' => $task->name ?? $task->title,
+            'tags' => $task->tags,
+            'folder_id' => $task->folder_id,
+            'parent_folders' => $this->folderService->getParentFolders($task->folder_id)
+        ];
+
+        if ($newTask) {
+            $listItemObj = array_merge(
+                $listItemObj,
+                [
+                    'time_spent_today' => '00:00:00',
+                    'is_timer_running' => false,
+                ]
+            );
+        } else {
+            $totalTimeSpentToday = $this->taskTimeInteractionService->getTotalTimeSpentToday($task->id);
+
+            $runningTimer = $this->taskTimeInteractionService->getRunningTimer($task->id);
             $isTimerRunning = false;
 
             if (!empty($runningTimer)) {
                 $isTimerRunning = true;
             }
 
-            $tasks[$key]['is_timer_running'] = $isTimerRunning;
+            $listItemObj = array_merge(
+                $listItemObj,
+                [
+                    'time_spent_today' => $totalTimeSpentToday,
+                    'is_timer_running' => $isTimerRunning,
+                ]
+            );
         }
 
-        return $tasks;
-    }
-
-
-    public function convertToListItemObj(Task $task) {
-        return [
-            'id' => $task->id,
-            'title' => $task->name,
-            'tags' => $task->tags,
-            'folder_id' => $task->folder_id,
-            'parent_folders' => $this->folderService->getParentFolders($task->folder_id),
-            'time_spent_today' => '00:00:00',
-            'is_timer_running' => false,
-        ];
+        return $listItemObj;
     }
 }

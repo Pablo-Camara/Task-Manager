@@ -2,11 +2,8 @@
 
 namespace App\Services;
 
-use App\Helpers\Statuses\TaskStatuses;
-use App\Models\Task;
 use App\Models\TaskTimeInteraction;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
 
 class TaskTimeInteractionService
 {

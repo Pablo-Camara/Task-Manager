@@ -27,6 +27,7 @@ Route::post('/tasks/create-new', [TaskController::class, 'createNew']);
 Route::post('/tasks/move', [TaskController::class, 'changeParentFolder']);
 Route::post('/tasks/time-interaction/start', [TaskTimeInteractionController::class, 'startTimeInteraction']);
 Route::post('/tasks/time-interaction/end', [TaskTimeInteractionController::class, 'endTimeInteraction']);
+Route::post('/tasks/running', [TaskTimeInteractionController::class, 'runningTasks']);
 
 
 Route::post('/folders/edit-name', [FolderController::class, 'editName']);
