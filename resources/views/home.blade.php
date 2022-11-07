@@ -861,6 +861,9 @@
                             this.Components.CloseButton.initialize(
                                 function(e) {
                                     $this.hide();
+                                    window.App.Components.FolderContentList.clearListItems(
+                                        $this.Components.TaskList.getElId()
+                                    );
                                     window.App.Components.AppHeader.Components.RunningTasksButton.show();
                                 }
                             );
