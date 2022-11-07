@@ -853,6 +853,7 @@
                         },
                     },
                     RunningTasks: {
+                        visible: false,
                         el: function () {
                             return document.getElementById('running-tasks');
                         },
@@ -868,10 +869,18 @@
                                 }
                             );
                             this.el().style.display = 'block';
+                            this.visible = true;
                             this.Components.TaskList.fetch();
                         },
                         hide: function () {
                             this.el().style.display = 'none';
+                            this.visible = false;
+                        },
+                        refresh: function () {
+                            this.Components.TaskList.fetch();
+                        },
+                        isVisible: function () {
+                            return this.visible ? true : false;
                         },
                         Components: {
                             CloseButton: {
@@ -1756,6 +1765,10 @@
                                                     if ( this.status === 201 ) {
                                                         $this.Components.PlayButton.hide(listItemObj);
                                                         $this.Components.PauseButton.show(listItemObj);
+
+                                                        if ( window.App.Components.RunningTasks.isVisible() ) {
+                                                            window.App.Components.RunningTasks.refresh();
+                                                        }
                                                         return;
                                                     }
                                                 }
@@ -1786,6 +1799,10 @@
                                                     if ( this.status === 200 ) {
                                                         $this.Components.PauseButton.hide(listItemObj);
                                                         $this.Components.PlayButton.show(listItemObj);
+
+                                                        if ( window.App.Components.RunningTasks.isVisible() ) {
+                                                            window.App.Components.RunningTasks.refresh();
+                                                        }
                                                         return;
                                                     }
                                                 }
