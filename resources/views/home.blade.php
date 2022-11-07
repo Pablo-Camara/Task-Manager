@@ -510,6 +510,8 @@
                     move: "{{ __('Move to different folder') }}",
                     cancel: "{{ __('Cancel editing task name') }}",
                     delete: "{{ __('Delete task') }}",
+                    starting_timer: "{{ __('Starting the timer..') }}",
+                    stopping_timer: "{{ __('Stopping the timer..') }}",
                 },
                 folder: {
                     save: "{{ __('Save folder name') }}",
@@ -1687,9 +1689,21 @@
                                             var xhr = new XMLHttpRequest();
                                             xhr.withCredentials = true;
 
+                                            window.App.Components.FolderContentList
+                                            .Components.ListItem
+                                            .Components.InfoOverlay.showInfoMessage(
+                                                window.Translation.task.starting_timer,
+                                                listItemObj
+                                            );
+
                                             const $this = this;
                                             xhr.addEventListener("readystatechange", function() {
                                                 if(this.readyState === 4) {
+
+                                                    window.App.Components.FolderContentList
+                                                        .Components.ListItem
+                                                        .Components.InfoOverlay.hide(listItemObj);
+
                                                     if ( this.status === 201 ) {
                                                         $this.Components.PlayButton.hide(listItemObj);
                                                         $this.Components.PauseButton.show(listItemObj);
@@ -1705,9 +1719,21 @@
                                             var xhr = new XMLHttpRequest();
                                             xhr.withCredentials = true;
 
+                                            window.App.Components.FolderContentList
+                                            .Components.ListItem
+                                            .Components.InfoOverlay.showInfoMessage(
+                                                window.Translation.task.stopping_timer,
+                                                listItemObj
+                                            );
+
                                             const $this = this;
                                             xhr.addEventListener("readystatechange", function() {
                                                 if(this.readyState === 4) {
+
+                                                    window.App.Components.FolderContentList
+                                                        .Components.ListItem
+                                                        .Components.InfoOverlay.hide(listItemObj);
+
                                                     if ( this.status === 200 ) {
                                                         $this.Components.PauseButton.hide(listItemObj);
                                                         $this.Components.PlayButton.show(listItemObj);
