@@ -1487,18 +1487,26 @@
                                                     folderNameEl.innerHTML += folderSvgEl;
                                                     folderNameEl.appendChild(folderNameTextEl);
 
-                                                    const selectFolderContainerEl = document.createElement('div');
-                                                    selectFolderContainerEl.classList.add('select-folder-container');
+                                                    folderEl.appendChild(folderNameEl);
 
-                                                    const selectFolderLinkEl = this.Components.SelectFolderLink.createEl(
-                                                        parentListItemObj,
-                                                        listItemObjToAdd
+                                                    const isSameFolder = (
+                                                        (parentListItemObj.list_item_type === 'task' && parentListItemObj.folder_id === listItemObjToAdd.id)
+                                                        ||
+                                                        (parentListItemObj.list_item_type === 'folder' && parentListItemObj.parent_folder_id === listItemObjToAdd.id)
                                                     );
 
-                                                    selectFolderContainerEl.appendChild(selectFolderLinkEl);
+                                                    if (!isSameFolder) {
+                                                        const selectFolderContainerEl = document.createElement('div');
+                                                        selectFolderContainerEl.classList.add('select-folder-container');
 
-                                                    folderEl.appendChild(folderNameEl);
-                                                    folderEl.appendChild(selectFolderContainerEl);
+                                                        const selectFolderLinkEl = this.Components.SelectFolderLink.createEl(
+                                                            parentListItemObj,
+                                                            listItemObjToAdd
+                                                        );
+
+                                                        selectFolderContainerEl.appendChild(selectFolderLinkEl);
+                                                        folderEl.appendChild(selectFolderContainerEl);
+                                                    }
 
                                                     foldersListEl.appendChild(folderEl);
 

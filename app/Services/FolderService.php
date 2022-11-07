@@ -20,6 +20,7 @@ class FolderService
             [
                 'id',
                 DB::raw('name AS title'),
+                'parent_folder_id'
             ]
         )
         ->with(
@@ -38,14 +39,13 @@ class FolderService
             $folders = $folders->where('parent_folder_id', '=', $folderId);
         }
 
-        $folders = $folders->get()->toArray();
+        $folders = $folders->get();
 
         foreach ($folders as $key => $folder) {
-            $folders[$key]['parent_folders'] = $this->getParentFolders($folder['id'], true);
-            //$folders[$key]['time_spent_today'] = '00:00:00';
+            $folders[$key] = $this->convertToListItemObj($folder, true);
         }
 
-        return $folders;
+        return $folders->toArray();
     }
 
     public function getParentFolders($folderId, $excludeSelf = false, &$parentFolders = [], $firstSearch = true) {
@@ -91,7 +91,7 @@ class FolderService
     public function convertToListItemObj(Folder $folder) {
         return [
             'id' => $folder->id,
-            'title' => $folder->name,
+            'title' => $folder->name ?? $folder->title,
             'tags' => $folder->tags,
             'parent_folder_id' => $folder->parent_folder_id,
             'parent_folders' => $this->getParentFolders($folder->parent_folder_id)
