@@ -1706,6 +1706,7 @@
                                             start: "{{ url('/api/tasks/time-interaction/start') }}",
                                             end: "{{ url('/api/tasks/time-interaction/end') }}"
                                         },
+                                        runningTasks: [],
                                         getElId: function (listItemObj) {
                                             return 'time-interaction-' + listItemObj.id + '-' + listItemObj.list_item_type;
                                         },
@@ -1726,6 +1727,9 @@
                                                     listItemObj,
                                                     function (e) {
                                                         $this.startTimeInteraction(listItemObj);
+                                                    },
+                                                    function (listItemObjParam) {
+                                                        $this.addRunningTask(listItemObjParam);
                                                     }
                                                 );
                                                 const pauseButton = this.Components.PauseButton.createEl(
@@ -1742,6 +1746,41 @@
                                             }
 
                                             return timeInteraction;
+                                        },
+                                        addRunningTask: function (listItemObj) {
+                                            this.runningTasks.push(listItemObj);
+                                        },
+                                        visuallyStartTaskTimer: function (listItemObj, isMultiTaskingAllowed = false) {
+                                            if (false === isMultiTaskingAllowed) {
+                                                this.stopAllTaskTimers();
+                                            }
+
+                                            this.Components.PauseButton.show(listItemObj);
+                                            this.Components.PlayButton.hide(listItemObj);
+                                            this.addRunningTask(listItemObj);
+                                        },
+                                        visuallyStopTaskTimer: function (listItemObj) {
+                                            for(var i = 0; i < this.runningTasks.length; i++) {
+                                                const runningTask = this.runningTasks[i];
+                                                if(
+                                                    runningTask.list_item_type === listItemObj.list_item_type
+                                                    &&
+                                                    runningTask.id === listItemObj.id
+                                                ) {
+                                                    this.Components.PauseButton.hide(runningTask);
+                                                    this.Components.PlayButton.show(runningTask);
+                                                    this.runningTasks.splice(i, 1);
+                                                    return;
+                                                }
+                                            }
+                                        },
+                                        stopAllTaskTimers: function () {
+                                            for(var i = 0; i < this.runningTasks.length; i++) {
+                                                const runningTask = this.runningTasks[i];
+                                                this.Components.PauseButton.hide(runningTask);
+                                                this.Components.PlayButton.show(runningTask);
+                                            }
+                                            this.runningTasks = [];
                                         },
                                         startTimeInteraction: function (listItemObj) {
                                             var xhr = new XMLHttpRequest();
@@ -1763,8 +1802,7 @@
                                                         .Components.InfoOverlay.hide(listItemObj);
 
                                                     if ( this.status === 201 ) {
-                                                        $this.Components.PlayButton.hide(listItemObj);
-                                                        $this.Components.PauseButton.show(listItemObj);
+                                                        $this.visuallyStartTaskTimer(listItemObj);
 
                                                         if ( window.App.Components.RunningTasks.isVisible() ) {
                                                             window.App.Components.RunningTasks.refresh();
@@ -1797,8 +1835,7 @@
                                                         .Components.InfoOverlay.hide(listItemObj);
 
                                                     if ( this.status === 200 ) {
-                                                        $this.Components.PauseButton.hide(listItemObj);
-                                                        $this.Components.PlayButton.show(listItemObj);
+                                                        $this.visuallyStopTaskTimer(listItemObj);
 
                                                         if ( window.App.Components.RunningTasks.isVisible() ) {
                                                             window.App.Components.RunningTasks.refresh();
@@ -1833,7 +1870,7 @@
                                                 getEl: function (listItemObj) {
                                                     return document.getElementById(this.getElId(listItemObj));
                                                 },
-                                                createEl: function (listItemObj, onclickEvent) {
+                                                createEl: function (listItemObj, onclickEvent, callbackWhenTimerIsRunning) {
                                                     const playButton = document.createElement('div');
                                                     playButton.classList.add('play');
                                                     playButton.setAttribute(
@@ -1845,6 +1882,9 @@
                                                         listItemObj.is_timer_running == true
                                                     ) {
                                                         playButton.style.display = 'none';
+                                                        if (typeof callbackWhenTimerIsRunning === 'function') {
+                                                            callbackWhenTimerIsRunning(listItemObj);
+                                                        }
                                                     }
 
                                                     if (typeof onclickEvent !== 'undefined') {
