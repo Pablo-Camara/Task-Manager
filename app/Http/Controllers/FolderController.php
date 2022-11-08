@@ -104,12 +104,23 @@ class FolderController extends Controller
     }
 
     public function changeParentFolder(Request $request) {
+
+        $validationRules = [
+            'id' => 'exists:folders,id'
+        ];
+
+        if($request->input('new-parent-folder') !== 'null') {
+            $validationRules = array_merge(
+                $validationRules,
+                [
+                    'new-parent-folder' => 'exists:folders,id',
+                ]
+            );
+        }
+
         Validator::make(
             $request->all(),
-            [
-                'id' => 'exists:folders,id',
-                'new-parent-folder' => 'exists:folders,id',
-            ]
+            $validationRules
         )->validate();
 
         /**
@@ -119,7 +130,13 @@ class FolderController extends Controller
             $request->input('id')
         );
 
-        $folder->parent_folder_id = $request->input('new-parent-folder');
+        $newParentFolder = $request->input('new-parent-folder');
+
+        if ($newParentFolder === 'null') {
+            $newParentFolder = null;
+        }
+
+        $folder->parent_folder_id = $newParentFolder;
         $folderSaved = $folder->save();
 
         if ($folderSaved) {

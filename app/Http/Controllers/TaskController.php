@@ -121,12 +121,23 @@ class TaskController extends Controller
 
 
     public function changeParentFolder(Request $request) {
+
+        $validationRules = [
+            'id' => 'required|exists:tasks,id'
+        ];
+
+        if($request->input('new-parent-folder') !== 'null') {
+            $validationRules = array_merge(
+                $validationRules,
+                [
+                    'new-parent-folder' => 'required|exists:folders,id'
+                ]
+            );
+        }
+
         Validator::make(
             $request->all(),
-            [
-                'id' => 'required|exists:tasks,id',
-                'new-parent-folder' => 'required|exists:folders,id'
-            ]
+            $validationRules
         )->validate();
 
         /**
@@ -136,7 +147,13 @@ class TaskController extends Controller
             $request->input('id')
         );
 
-        $task->folder_id = $request->input('new-parent-folder');
+        $newParentFolder = $request->input('new-parent-folder');
+
+        if ($newParentFolder === 'null') {
+            $newParentFolder = null;
+        }
+
+        $task->folder_id = $newParentFolder;
         $taskSaved = $task->save();
 
         if ($taskSaved) {

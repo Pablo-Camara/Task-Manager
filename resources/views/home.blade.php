@@ -151,6 +151,19 @@
                 overflow: hidden;
             }
 
+            .select-current-folder-link {
+                display: block;
+                text-align: center;
+                text-decoration: underline;
+                cursor: pointer;
+                padding-top: 10px;
+                margin-top: 10px;
+                padding-bottom: 10px;
+                margin-bottom: 10px;
+                border-bottom: 1px dashed rgb(255 225 12 / 30%);
+                border-top: 1px dashed rgb(255 225 12 / 30%);
+            }
+
             .list .list-item .choose-folder-overlay,
             .list .list-item .info-overlay {
                 position: absolute;
@@ -1337,6 +1350,12 @@
                                         }
                                     },
                                     ChooseFolderOverlay: {
+                                        apis: {
+                                            move: {
+                                                task: "{{ url('/api/tasks/move') }}",
+                                                folder: "{{ url('/api/folders/move') }}"
+                                            }
+                                        },
                                         getElId: function (listItemObj) {
                                             return 'li-choose-folder-overlay-' + listItemObj.list_item_type + '-' + listItemObj.id;
                                         },
@@ -1362,12 +1381,14 @@
                                             const titleEl = this.Components.Title.createEl();
                                             const folderBreadcrumbsEl = this.Components.FolderBreadcrumbs.createEl(listItemObj);
                                             const loadingStatusEl = this.Components.LoadingStatus.createEl(listItemObj);
+                                            const selectCurrentFolderLink = this.Components.SelectCurrentFolderLink.createEl(listItemObj);
                                             const foldersList = this.Components.FoldersList.createEl(listItemObj);
 
                                             chooseFolderOverlayEl.appendChild(closeBtn);
                                             chooseFolderOverlayEl.appendChild(titleEl);
                                             chooseFolderOverlayEl.appendChild(folderBreadcrumbsEl);
                                             chooseFolderOverlayEl.appendChild(loadingStatusEl);
+                                            chooseFolderOverlayEl.appendChild(selectCurrentFolderLink);
                                             chooseFolderOverlayEl.appendChild(foldersList);
 
                                             return chooseFolderOverlayEl;
@@ -1407,6 +1428,45 @@
                                             listItemEl.classList.remove('choose-folder-overlay-visible');
 
                                             this.getEl(listItemObj).style.display = 'none';
+                                        },
+                                        moveListItem: function (listItemObj, selectedFolderId) {
+                                            var xhr = new XMLHttpRequest();
+                                            xhr.withCredentials = true;
+
+                                            window.App.Components.FolderContentList
+                                                .Components.ListItem
+                                                    .Components.InfoOverlay.showInfoMessage(
+                                                        'Moving item..', //TODO: translate
+                                                        listItemObj
+                                                    );
+
+                                            xhr.addEventListener("readystatechange", function() {
+                                                if(this.readyState === 4) {
+                                                    if (this.status === 200) {
+                                                        window.App.Components.FolderContentList
+                                                            .Components.ListItem
+                                                                .Components.ChooseFolderOverlay.hide(listItemObj);
+
+                                                        window.App.Components.FolderContentList
+                                                            .Components.ListItem
+                                                            .Components.InfoOverlay.showSuccessMessage(
+                                                                'Item moved successfully', //TODO: translate
+                                                                listItemObj,
+                                                                function (e) {
+                                                                    window.App.Components.FolderContentList
+                                                                        .Components.ListItem.remove(listItemObj);
+                                                                }
+                                                            );
+
+                                                    }
+                                                }
+                                            });
+
+                                            const api = this.apis.move[listItemObj.list_item_type];
+
+                                            xhr.open("POST", api + '?id=' + listItemObj.id + '&new-parent-folder=' + selectedFolderId);
+
+                                            xhr.send();
                                         },
                                         Components: {
                                             CloseButton: {
@@ -1462,6 +1522,44 @@
                                                     window.App.Components.LoadingStatus.hide(this.getElId(listItemObj));
                                                 },
                                             },
+                                            SelectCurrentFolderLink: {
+                                                getElId: function (listItemObj) {
+                                                    return 'select-curr-folder-link-' + listItemObj.list_item_type + '-' + listItemObj.id;
+                                                },
+                                                getEl: function (listItemObj) {
+                                                    return document.getElementById(this.getElId(listItemObj));
+                                                },
+                                                createEl: function (listItemObj) {
+                                                    const selectCurrentFolderLinkEl = document.createElement('div');
+                                                    selectCurrentFolderLinkEl.classList.add('select-current-folder-link');
+                                                    selectCurrentFolderLinkEl.style.display = 'none';
+
+                                                    selectCurrentFolderLinkEl.setAttribute(
+                                                        'id',
+                                                        this.getElId(listItemObj)
+                                                    );
+
+                                                    selectCurrentFolderLinkEl.innerText = 'Move to this folder'; //TODO: translate
+                                                    selectCurrentFolderLinkEl.onclick = function (e) {
+                                                        const selectedFolderId = window.App.Components.FolderContentList
+                                                                                    .Components.ListItem
+                                                                                        .Components.ChooseFolderOverlay
+                                                                                            .Components.FoldersList.getCurrentFolderId(listItemObj);
+
+                                                        window.App.Components.FolderContentList
+                                                                    .Components.ListItem
+                                                                        .Components.ChooseFolderOverlay.moveListItem(listItemObj, selectedFolderId);
+                                                    };
+
+                                                    return selectCurrentFolderLinkEl;
+                                                },
+                                                show: function (listItemObj) {
+                                                    this.getEl(listItemObj).style.display = 'block';
+                                                },
+                                                hide: function (listItemObj) {
+                                                    this.getEl(listItemObj).style.display = 'none';
+                                                },
+                                            },
                                             FoldersList: {
                                                 api: "{{ url('/api/folder-content/list-folders') }}",
                                                 getElId: function (listItemObj) {
@@ -1495,7 +1593,11 @@
                                                     this.getEl(listItemObj).setAttribute('data-current-folder-id', folderId);
                                                 },
                                                 getCurrentFolderId: function (listItemObj) {
-                                                    return this.getEl(listItemObj).getAttribute('data-current-folder-id');
+                                                    var currFolderId = this.getEl(listItemObj).getAttribute('data-current-folder-id');
+                                                    if (currFolderId === 'null') {
+                                                        currFolderId = null;
+                                                    }
+                                                    return currFolderId;
                                                 },
                                                 clearListItems: function (listItemObj) {
                                                     this.getEl(listItemObj).innerHTML = '';
@@ -1536,7 +1638,12 @@
 
                                                         const selectFolderLinkEl = this.Components.SelectFolderLink.createEl(
                                                             parentListItemObj,
-                                                            listItemObjToAdd
+                                                            listItemObjToAdd,
+                                                            function (listItemObj, selectedFolderListItemObj) {
+                                                                window.App.Components.FolderContentList
+                                                                    .Components.ListItem
+                                                                        .Components.ChooseFolderOverlay.moveListItem(listItemObj, selectedFolderListItemObj.id);
+                                                            }
                                                         );
 
                                                         selectFolderContainerEl.appendChild(selectFolderLinkEl);
@@ -1551,6 +1658,11 @@
                                                     xhr.withCredentials = true;
 
                                                     this.clearListItems(listItemObj);
+                                                    window.App.Components.FolderContentList
+                                                                    .Components.ListItem
+                                                                        .Components.ChooseFolderOverlay
+                                                                            .Components.SelectCurrentFolderLink.hide(listItemObj);
+
                                                     window.App.Components.FolderContentList
                                                         .Components.ListItem
                                                             .Components.ChooseFolderOverlay
@@ -1567,6 +1679,26 @@
                                                                 .Components.ListItem
                                                                     .Components.ChooseFolderOverlay
                                                                         .Components.LoadingStatus.hide(listItemObj);
+
+                                                            if (
+                                                                !(
+                                                                    listItemObj.list_item_type === 'task'
+                                                                    &&
+                                                                    listItemObj.folder_id == folderId
+                                                                )
+                                                                &&
+                                                                !(
+                                                                    listItemObj.list_item_type === 'folder'
+                                                                    &&
+                                                                    listItemObj.parent_folder_id == folderId
+                                                                )
+                                                            ) {
+                                                                window.App.Components.FolderContentList
+                                                                    .Components.ListItem
+                                                                        .Components.ChooseFolderOverlay
+                                                                            .Components.SelectCurrentFolderLink.show(listItemObj);
+                                                            }
+
                                                             try {
                                                                 const folderContentJson = JSON.parse(this.responseText);
                                                                 /* window.App.Components.FolderBreadcrumbs.showMainEl(
@@ -1631,9 +1763,9 @@
 
                                                     var urlStr = this.api;
                                                     const currentFolderId = this.getCurrentFolderId(listItemObj);
-                                                    if (currentFolderId != null && currentFolderId !== 'null') {
+                                                    if (currentFolderId != null) {
                                                         urlStr += '?folder=' + currentFolderId;
-                                                    } else if (folderId != null && folderId !== 'null') {
+                                                    } else if (folderId != null) {
                                                         urlStr += '?folder=' + folderId;
                                                     }
 
@@ -1643,55 +1775,18 @@
                                                 },
                                                 Components: {
                                                     SelectFolderLink: {
-                                                        api: {
-                                                            task: "{{ url('/api/tasks/move') }}",
-                                                            folder: "{{ url('/api/folders/move') }}"
-                                                        },
-                                                        createEl: function (listItemObj, selectedFolderListItemObj) {
+                                                        createEl: function (listItemObj, selectedFolderListItemObj, selectFolderFunc) {
                                                             const selectFolderLinkEl = document.createElement('div');
                                                             selectFolderLinkEl.classList.add('select-folder-link');
                                                             selectFolderLinkEl.innerText = 'select folder'; //TODO: translate
 
                                                             const $this = this;
                                                             selectFolderLinkEl.onclick = function (e) {
-
-                                                                var xhr = new XMLHttpRequest();
-                                                                xhr.withCredentials = true;
-
-                                                                window.App.Components.FolderContentList
-                                                                    .Components.ListItem
-                                                                        .Components.InfoOverlay.showInfoMessage(
-                                                                            'Moving item..', //TODO: translate
-                                                                            listItemObj
-                                                                        );
-
-                                                                xhr.addEventListener("readystatechange", function() {
-                                                                    if(this.readyState === 4) {
-                                                                        if (this.status === 200) {
-                                                                            window.App.Components.FolderContentList
-                                                                                .Components.ListItem
-                                                                                    .Components.ChooseFolderOverlay.hide(listItemObj);
-
-                                                                            window.App.Components.FolderContentList
-                                                                                .Components.ListItem
-                                                                                .Components.InfoOverlay.showSuccessMessage(
-                                                                                    'Item moved successfully', //TODO: translate
-                                                                                    listItemObj,
-                                                                                    function (e) {
-                                                                                        window.App.Components.FolderContentList
-                                                                                            .Components.ListItem.remove(listItemObj);
-                                                                                    }
-                                                                                );
-
-                                                                        }
-                                                                    }
-                                                                });
-
-                                                                const api = $this.api[listItemObj.list_item_type];
-
-                                                                xhr.open("POST", api + '?id=' + listItemObj.id + '&new-parent-folder=' + selectedFolderListItemObj.id);
-
-                                                                xhr.send();
+                                                                if (
+                                                                    typeof selectFolderFunc === 'function'
+                                                                ) {
+                                                                    selectFolderFunc(listItemObj, selectedFolderListItemObj);
+                                                                }
                                                             };
 
                                                             return selectFolderLinkEl;
