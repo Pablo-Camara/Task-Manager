@@ -66,6 +66,67 @@
                 border-bottom: 1px solid #1f3942;
             }
 
+            #login-form h1 {
+                color: #FFFFFF;
+                text-align: center;
+                margin-top: 10px;
+                margin-bottom: 0;
+            }
+
+            #login-form p {
+                color: white;
+                text-align: center;
+                margin-top: 4px;
+            }
+
+            #login-form .form {
+                max-width: 300px;
+                margin: auto;
+            }
+
+            #login-form .form .label {
+                color: white;
+                display: inline-block;
+                margin-right: 10px;
+                width: 100px;
+                text-align: right;
+            }
+
+            #login-form .form input[type="text"],
+            #login-form .form input[type="password"] {
+                -webkit-appearance:     none;
+                -moz-appearance:        none;
+                -ms-appearance:         none;
+                -o-appearance:          none;
+                appearance:             none;
+                border: none;
+                outline: none;
+            }
+
+            #login-form .form .buttons {
+                text-align: center;
+                margin-top: 10px;
+            }
+
+            #login-form .form .buttons .link-container {
+                margin-top: 20px;
+            }
+
+            #login-form .form .buttons .link-container a {
+                color: white;
+            }
+
+            .btn {
+                cursor: pointer;
+            }
+
+            .btn.btn-simple-white {
+                display: inline-block;
+                padding: 5px 15px;
+                background: white;
+                color: #002a3c;
+            }
+
             .running-tasks {
                 border-left: 2px solid white;
                 border-right: 2px solid white;
@@ -2820,6 +2881,32 @@
     <body>
         <div id="app">
             <div id="app-header" class="app-header"></div>
+
+            <div id="login-form">
+                <h1>Welcome</h1>
+                <p>Please login to continue</p>
+
+                <div class="form">
+                    <div>
+                        <div class="label">Username</div>
+                        <input type="text">
+                    </div>
+                    <div>
+                        <div class="label">Password</div>
+                        <input type="password">
+                    </div>
+
+                    <div class="buttons">
+                        <div class="btn btn-simple-white">Login</div>
+                        <div class="link-container">
+                            <a href="javascript:void(0);">
+                                I don't have an account yet
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="running-tasks" id="running-tasks" style="display: none">
                 <div class="header">
                     <svg style="color: rgb(31, 57, 66);" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-alarm" viewBox="0 0 16 16"> <path d="M8.5 5.5a.5.5 0 0 0-1 0v3.362l-1.429 2.38a.5.5 0 1 0 .858.515l1.5-2.5A.5.5 0 0 0 8.5 9V5.5z" fill="#1f3942"></path> <path d="M6.5 0a.5.5 0 0 0 0 1H7v1.07a7.001 7.001 0 0 0-3.273 12.474l-.602.602a.5.5 0 0 0 .707.708l.746-.746A6.97 6.97 0 0 0 8 16a6.97 6.97 0 0 0 3.422-.892l.746.746a.5.5 0 0 0 .707-.708l-.601-.602A7.001 7.001 0 0 0 9 2.07V1h.5a.5.5 0 0 0 0-1h-3zm1.038 3.018a6.093 6.093 0 0 1 .924 0 6 6 0 1 1-.924 0zM0 3.5c0 .753.333 1.429.86 1.887A8.035 8.035 0 0 1 4.387 1.86 2.5 2.5 0 0 0 0 3.5zM13.5 1c-.753 0-1.429.333-1.887.86a8.035 8.035 0 0 1 3.527 3.527A2.5 2.5 0 0 0 13.5 1z" fill="#1f3942"></path> </svg>
