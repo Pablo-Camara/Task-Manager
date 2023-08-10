@@ -66,6 +66,10 @@
                 border-bottom: 1px solid #1f3942;
             }
 
+            #login-form {
+                padding-bottom: 14px;
+            }
+
             #login-form h1 {
                 color: #FFFFFF;
                 text-align: center;
@@ -101,6 +105,12 @@
                 appearance:             none;
                 border: none;
                 outline: none;
+            }
+
+            #login-form .form .error-feedback {
+                text-align: center;
+                color: red;
+                margin-top: 8px;
             }
 
             #login-form .form .buttons {
@@ -2894,6 +2904,11 @@
                     <div>
                         <div class="label">Password</div>
                         <input type="password">
+                    </div>
+
+                    <div class="error-feedback"
+                        style="display: none">
+                        Wrong password and / or username.
                     </div>
 
                     <div class="buttons">
