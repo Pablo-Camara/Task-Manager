@@ -8,11 +8,20 @@ class HomeController extends Controller
 {
 
     public function index(Request $request) {
+        return view('home', [
+            'view' => 'Login'
+        ]);
+    }
+
+
+    /**
+
         $selectedFolderId = $request->input('folder', null);
 
         return view('home', [
             'view' => 'FolderContent',
             'folder' => $selectedFolderId
         ]);
-    }
+
+     */
 }

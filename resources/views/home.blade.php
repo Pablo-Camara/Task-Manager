@@ -543,6 +543,9 @@
             };
 
             window.App = {
+                Auth: {
+                    isLoggedIn: false
+                },
                 Helpers: {
                     getVerticalCenter: function (elementHeight, containerHeight) {
                         return (containerHeight/2)-(elementHeight/2);
@@ -627,10 +630,13 @@
 
 
                             el.appendChild(appTitle);
-                            el.appendChild(folderOptionsToggleButton);
-                            el.appendChild(folderOptionsMenu);
-                            el.appendChild(runningTasksButton);
-                            this.Components.FolderOptionsMenu.centerMainComponents();
+
+                            if (window.App.Auth.isLoggedIn) {
+                                el.appendChild(folderOptionsToggleButton);
+                                el.appendChild(folderOptionsMenu);
+                                el.appendChild(runningTasksButton);
+                                this.Components.FolderOptionsMenu.centerMainComponents();
+                            }
                         },
                         Components: {
                             AppTitle: {
@@ -2716,6 +2722,11 @@
                     },
                 },
                 Views: {
+                    Login: {
+                        show: function() {
+                            window.App.Components.AppHeader.show();
+                        }
+                    },
                     FolderContent: {
                         api: "{{ url('/api/folder-content/list') }}",
                         currentFolderId: null,
