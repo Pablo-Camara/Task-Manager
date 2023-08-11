@@ -615,7 +615,21 @@
 
             window.App = {
                 Auth: {
-                    isLoggedIn: false
+                    isLoggedIn: false,
+                    submitLoginForm: function () {
+                        const username = document.getElementById('login-username');
+                        const password = document.getElementById('login-password');
+
+                        if (
+                            false == (
+                                username.value.trim().length == 0
+                                ||
+                                password.value.trim().length == 0
+                            )
+                        ) {
+                            document.authForm.submit();
+                        }
+                    }
                 },
                 Helpers: {
                     getVerticalCenter: function (elementHeight, containerHeight) {
@@ -2897,29 +2911,40 @@
                 <p>Please login to continue</p>
 
                 <div class="form">
-                    <div>
-                        <div class="label">Username</div>
-                        <input type="text">
-                    </div>
-                    <div>
-                        <div class="label">Password</div>
-                        <input type="password">
-                    </div>
+                    <form
+                        method="POST"
+                        action="{{ route('loginAttempt') }}"
+                        name="authForm"
+                    >
+                        @csrf
+                        <div>
+                            <div class="label">Username</div>
+                            <input type="text" name="username" id="login-username">
+                        </div>
+                        <div>
+                            <div class="label">Password</div>
+                            <input type="password" name="password" id="login-password">
+                        </div>
 
-                    <div class="error-feedback"
-                        style="display: none">
-                        Wrong password and / or username.
-                    </div>
+                        @if(!empty($authErrorMsg))
+                            <div class="error-feedback">
+                                {{ $authErrorMsg }}
+                            </div>
+                        @endif
 
-                    <div class="buttons">
-                        <div class="btn btn-simple-white">Login</div>
-                        <div class="link-container">
-                            <a href="javascript:void(0);">
-                                I don't have an account yet
-                            </a>
+                        <div class="buttons">
+                            <div
+                                class="btn btn-simple-white"
+                                onclick="window.App.Auth.submitLoginForm();">
+                                Login
+                            </div>
+                            <div class="link-container">
+                                <a href="javascript:void(0);">
+                                    I don't have an account yet
+                                </a>
+                            </div>
                         </div>
                     </div>
-                </div>
             </div>
 
             <div class="running-tasks" id="running-tasks" style="display: none">

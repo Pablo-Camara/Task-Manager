@@ -1,0 +1,27 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+
+class AuthController extends Controller
+{
+    public function loginAttempt (Request $request) {
+        $username = $request->input('username');
+        $password = $request->input('password');
+
+        $user = User::where('username', '=', $username)->first();
+        if (empty($user) || !Hash::check($password, $user->password)) {
+            //@TODO: translation
+            $authErrorMsg = 'Wrong password and / or username.';
+
+            return view('home', [
+                'view' => 'Login',
+                'authErrorMsg' => $authErrorMsg
+            ]);
+        }
+
+    }
+}
