@@ -2917,6 +2917,7 @@
                         name="authForm"
                     >
                         @csrf
+                        <input type="submit" style="display: none" />
                         <div>
                             <div class="label">Username</div>
                             <input type="text" name="username" id="login-username">
