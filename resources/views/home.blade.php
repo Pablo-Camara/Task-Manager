@@ -2960,7 +2960,7 @@
 
             <div id="login-form" style="display: none">
                 <h1>Welcome</h1>
-                <p>Please login to continue</p>
+                <p id="login-form-notice">{{ $loginNotice }}</p>
 
                 <div class="form">
                     <form
@@ -2989,7 +2989,7 @@
                             <div
                                 class="btn btn-simple-white"
                                 onclick="window.App.Auth.submitLoginForm();">
-                                Login
+                                {{ $formBtnTxt }}
                             </div>
                             <div class="link-container">
                                 <a

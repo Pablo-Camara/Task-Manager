@@ -12,7 +12,9 @@ class AuthController extends Controller
 
     public function login () {
         return view('home', [
-            'view' => 'Login'
+            'view' => 'Login',
+            'loginNotice' => 'Please login to continue',
+            'formBtnTxt' => 'Login'
         ]);
     }
 
@@ -37,7 +39,9 @@ class AuthController extends Controller
 
     public function register () {
         return view('home', [
-            'view' => 'Register'
+            'view' => 'Register',
+            'loginNotice' => 'Create your username and password',
+            'formBtnTxt' => 'Create my account'
         ]);
     }
 }
