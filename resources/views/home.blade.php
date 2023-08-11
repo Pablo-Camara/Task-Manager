@@ -2805,12 +2805,64 @@
                             }
                         },
                     },
+                    AuthForm: {
+                        el: function () {
+                            return document.getElementById('login-form');
+                        },
+                        show: function (authType) {
+                            if (authType === 'login') {
+                                this.Components.RegisterLink.show();
+                                this.Components.LoginLink.hide();
+                            }
+
+                            if (authType === 'register') {
+                                this.Components.RegisterLink.hide();
+                                this.Components.LoginLink.show();
+                            }
+
+                            this.el().style.display = 'block';
+                        },
+                        hide: function () {
+                            this.el().style.display = 'none';
+                        },
+                        Components: {
+                            LoginLink: {
+                                el: function () {
+                                    return document.getElementById('auth-link-to-login');
+                                },
+                                show: function () {
+                                    this.el().style.display = 'block';
+                                },
+                                hide: function () {
+                                    this.el().style.display = 'none';
+                                }
+                            },
+                            RegisterLink: {
+                                el: function () {
+                                    return document.getElementById('auth-link-to-register');
+                                },
+                                show: function () {
+                                    this.el().style.display = 'block';
+                                },
+                                hide: function () {
+                                    this.el().style.display = 'none';
+                                }
+                            },
+                        }
+                    }
                 },
                 Views: {
                     Login: {
                         show: function() {
                             window.App.Components.AppHeader.show();
-                        }
+                            window.App.Components.AuthForm.show('login');
+                        },
+                    },
+                    Register: {
+                        show: function() {
+                            window.App.Components.AppHeader.show();
+                            window.App.Components.AuthForm.show('register');
+                        },
                     },
                     FolderContent: {
                         api: "{{ url('/api/folder-content/list') }}",
@@ -2906,7 +2958,7 @@
         <div id="app">
             <div id="app-header" class="app-header"></div>
 
-            <div id="login-form">
+            <div id="login-form" style="display: none">
                 <h1>Welcome</h1>
                 <p>Please login to continue</p>
 
@@ -2940,8 +2992,17 @@
                                 Login
                             </div>
                             <div class="link-container">
-                                <a href="javascript:void(0);">
+                                <a
+                                    href="{{ route('register') }}"
+                                    id="auth-link-to-register"
+                                    style="display: none">
                                     I don't have an account yet
+                                </a>
+                                <a
+                                    href="{{ route('login') }}"
+                                    id="auth-link-to-login"
+                                    style="display: none">
+                                    I already have an account
                                 </a>
                             </div>
                         </div>
