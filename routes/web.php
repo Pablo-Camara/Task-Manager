@@ -15,7 +15,17 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', [HomeController::class, 'index']);
+Route::middleware(['auth'])->group(function () {
+    Route::get('/', [HomeController::class, 'index'])
+        ->name('home');
+});
 
-Route::post('/', [AuthController::class, 'loginAttempt'])
-    ->name('loginAttempt');
+Route::middleware(['guest'])->group(function () {
+    Route::get('/login', [AuthController::class, 'login'])
+        ->name('login');
+
+    Route::post('/login', [AuthController::class, 'loginAttempt'])
+        ->name('loginAttempt');
+});
+
+
