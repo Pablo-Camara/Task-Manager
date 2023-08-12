@@ -30,6 +30,7 @@ class FolderContentController extends Controller
 
 
     public function list(Request $request) {
+        //@TODO: Fetch folders from logged in user only
         $selectedFolderId = $request->input('folder', null);
 
         $tasks = $this->taskService->search($selectedFolderId);

@@ -2960,12 +2960,13 @@
 
             <div id="login-form" style="display: none">
                 <h1>Welcome</h1>
-                <p id="login-form-notice">{{ $loginNotice }}</p>
-
+                @if (!empty($loginNotice))
+                    <p id="login-form-notice">{{ $loginNotice }}</p>
+                @endif
                 <div class="form">
                     <form
                         method="POST"
-                        action="{{ route('loginAttempt') }}"
+                        action="{{ $formAction ?? null }}"
                         name="authForm"
                     >
                         @csrf
@@ -2989,7 +2990,7 @@
                             <div
                                 class="btn btn-simple-white"
                                 onclick="window.App.Auth.submitLoginForm();">
-                                {{ $formBtnTxt }}
+                                {{ $formBtnTxt ?? null }}
                             </div>
                             <div class="link-container">
                                 <a

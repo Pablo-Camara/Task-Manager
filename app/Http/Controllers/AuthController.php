@@ -14,7 +14,8 @@ class AuthController extends Controller
         return view('home', [
             'view' => 'Login',
             'loginNotice' => 'Please login to continue',
-            'formBtnTxt' => 'Login'
+            'formBtnTxt' => 'Login',
+            'formAction' => route('loginAttempt')
         ]);
     }
 
@@ -37,11 +38,67 @@ class AuthController extends Controller
         return redirect()->route('home');
     }
 
-    public function register () {
-        return view('home', [
+    private function registerViewData() {
+        return [
             'view' => 'Register',
             'loginNotice' => 'Create your username and password',
-            'formBtnTxt' => 'Create my account'
+            'formBtnTxt' => 'Create my account',
+            'formAction' => route('registerAttempt')
+        ];
+    }
+    public function register () {
+        return view('home', $this->registerViewData());
+    }
+
+    public function registerAttempt (Request $request) {
+        $username = $request->input('username');
+        $password = $request->input('password');
+
+        //@TODO: use validator in the future
+        if (empty(trim($username))) {
+            //@TODO: translation
+            $authErrorMsg = 'Must create an username.';
+
+            return view('home', array_merge(
+                $this->registerViewData(),
+                [
+                    'authErrorMsg' => $authErrorMsg
+                ]
+            ));
+        }
+
+        if (empty(trim($password))) {
+            //@TODO: translation
+            $authErrorMsg = 'Must create a password.';
+
+            return view('home', array_merge(
+                $this->registerViewData(),
+                [
+                    'authErrorMsg' => $authErrorMsg
+                ]
+            ));
+        }
+
+        $user = User::where('username', '=', $username)->first();
+        if (!empty($user)) {
+            //@TODO: translation
+            $authErrorMsg = 'Username already in use.';
+
+            return view('home', array_merge(
+                $this->registerViewData(),
+                [
+                    'authErrorMsg' => $authErrorMsg
+                ]
+            ));
+        }
+
+        $newUser = new User([
+            'username' => $username,
+            'password' => Hash::make($password)
         ]);
+        $newUser->save();
+
+        Auth::login($newUser);
+        return redirect()->route('home');
     }
 }
