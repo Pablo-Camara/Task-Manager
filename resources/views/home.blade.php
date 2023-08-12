@@ -615,7 +615,7 @@
 
             window.App = {
                 Auth: {
-                    isLoggedIn: false,
+                    isLoggedIn: @json(!empty(Auth::user())),
                     submitLoginForm: function () {
                         const username = document.getElementById('login-username');
                         const password = document.getElementById('login-password');
