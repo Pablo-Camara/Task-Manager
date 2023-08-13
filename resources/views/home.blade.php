@@ -584,6 +584,11 @@
         </style>
 
         <script>
+            var csrfToken = "{{ csrf_token() }}";
+            // Use the 'csrfToken' in your XMLHttpRequest code
+        </script>
+
+        <script>
 
             window.Translation = {
                 opening_folder: "{{ __('Opening folder.. please wait') }}",
@@ -1057,6 +1062,7 @@
                                     });
 
                                     xhr.open("POST", this.api);
+                                    xhr.setRequestHeader('X-CSRF-TOKEN', csrfToken);
                                     xhr.send();
                                 }
                             }
@@ -1279,6 +1285,7 @@
                             }
 
                             xhr.open("POST", urlStr);
+                            xhr.setRequestHeader('X-CSRF-TOKEN', csrfToken);
                             xhr.send();
 
                         },
@@ -1556,7 +1563,7 @@
                                             const api = this.apis.move[listItemObj.list_item_type];
 
                                             xhr.open("POST", api + '?id=' + listItemObj.id + '&new-parent-folder=' + selectedFolderId);
-
+                                            xhr.setRequestHeader('X-CSRF-TOKEN', csrfToken);
                                             xhr.send();
                                         },
                                         Components: {
@@ -1861,7 +1868,7 @@
                                                     }
 
                                                     xhr.open("POST", urlStr);
-
+                                                    xhr.setRequestHeader('X-CSRF-TOKEN', csrfToken);
                                                     xhr.send();
                                                 },
                                                 Components: {
@@ -1999,6 +2006,7 @@
                                             });
 
                                             xhr.open("POST", this.apis.start + '?task_id=' + listItemObj.id);
+                                            xhr.setRequestHeader('X-CSRF-TOKEN', csrfToken);
                                             xhr.send();
                                         },
                                         endTimeInteraction: function (listItemObj) {
@@ -2032,6 +2040,7 @@
                                             });
 
                                             xhr.open("POST", this.apis.end + '?task_id=' + listItemObj.id);
+                                            xhr.setRequestHeader('X-CSRF-TOKEN', csrfToken);
                                             xhr.send();
                                         },
                                         centerTimeInteractionEl: function (listItemObj) {
@@ -2634,6 +2643,7 @@
                                                 name: newTitle
                                             };
 
+                                            xhr.setRequestHeader('X-CSRF-TOKEN', csrfToken);
                                             xhr.send(JSON.stringify(reqObj));
 
                                         }
@@ -2720,7 +2730,7 @@
                                                 id: listItemObj.id,
                                                 new_status_id: new_status_id
                                             };
-
+                                            xhr.setRequestHeader('X-CSRF-TOKEN', csrfToken);
                                             xhr.send(JSON.stringify(reqObj));
                                         }
                                     },
@@ -2946,7 +2956,7 @@
                             }
 
                             xhr.open("POST", urlStr);
-
+                            xhr.setRequestHeader('X-CSRF-TOKEN', csrfToken);
                             xhr.send();
                         }
                     }
