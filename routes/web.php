@@ -23,6 +23,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/', [HomeController::class, 'index'])
         ->name('home');
 
+    Route::post('/logout', [AuthController::class, 'logoutAttempt'])
+        ->name('logoutAttempt');
+
 
     Route::prefix('api')->group(function () {
         Route::post('/folder-content/list', [FolderContentController::class, 'list']);

@@ -38,6 +38,10 @@ class AuthController extends Controller
         return redirect()->route('home');
     }
 
+    public function logoutAttempt () {
+        Auth::logout();
+    }
+
     private function registerViewData() {
         return [
             'view' => 'Register',

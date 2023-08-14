@@ -634,6 +634,19 @@
                         ) {
                             document.authForm.submit();
                         }
+                    },
+                    logout: function () {
+                        var xhr = new XMLHttpRequest();
+                        xhr.withCredentials = true;
+                        xhr.addEventListener("readystatechange", function() {
+                            if(this.readyState === 4) {
+                                location.reload();
+                            }
+                        });
+
+                        xhr.open("POST", '/logout');
+                        xhr.setRequestHeader('X-CSRF-TOKEN', csrfToken);
+                        xhr.send();
                     }
                 },
                 Helpers: {
@@ -859,8 +872,21 @@
                                                 folderOptionsMenuEl.style.display = 'none';
                                             };
 
+                                            const createLogoutMenuItemEl = this.createMenuItemEl(
+                                                'Logout',
+                                                null,
+                                                '',
+                                                ''
+                                            );
+
+                                            createLogoutMenuItemEl.onclick = function (e) {
+                                                window.App.Auth.logout();
+                                                folderOptionsMenuEl.style.display = 'none';
+                                            };
+
                                             folderOptionsMenuEl.appendChild(createNewTaskMenuItemEl);
                                             folderOptionsMenuEl.appendChild(createNewFolderMenuItemEl);
+                                            folderOptionsMenuEl.appendChild(createLogoutMenuItemEl);
 
                                         },
                                         createMenuItemEl: function (innerText, colorClass, activeSvgIcon, hoverSvgIcon) {
