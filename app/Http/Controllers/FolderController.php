@@ -6,6 +6,7 @@ use App\Models\Folder;
 use App\Services\FolderService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
@@ -96,6 +97,9 @@ class FolderController extends Controller
         if (!empty($currentFolderId)) {
             $newFolder->parent_folder_id = $currentFolderId;
         }
+
+        $user = Auth::user();
+        $newFolder->user_id = $user->id;
         $newFolder->save();
 
         return new Response(
