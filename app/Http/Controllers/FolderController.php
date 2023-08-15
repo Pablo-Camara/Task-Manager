@@ -74,6 +74,11 @@ class FolderController extends Controller
             $request->input('id')
         );
 
+        $user = Auth::user();
+        if ($folder->user_id !== $user->id) {
+            abort(403);
+        }
+
         $folder->folder_status_id = $request->input('new_status_id');
         $folderSaved = $folder->save();
 
