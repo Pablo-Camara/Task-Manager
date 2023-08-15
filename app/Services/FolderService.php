@@ -46,13 +46,13 @@ class FolderService
         $folders = $folders->get();
 
         foreach ($folders as $key => $folder) {
-            $folders[$key] = $this->convertToListItemObj($folder, true);
+            $folders[$key] = $this->convertToListItemObj($folder);
         }
 
         return $folders->toArray();
     }
 
-    public function getParentFolders($folderId, $excludeSelf = false, &$parentFolders = [], $firstSearch = true) {
+    public function getParentFolders($folderId, $userId, $excludeSelf = false, &$parentFolders = [], $firstSearch = true) {
 
         $folder = null;
 
@@ -61,6 +61,10 @@ class FolderService
         }
 
         if (!empty($folder)) {
+            if ($folder->user_id !== $userId) {
+                return $parentFolders;
+            }
+
             if ($firstSearch == true) {
                 if ($excludeSelf != true) {
                     array_push(
@@ -83,7 +87,7 @@ class FolderService
 
 
             if ($folder->hasParentFolder()) {
-                $this->getParentFolders($folder->parent_folder_id, $excludeSelf, $parentFolders, false);
+                $this->getParentFolders($folder->parent_folder_id, $userId, $excludeSelf, $parentFolders, false);
             } else {
                 return $parentFolders;
             }
@@ -98,7 +102,7 @@ class FolderService
             'title' => $folder->name ?? $folder->title,
             'tags' => $folder->tags,
             'parent_folder_id' => $folder->parent_folder_id,
-            'parent_folders' => $this->getParentFolders($folder->parent_folder_id)
+            'parent_folders' => $this->getParentFolders($folder->parent_folder_id, $folder->user_id)
         ];
     }
 }

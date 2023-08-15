@@ -40,7 +40,7 @@ class FolderContentController extends Controller
 
         return new Response([
             'current_folder_id' => $selectedFolderId,
-            'parent_folders' => $this->folderService->getParentFolders($selectedFolderId),
+            'parent_folders' => $this->folderService->getParentFolders($selectedFolderId, $user->id),
             'tasks' => $tasks,
             'folders' => $folders,
         ]);
@@ -49,10 +49,11 @@ class FolderContentController extends Controller
 
     public function listFolders(Request $request) {
         $selectedFolderId = $request->input('folder', null);
-        $folders = $this->folderService->search($selectedFolderId);
+        $user = Auth::user();
+        $folders = $this->folderService->search($selectedFolderId, $user->id);
 
         return new Response([
-            'parent_folders' => $this->folderService->getParentFolders($selectedFolderId),
+            'parent_folders' => $this->folderService->getParentFolders($selectedFolderId, $user->id),
             'folders' => $folders,
         ]);
     }
