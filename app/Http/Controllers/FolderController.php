@@ -38,6 +38,12 @@ class FolderController extends Controller
             ]);
         }
 
+        $user = Auth::user();
+
+        if ($folder->user_id !== $user->id) {
+            abort(403);
+        }
+
         $folder->name = $request->input('name');
         $folderSaved = $folder->save();
 
