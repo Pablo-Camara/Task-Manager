@@ -33,6 +33,11 @@ class TaskController extends Controller
             $request->input('id')
         );
 
+        $user = Auth::user();
+        if ($task->user_id !== $user->id) {
+            abort(403);
+        }
+
         $task->name = $request->input('name');
         $taskSaved = $task->save();
 
