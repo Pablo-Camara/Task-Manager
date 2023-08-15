@@ -92,7 +92,7 @@
                 color: white;
                 display: inline-block;
                 margin-right: 10px;
-                width: 100px;
+                width: 80px;
                 text-align: right;
             }
 

@@ -11,12 +11,7 @@ class AuthController extends Controller
 {
 
     public function login () {
-        return view('home', [
-            'view' => 'Login',
-            'loginNotice' => 'Please login to continue',
-            'formBtnTxt' => 'Login',
-            'formAction' => route('loginAttempt')
-        ]);
+        return view('home', $this->loginViewData());
     }
 
     public function loginAttempt (Request $request) {
@@ -28,10 +23,12 @@ class AuthController extends Controller
             //@TODO: translation
             $authErrorMsg = 'Wrong password and / or username.';
 
-            return view('home', [
-                'view' => 'Login',
-                'authErrorMsg' => $authErrorMsg
-            ]);
+            return view('home', array_merge(
+                $this->loginViewData(),
+                [
+                    'authErrorMsg' => $authErrorMsg
+                ]
+            ));
         }
 
         Auth::login($user);
@@ -40,6 +37,15 @@ class AuthController extends Controller
 
     public function logoutAttempt () {
         Auth::logout();
+    }
+
+    private function loginViewData() {
+        return [
+            'view' => 'Login',
+            'loginNotice' => 'Please login to continue',
+            'formBtnTxt' => 'Login',
+            'formAction' => route('loginAttempt')
+        ];
     }
 
     private function registerViewData() {
