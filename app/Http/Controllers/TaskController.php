@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Folder;
 use App\Models\Task;
 use App\Services\TaskService;
 use App\Services\TaskTimeInteractionService;
@@ -159,10 +160,22 @@ class TaskController extends Controller
             $request->input('id')
         );
 
+        $user = Auth::user();
+        if ($task->user_id !== $user->id) {
+            abort(403);
+        }
+
         $newParentFolder = $request->input('new-parent-folder');
 
         if ($newParentFolder === 'null') {
             $newParentFolder = null;
+        }
+
+        if (!empty($newParentFolder)) {
+            $newParentFolderInDb = Folder::find($newParentFolder);
+            if ($newParentFolderInDb->user_id !== $user->id) {
+                abort(403);
+            }
         }
 
         $task->folder_id = $newParentFolder;
