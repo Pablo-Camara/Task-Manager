@@ -145,10 +145,28 @@ class FolderController extends Controller
             $request->input('id')
         );
 
+        $user = Auth::user();
+        if ($folder->user_id !== $user->id) {
+            abort(403);
+        }
+
         $newParentFolder = $request->input('new-parent-folder');
 
         if ($newParentFolder === 'null') {
             $newParentFolder = null;
+        }
+
+        if (!empty($newParentFolder)) {
+            /**
+             * @var Folder
+             */
+            $newParentFolderInDb = Folder::find(
+                $newParentFolder
+            );
+
+            if ($newParentFolderInDb->user_id !== $user->id) {
+                abort(403);
+            }
         }
 
         $folder->parent_folder_id = $newParentFolder;
