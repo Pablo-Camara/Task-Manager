@@ -78,7 +78,7 @@ class TaskService
             'title' => $task->name ?? $task->title,
             'tags' => $task->tags,
             'folder_id' => $task->folder_id,
-            'parent_folders' => $this->folderService->getParentFolders($task->folder_id)
+            'parent_folders' => $this->folderService->getParentFolders($task->folder_id, $task->user_id)
         ];
 
         if ($newTask) {
