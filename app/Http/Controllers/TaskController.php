@@ -7,6 +7,7 @@ use App\Services\TaskService;
 use App\Services\TaskTimeInteractionService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
@@ -111,7 +112,8 @@ class TaskController extends Controller
         if (!empty($currentFolderId)) {
             $newTask->folder_id = $currentFolderId;
         }
-
+        $user = Auth::user();
+        $newTask->user_id = $user->id;
         $newTask->save();
 
         return new Response(

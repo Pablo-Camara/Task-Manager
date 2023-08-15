@@ -35,7 +35,7 @@ class FolderContentController extends Controller
         $selectedFolderId = $request->input('folder', null);
         $user = Auth::user();
 
-        $tasks = $this->taskService->search($selectedFolderId);
+        $tasks = $this->taskService->search($selectedFolderId, $user->id);
         $folders = $this->folderService->search($selectedFolderId, $user->id);
 
         return new Response([

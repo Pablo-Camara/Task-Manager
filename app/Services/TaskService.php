@@ -34,7 +34,7 @@ class TaskService
      * @param $folderId
      * @return array
      */
-    public function search($folderId = null) {
+    public function search($folderId = null, $userId = null) {
         $tasks = Task::select(
             [
                 'id',
@@ -49,6 +49,10 @@ class TaskService
                 }
             ]
         );
+
+        if (!empty($userId)) {
+            $tasks = $tasks->where('user_id', '=', $userId);
+        }
 
         $tasks = $tasks->where('task_status_id', '=', TaskStatuses::ACTIVE);
 

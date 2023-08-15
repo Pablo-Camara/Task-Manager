@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('name', 2048);
 
             $table->unsignedBigInteger('folder_id')->nullable();
+            $table->unsignedBigInteger('user_id')->nullable();
 
             $table->unsignedBigInteger('task_status_id')->default(1);
 
@@ -25,6 +26,7 @@ return new class extends Migration
             $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
 
             $table->foreign('folder_id')->references('id')->on('folders')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('task_status_id')->references('id')->on('task_statuses')->onDelete('cascade');
         });
     }
