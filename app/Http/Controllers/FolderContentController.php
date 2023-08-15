@@ -6,6 +6,7 @@ use App\Services\FolderService;
 use App\Services\TaskService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 
 class FolderContentController extends Controller
 {
@@ -32,9 +33,10 @@ class FolderContentController extends Controller
     public function list(Request $request) {
         //@TODO: Fetch folders from logged in user only
         $selectedFolderId = $request->input('folder', null);
+        $user = Auth::user();
 
         $tasks = $this->taskService->search($selectedFolderId);
-        $folders = $this->folderService->search($selectedFolderId);
+        $folders = $this->folderService->search($selectedFolderId, $user->id);
 
         return new Response([
             'current_folder_id' => $selectedFolderId,

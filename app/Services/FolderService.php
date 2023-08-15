@@ -15,7 +15,7 @@ class FolderService
      * @param $folderId
      * @return array
      */
-    public function search($folderId = null) {
+    public function search($folderId = null, $userId = null) {
         $folders = Folder::select(
             [
                 'id',
@@ -30,6 +30,10 @@ class FolderService
                 }
             ]
         );
+
+        if (!empty($userId)) {
+            $folders = $folders->where('user_id', '=', $userId);
+        }
 
         $folders = $folders->where('folder_status_id', '=', FolderStatuses::ACTIVE);
 
