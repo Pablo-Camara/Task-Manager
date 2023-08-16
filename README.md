@@ -15,7 +15,7 @@ I decided to make it open source to share a bit of my way of doing things.
 - Play/Pause button to record amount of time working on a task
 - Allow marking tasks as different status (completed, on hold, deprecated, etc..)
 
-More features and improvements will be coming in the future.
+More features and improvements could be coming in the future.
 ### Contributing
 
 If you enjoy this piece of art, feel free to get involved.
